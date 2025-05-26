@@ -1,12 +1,11 @@
-# React + Vite
+# Dự Án Gửi Thông Tin Giáo Vụ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Giới Thiệu
+Dự án này được phát triển nhằm mục đích quản lý và gửi thông tin giáo vụ một cách hiệu quả. Người dùng có thể nhập thông tin giáo viên, lớp học và các thông tin liên quan khác, sau đó gửi chúng đến các bên liên quan.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tính Năng
+- Quản lý sinh viên
+- QUản lý giảng viên
+- ...
+## Một vài yêu cầu nhỏ
+- Đây là bản quyền sáng tạo của bố mày và cấm không được copy khi chưa có quyền của tác giả.
