@@ -5,11 +5,19 @@ import Admin from "../components/pages/Admin";
 import Lecturer from "../components/pages/Lecturer";
 import Student from "../components/pages/Student";
 import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
         <Route
           path="/admin"
           element={
@@ -21,7 +29,7 @@ function AppRoutes() {
         <Route
           path="/giang-vien"
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["lecturer"]}>
               <Lecturer />
             </ProtectedRoute>
           }
@@ -29,7 +37,7 @@ function AppRoutes() {
         <Route
           path="/sinh-vien"
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["student"]}>
               <Student />
             </ProtectedRoute>
           }

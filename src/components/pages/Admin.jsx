@@ -1,20 +1,9 @@
 import React, { useState } from "react";
-import {
-  Layout,
-  Menu,
-  Avatar,
-  Button,
-  Drawer,
-  Grid,
-  Dropdown,
-  Space,
-} from "antd";
+import { useNavigate } from "react-router-dom";
+import { Layout, Menu, Avatar, Button, Drawer, Grid, Dropdown } from "antd";
 import {
   UserOutlined,
   TeamOutlined,
-  DollarOutlined,
-  ApartmentOutlined,
-  LockOutlined,
   LogoutOutlined,
   MenuUnfoldOutlined,
   HomeOutlined,
@@ -22,23 +11,34 @@ import {
   NotificationOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
-
+import { toast } from "react-toastify";
+import Student from "../Admin/Student/Student";
+import Group from "../Admin/Group/Group";
+import Department from "../Admin/Department/Department";
+import ClassRoom from "../Admin/ClassRoom/ClassRoom";
+import { handleLogout } from "@/controller/AuthController";
+import Account from "../Admin/Account/Account";
 const AdminDashboard = () => {
-  const [selectedTab, setSelectedTab] = useState("profile");
+  const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
-
+  const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
-  const handleLogout = () => {
-    alert("Đang phát triển");
+  const handleLogoutUser = () => {
+    handleLogout(navigate);
+    toast.success("Đăng xuất thành công");
   };
 
   const items = [
     { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
+    {
+      key: "account",
+      icon: <UserOutlined />,
+      label: "Quản lý tài khoản",
+    },
     {
       key: "department",
       icon: <img src="/img/menu/department.png" alt="icon" width={16} />,
@@ -72,16 +72,16 @@ const AdminDashboard = () => {
     },
     {
       key: "student",
-      icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
+      icon: <img src="/img/menu/student.png" alt="icon" width={16} />,
       label: "Quản lý  sinh viên",
     },
     {
       key: "lecturer",
-      icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
-      label: "Quản lý  sinh viên",
+      icon: <img src="/img/menu/lecturer.png" alt="icon" width={16} />,
+      label: "Quản lý  giảng viên",
     },
     {
-      key: "lecturer",
+      key: "registerClass",
       icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
       label: "Quản lý  đăng ký lớp học phần",
       title: "Quản lý đăng ký lớp học phần",
@@ -96,13 +96,12 @@ const AdminDashboard = () => {
     {
       key: "settings",
       label: "Cài đặt",
-      icon: <LockOutlined />,
+      icon: <SettingOutlined />,
     },
     {
       key: "logout",
       label: "Đăng xuất",
       icon: <LogoutOutlined />,
-      onClick: handleLogout, // Gọi hàm logout khi chọn
     },
   ];
 
@@ -115,7 +114,7 @@ const AdminDashboard = () => {
         setDrawerVisible(false);
       }}
       items={items}
-      style={{ height: "100%", borderRight: 0 }}
+      style={{ height: "100%", borderRight: "1px solid #e5e7eb" }}
     />
   );
 
@@ -146,15 +145,15 @@ const AdminDashboard = () => {
             <Menu
               items={menuItems}
               onClick={(e) => {
-                if (e.key === "logout") handleLogout();
+                if (e.key === "logout") handleLogoutUser();
               }}
             />
           }
           trigger={["click"]}
         >
-          <Space style={{ cursor: "pointer" }}>
+          <div style={{ cursor: "pointer" }}>
             <Avatar icon={<UserOutlined />} />
-          </Space>
+          </div>
         </Dropdown>
       </Header>
 
@@ -183,7 +182,13 @@ const AdminDashboard = () => {
             height: "100%",
             overflow: "auto",
           }}
-        ></Content>
+        >
+          {selectedTab === "student" && <Student />}
+          {selectedTab === "group" && <Group />}
+          {selectedTab === "department" && <Department />}
+          {selectedTab === "class" && <ClassRoom />}
+          {selectedTab === "account" && <Account />}
+        </Content>
       </Layout>
     </Layout>
   );
