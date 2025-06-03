@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
+import { Pagination } from "antd";
 import {
   Card,
   CardHeader,
@@ -52,40 +52,85 @@ import {
 } from "../../../controller/AccountController";
 import useDebounce from "../../../hooks/useDebounce";
 import AddAccount from "./AddAccount";
-
+import DetailAccount from "./DetailAccount";
 import { toast } from "react-toastify";
 const Account = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRole, setSelectedRole] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openDetailModal, setOpenDetailModal] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0,
+  });
+
   const openEditModal = (user) => {
     setSelectedUser(user);
     setOpenModal(true);
   };
-  const fetchListUser = async () => {
+
+  const openDetail = (userId) => {
+    setSelectedUser(userId);
+    setOpenDetailModal(true);
+  };
+
+  const fetchListUser = async (page = 1) => {
     try {
       let response;
-      if (debouncedSearchTerm.trim() === "") {
-        response = await handleListUser();
+      const keyword = [
+        debouncedSearchTerm,
+        selectedRole !== "all" ? selectedRole : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      if (keyword.trim() === "") {
+        response = await handleListUser(page - 1, pagination.pageSize);
       } else {
-        response = await handleSearchUser(debouncedSearchTerm);
+        const searchTerm = debouncedSearchTerm.trim();
+        const roleFilter = selectedRole !== "all" ? selectedRole : "";
+
+        response = await handleSearchUser(
+          searchTerm ? `${searchTerm} ${roleFilter}`.trim() : roleFilter,
+          page - 1,
+          pagination.pageSize
+        );
       }
-      if (response?.data?.users) {
-        setUsers(response.data.users);
+
+      if (response?.status === 200 && response?.data) {
+        setUsers(response.data.users || []);
+        setPagination({
+          current: page,
+          pageSize: response.data.pageSize,
+          total: response.data.totalElements,
+          totalPages: response.data.totalPages,
+        });
       } else {
         setUsers([]);
+        setPagination({
+          ...pagination,
+          current: page,
+          total: 0,
+          totalPages: 0,
+        });
+        toast.error(response?.message || "Không thể tải danh sách người dùng");
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      toast.error("Không thể tải danh sách người dùng");
     }
   };
+
   const SubmitLockUser = async (userUd) => {
     try {
       const req = await handleLockUser(userUd);
       if (req.status === 200) {
-        fetchListUser();
+        fetchListUser(pagination.current);
         toast.success(req.message || "Khoá tài khoản thành công");
       } else {
         toast.error(req.message || "Khoá tài khoản thất bại");
@@ -96,12 +141,11 @@ const Account = () => {
   };
 
   useEffect(() => {
-    fetchListUser();
-  }, [debouncedSearchTerm]);
+    fetchListUser(1);
+  }, [debouncedSearchTerm, selectedRole]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
-        {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
           {/* <Button
             variant="outline"
@@ -150,15 +194,18 @@ const Account = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select>
+              <Select
+                value={selectedRole}
+                onValueChange={(value) => setSelectedRole(value)}
+              >
                 <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
                   <SelectValue placeholder="Tất cả" />
                 </SelectTrigger>
                 <SelectContent className="bg-white rounded border border-gray-200">
                   <SelectItem value="all">Tất cả </SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="lecturer">Lecturer</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                  <SelectItem value="STUDENT">Student</SelectItem>
+                  <SelectItem value="TEACHER">Teacher</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -168,7 +215,7 @@ const Account = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>Mã tài khoản</TableHead>
+                    <TableHead>STT</TableHead>
                     <TableHead>Username</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead className="">Role</TableHead>
@@ -186,12 +233,11 @@ const Account = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    users.map((user) => (
-                      <TableRow
-                        className="border border-gray-200"
-                        key={user.id}
-                      >
-                        <TableCell className="font-medium">{user.id}</TableCell>
+                    users.map((user, index) => (
+                      <TableRow className="border border-gray-200" key={index}>
+                        <TableCell className="font-medium">
+                          {index + 1}
+                        </TableCell>
                         <TableCell
                           className="max-w-[180px] truncate"
                           title={user.username}
@@ -219,6 +265,7 @@ const Account = () => {
                               <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"
+                                onClick={() => openDetail(user.id)}
                               >
                                 <Link to="">
                                   <FileText className="h-4 w-4" />
@@ -246,10 +293,27 @@ const Account = () => {
                     ))
                   )}
                 </TableBody>
+                {openDetailModal && (
+                  <DetailAccount
+                    open={openDetailModal}
+                    onClose={() => setOpenDetailModal(false)}
+                    accountId={selectedUser}
+                  />
+                )}
               </Table>
             </div>
           </CardContent>
         </Card>
+        <div className="flex justify-center mt-4">
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            onChange={(page) => {
+              fetchListUser(page);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

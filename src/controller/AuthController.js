@@ -15,7 +15,6 @@ export const handleLogin = async (username, password, navigate) => {
       const authority =
         roles.length > 0 ? roles[0].authority.toLowerCase() : "student";
 
-      // Default to 'user' if role is not present
       if (authority === "admin") {
         navigate("/admin");
       } else if (authority === "lecturer") {

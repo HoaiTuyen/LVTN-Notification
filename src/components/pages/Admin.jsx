@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Layout, Menu, Avatar, Button, Drawer, Grid, Dropdown } from "antd";
+import { Layout, Menu, Button, Avatar, Drawer, Grid, Dropdown } from "antd";
 import {
   UserOutlined,
   TeamOutlined,
@@ -14,15 +14,19 @@ import {
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
+
 import Student from "../Admin/Student/Student";
 import Group from "../Admin/Group/Group";
 import Department from "../Admin/Department/Department";
 import ClassRoom from "../Admin/ClassRoom/ClassRoom";
-import { handleLogout } from "@/controller/AuthController";
 import Account from "../Admin/Account/Account";
+
+import { handleLogout } from "@/controller/AuthController";
+
 const AdminDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
+
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
@@ -125,7 +129,7 @@ const AdminDashboard = () => {
           backgroundColor: "#fff",
           padding: "0 16px",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "end",
           alignItems: "center",
           borderBottom: "1px solid #eee",
         }}
@@ -137,7 +141,9 @@ const AdminDashboard = () => {
               onClick={() => setDrawerVisible(true)}
             />
           )}
-          <span style={{ fontWeight: "bold" }}>Chào, Admin</span>
+          <span style={{ fontWeight: "bold", marginRight: "18px" }}>
+            Chào, Admin
+          </span>
         </div>
 
         <Dropdown
@@ -151,7 +157,7 @@ const AdminDashboard = () => {
           }
           trigger={["click"]}
         >
-          <div style={{ cursor: "pointer" }}>
+          <div style={{ cursor: "pointer", paddingRight: "25x" }}>
             <Avatar icon={<UserOutlined />} />
           </div>
         </Dropdown>

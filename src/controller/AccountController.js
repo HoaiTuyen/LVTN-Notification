@@ -4,11 +4,14 @@ import {
   lockUser,
   updateUser,
   searchUser,
+  getDetailUser,
 } from "../servicers/AccountServicer";
 
-export const handleListUser = async () => {
+export const handleListUser = async (page, pageSize) => {
+  console.log(page, pageSize);
+
   try {
-    const response = await listUser();
+    const response = await listUser(page, pageSize);
 
     return response;
   } catch (error) {
@@ -78,13 +81,28 @@ export const handleUpdateUser = async (data) => {
 export const handleSearchUser = async (keyword) => {
   try {
     const response = await searchUser(keyword);
-    console.log("Search response:", response);
 
     return response;
   } catch (error) {
     if (error) {
       const errMsg =
         error.response?.data?.message || "Tìm kiếm người dùng thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+export const handleGetDetailUser = async (userId) => {
+  try {
+    const response = await getDetailUser(userId);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Lấy thông tin người dùng thất bại";
       const status = error.response?.status || 500;
       return {
         status,

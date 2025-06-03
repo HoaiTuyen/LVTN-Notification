@@ -128,11 +128,13 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   id="username"
                   placeholder=""
                   value={form.username}
+                  disabled={checkEdit}
                   onChange={(e) =>
                     setForm({ ...form, username: e.target.value })
                   }
                 />
               </div>
+
               {checkEdit ? (
                 <div className="grid gap-2"></div>
               ) : (

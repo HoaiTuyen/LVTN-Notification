@@ -1,6 +1,11 @@
 import api from "@/axios/customAxios";
-export const listUser = () => {
-  return api.get("/user/list_users");
+export const listUser = (page = 0, pageSize) => {
+  return api.get("/user/list_users", {
+    params: {
+      page,
+      pageSize,
+    },
+  });
 };
 export const addUser = (data) => {
   return api.post("/user/add", data);
@@ -11,10 +16,15 @@ export const lockUser = (userId) => {
 export const updateUser = (data) => {
   return api.put("/user/update", data);
 };
-export const searchUser = (keyword) => {
+export const searchUser = (keyword, page = 0, pageSize = 10) => {
   return api.get("/user/list_users", {
     params: {
-      keyword,
+      keyword: keyword,
+      page,
+      pageSize,
     },
   });
+};
+export const getDetailUser = (userId) => {
+  return api.post(`/account/user-detail?id=${userId}`);
 };
