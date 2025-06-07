@@ -6,15 +6,16 @@ Dự án này được phát triển nhằm mục đích quản lý và gửi th
 
 ## Tính Năng
 
--- Đăng nhập, đăng ký
-
+- Đăng nhập(JWT)
 - Quản lý sinh viên
 - QUản lý giảng viên
-- ...
+- Quản lý tài khoản
+- Quản lý nhóm học tập
 
 ## Một vài yêu cầu nhỏ
 
 - Đây là bản quyền sáng tạo của bố mày và cấm không được copy dưới mọi hình thức khi chưa có quyền của tác giả.
+-
 
 ## Công nghệ sử dụng
 

@@ -11,7 +11,7 @@ import {
 import { handleDeleteStudent } from "../../../controller/StudentController";
 import { toast } from "react-toastify";
 
-const DeleteStudent = ({ onOpen, onClose, student, onSuccess }) => {
+const DeleteStudent = ({ open, onClose, student, onSuccess }) => {
   console.log(student);
 
   const handleDelete = async () => {
@@ -26,7 +26,7 @@ const DeleteStudent = ({ onOpen, onClose, student, onSuccess }) => {
   };
 
   return (
-    <Dialog open={onOpen} onOpenChange={(val) => !val && onClose()}>
+    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Xác nhận xóa</DialogTitle>

@@ -3,6 +3,7 @@ import {
   addStudent,
   updateStudent,
   deleteStudent,
+  searchStudent,
 } from "../servicers/StudentServicer";
 export const handleListStudent = async (page = 0, pageSize = 10) => {
   try {
@@ -79,5 +80,29 @@ export const handleDeleteStudent = async (id) => {
         message: errMsg,
       };
     }
+  }
+};
+export const handleSearchStudent = async (
+  status,
+  keyword,
+  page = 0,
+  pageSize = 10
+) => {
+  try {
+    const response = await searchStudent(status, keyword, page, pageSize);
+    console.log(response);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi tìm kiếm khoa",
+      data: [],
+    };
   }
 };

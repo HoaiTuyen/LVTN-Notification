@@ -38,39 +38,67 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AddStudent from "./AddStudent";
 import DeleteStudent from "./DeleteStudent";
-import { handleListStudent } from "../../../controller/StudentController";
+import {
+  handleListStudent,
+  handleSearchStudent,
+} from "../../../controller/StudentController";
 import { Pagination } from "antd";
-
+import useDebounce from "../../../hooks/useDebounce";
 const Student = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [selectStatus, setSelectStatus] = useState("all");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
     totalPages: 0,
+    totalElements: 0,
   });
   const fetchStudents = async (page = 1) => {
-    const response = await handleListStudent(page - 1, pagination.pageSize);
+    let response;
+    let keyword = [
+      debouncedSearchTerm,
+      selectStatus !== "all" ? selectStatus : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    if (keyword.trim() === "") {
+      response = await handleListStudent(page - 1, pagination.pageSize);
+    } else {
+      const searchTerm = debouncedSearchTerm.trim();
+      const status = selectStatus !== "all" ? selectStatus : "";
+      response = await handleSearchStudent(
+        status,
+        searchTerm,
+        page - 1,
+        pagination.pageSize
+      );
+      console.log("Response from search:", response);
+    }
 
-    if (response?.status === 200) {
+    if (response?.data) {
+      console.log("Fetched students:", response);
+
       setStudents(response.data.students);
       setPagination({
         current: page,
-        pageSize: pagination.pageSize,
+        pageSize: response.data.pageSize,
         total: response.data.total,
-        totalPages: response.data.totalElement,
+        totalElements: response.data.totalElements,
+        totalPages: response.data.totalPages,
       });
     } else {
-      console.error("Failed to fetch students:", response?.message);
+      setStudents([]);
     }
   };
   useEffect(() => {
-    fetchStudents();
-  }, []);
+    fetchStudents(1);
+  }, [debouncedSearchTerm, selectStatus]);
 
   function filterStudents(status) {
     switch (status) {
@@ -138,7 +166,7 @@ const Student = () => {
           <CardHeader>
             <CardTitle>Danh sách sinh viên</CardTitle>
             <CardDescription>
-              Tổng số: {students.length} sinh viên
+              Tổng số: {pagination.totalElements} sinh viên
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -163,7 +191,10 @@ const Student = () => {
                   <SelectItem value="Toán-Tin">Toán - Tin học</SelectItem>
                 </SelectContent>
               </Select> */}
-              <Select>
+              <Select
+                value={selectStatus}
+                onValueChange={(value) => setSelectStatus(value)}
+              >
                 <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
                   <SelectValue placeholder="Tất cả trạng thái" />
                 </SelectTrigger>
@@ -194,7 +225,7 @@ const Student = () => {
                   {students.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center">
-                        Không có dữ liệu sinh viên
+                        Không có dữ liệu sinh viên phù hợp
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -291,7 +322,7 @@ const Student = () => {
         </Card>
         {openModalDelete && (
           <DeleteStudent
-            open={true}
+            open={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             student={selectedStudent}
             onSuccess={() => {

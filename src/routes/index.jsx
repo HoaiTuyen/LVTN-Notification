@@ -21,7 +21,7 @@ function AppRoutes() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
               <Admin />
             </ProtectedRoute>
           }
@@ -29,7 +29,7 @@ function AppRoutes() {
         <Route
           path="/giang-vien"
           element={
-            <ProtectedRoute allowedRoles={["lecturer"]}>
+            <ProtectedRoute allowedRoles={["TEACHER"]}>
               <Lecturer />
             </ProtectedRoute>
           }
@@ -37,7 +37,7 @@ function AppRoutes() {
         <Route
           path="/sinh-vien"
           element={
-            <ProtectedRoute allowedRoles={["student"]}>
+            <ProtectedRoute allowedRoles={["STUDENT"]}>
               <Student />
             </ProtectedRoute>
           }

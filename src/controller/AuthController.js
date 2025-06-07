@@ -12,14 +12,13 @@ export const handleLogin = async (username, password, navigate) => {
         atob(response.data.access_token.split(".")[1])
       );
       const roles = tokenPayload.role || [];
-      const authority =
-        roles.length > 0 ? roles[0].authority.toLowerCase() : "student";
+      const authority = roles.length > 0 ? roles[0].authority : "STUDENT";
 
-      if (authority === "admin") {
+      if (authority === "ADMIN") {
         navigate("/admin");
-      } else if (authority === "lecturer") {
+      } else if (authority === "TEACHER") {
         navigate("/giang-vien");
-      } else if (authority === "student") {
+      } else if (authority === "STUDENT") {
         navigate("/sinh-vien");
       } else {
         throw new Error("Unknown user role");
