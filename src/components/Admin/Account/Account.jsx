@@ -53,6 +53,12 @@ import {
 import useDebounce from "../../../hooks/useDebounce";
 import AddAccount from "./AddAccount";
 import DetailAccount from "./DetailAccount";
+
+// import {
+//   showErrorAlert,
+//   showSuccessAlert,
+//   showConfirmAlert,
+// } from "../../../util/AlertUtils";
 import { toast } from "react-toastify";
 const Account = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,6 +68,7 @@ const Account = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [openDetailModal, setOpenDetailModal] = useState(false);
+
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -118,22 +125,22 @@ const Account = () => {
           total: 0,
           totalPages: 0,
         });
-        toast.error(response?.message || "Không thể tải danh sách người dùng");
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching user list:", error);
       toast.error("Không thể tải danh sách người dùng");
     }
   };
 
   const SubmitLockUser = async (userUd) => {
     try {
-      const req = await handleLockUser(userUd);
-      if (req.status === 200) {
+      const req = await handleLockUser(userUd.id);
+
+      if (req.status === 204) {
         fetchListUser(pagination.current);
         toast.success(req.message || "Khoá tài khoản thành công");
       } else {
-        toast.error(req.message || "Khoá tài khoản thất bại");
+        toast.error(req.message);
       }
     } catch (error) {
       console.error("Error locking user:", error);
@@ -180,7 +187,9 @@ const Account = () => {
         <Card className="border border-gray-100">
           <CardHeader>
             <CardTitle>Danh sách tài khoản</CardTitle>
-            <CardDescription>Tổng số: {users.length} tài khoản</CardDescription>
+            <CardDescription>
+              Tổng số: {pagination.total} tài khoản
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -217,7 +226,7 @@ const Account = () => {
                   <TableRow className="border border-gray-200">
                     <TableHead>STT</TableHead>
                     <TableHead>Username</TableHead>
-                    <TableHead>Trạng thái</TableHead>
+                    <TableHead className="justify-start">Trạng thái</TableHead>
                     <TableHead className="">Role</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
@@ -235,8 +244,10 @@ const Account = () => {
                   ) : (
                     users.map((user, index) => (
                       <TableRow className="border border-gray-200" key={index}>
-                        <TableCell className="font-medium">
-                          {index + 1}
+                        <TableCell className="font-medium pl-3.5">
+                          {(pagination.current - 1) * pagination.pageSize +
+                            index +
+                            1}
                         </TableCell>
                         <TableCell
                           className="max-w-[180px] truncate"
@@ -246,7 +257,7 @@ const Account = () => {
                             {user.username}
                           </div>
                         </TableCell>
-                        <TableCell className="">{user.status}</TableCell>
+                        <TableCell>{user.status}</TableCell>
                         <TableCell className="">{user.role}</TableCell>
 
                         <TableCell className="text-center align-middle">
@@ -282,7 +293,7 @@ const Account = () => {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-red-600 cursor-pointer"
-                                onClick={() => SubmitLockUser(user.id)}
+                                onClick={() => SubmitLockUser(user)}
                               >
                                 <Lock className="mr-2 h-4 w-4" /> Khoá tài khoản
                               </DropdownMenuItem>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
@@ -37,52 +37,75 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AddStudent from "./AddStudent";
-const students = [
-  {
-    id: "SV001",
-    name: "Nguyễn Văn An",
-    email: "nguyenvanan@example.edu.vn",
-    faculty: "Công nghệ thông tin",
-    major: "Công nghệ phần mềm",
-    status: "Đang học",
-  },
-  {
-    id: "SV002",
-    name: "Trần Thị Bình",
-    email: "tranthib@example.edu.vn",
-    faculty: "Công nghệ thông tin",
-    major: "Hệ thống thông tin",
-    status: "Đang học",
-  },
-  {
-    id: "SV003",
-    name: "Lê Văn Cường",
-    email: "levanc@example.edu.vn",
-    faculty: "Công nghệ thông tin",
-    major: "Khoa học máy tính",
-    status: "Đang học",
-  },
-  {
-    id: "SV004",
-    name: "Phạm Thị Dung",
-    email: "phamthid@example.edu.vn",
-    faculty: "Toán - Tin học",
-    major: "Toán ứng dụng",
-    status: "Đang học",
-  },
-  {
-    id: "SV005",
-    name: "Hoàng Văn Em Hoàng Văn Em Hoàng Văn Em Hoàng Văn Em Hoàng Văn Em Hoàng Văn Em Hoàng Văn Em Hoàng Văn Em Hoàng Văn Em",
-    email: "hoangvane@example.edu.vn",
-    faculty: "Toán - Tin học",
-    major: "Toán ứng dụng",
-    status: "Bảo lưu",
-  },
-];
+import DeleteStudent from "./DeleteStudent";
+import { handleListStudent } from "../../../controller/StudentController";
+import { Pagination } from "antd";
 
 const Student = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const fetchStudents = async (page = 1) => {
+    const response = await handleListStudent(page - 1, pagination.pageSize);
+
+    if (response?.status === 200) {
+      setStudents(response.data.students);
+      setPagination({
+        current: page,
+        pageSize: pagination.pageSize,
+        total: response.data.total,
+        totalPages: response.data.totalElement,
+      });
+    } else {
+      console.error("Failed to fetch students:", response?.message);
+    }
+  };
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  function filterStudents(status) {
+    switch (status) {
+      case "DANG_HOC":
+        return { label: "Đang học", className: "bg-green-100 text-green-800" };
+      case "BAO_LUU":
+        return { label: "Bảo lưu", className: "bg-yellow-100 text-yellow-800" };
+      case "DA_TOT_NGHIEP":
+        return {
+          label: "Đã tốt nghiệp",
+          className: "bg-blue-100 text-blue-800",
+        };
+      case "THOI_HOC":
+        return { label: "Thôi học", className: "bg-red-100 text-red-800" };
+
+      default:
+        break;
+    }
+  }
+  const renderGender = (gender) => {
+    switch (gender) {
+      case "MALE":
+        return "Nam";
+      case "FEMALE":
+        return "Nữ";
+      case "OTHER":
+        return "Khác";
+      default:
+        return "Không rõ";
+    }
+  };
+  const openModalEdit = (student) => {
+    setSelectedStudent(student);
+    setShowModal(true);
+  };
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -98,7 +121,16 @@ const Student = () => {
           >
             <Plus className="mr-2 h-4 w-4" /> Thêm sinh viên
           </Button>
-          <AddStudent open={showModal} onClose={() => setShowModal(false)} />
+          {showModal && (
+            <AddStudent
+              open={showModal}
+              onClose={() => {
+                setShowModal(false), setSelectedStudent(null);
+              }}
+              onSuccess={fetchStudents}
+              student={selectedStudent}
+            />
+          )}
         </div>
 
         {/* Card */}
@@ -121,7 +153,7 @@ const Student = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select>
+              {/* <Select>
                 <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
                   <SelectValue placeholder="Tất cả các khoa" />
                 </SelectTrigger>
@@ -130,17 +162,17 @@ const Student = () => {
                   <SelectItem value="CNTT">Công nghệ thông tin</SelectItem>
                   <SelectItem value="Toán-Tin">Toán - Tin học</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
               <Select>
                 <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
                   <SelectValue placeholder="Tất cả trạng thái" />
                 </SelectTrigger>
                 <SelectContent className="bg-white rounded border border-gray-200">
                   <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="Đang học">Đang học</SelectItem>
-                  <SelectItem value="Đã tốt nghiệp">Đã tốt nghiệp</SelectItem>
-                  <SelectItem value="Bảo lưu">Bảo lưu</SelectItem>
-                  <SelectItem value="Thôi học">Thôi học</SelectItem>
+                  <SelectItem value="DANG_HOC">Đang học</SelectItem>
+                  <SelectItem value="DA_TOT_NGHIEP">Đã tốt nghiệp</SelectItem>
+                  <SelectItem value="BAO_LUU">Bảo lưu</SelectItem>
+                  <SelectItem value="THOI_HOC">Thôi học</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -150,93 +182,133 @@ const Student = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>MSSV</TableHead>
+                    <TableHead>MSGV</TableHead>
                     <TableHead>Họ và tên</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Khoa</TableHead>
-                    <TableHead>Ngành</TableHead>
+                    <TableHead className="justify-start">Giới tính</TableHead>
                     <TableHead>Trạng thái</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
+                    <TableHead>Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.map((student) => (
-                    <TableRow
-                      className="border border-gray-200"
-                      key={student.id}
-                    >
-                      <TableCell className="font-medium">
-                        {student.id}
-                      </TableCell>
-                      <TableCell
-                        className="max-w-[100px] truncate"
-                        title={student.name}
-                      >
-                        <div className="flex items-center gap-2">
-                          {/* <Avatar className="h-8 w-8">
-                                  <AvatarImage src="/placeholder.svg" />
-                                  <AvatarFallback>
-                                  {student.name
-                                      .split(" ")
-                                      .map((w) => w[0])
-                                      .join("")
-                                      .toUpperCase()
-                                      .slice(0, 2)}
-                                  </AvatarFallback>
-                              </Avatar> */}
-                          {student.name}
-                        </div>
-                      </TableCell>
-                      <TableCell>{student.email}</TableCell>
-                      <TableCell>{student.faculty}</TableCell>
-                      <TableCell>{student.major}</TableCell>
-                      <TableCell>
-                        {student.status === "Thôi học" ? (
-                          <Badge className="bg-red-100 text-white-800">
-                            {student.status}
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-green-100 text-green-800">
-                            {student.status}
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu asChild>
-                          <DropdownMenuTrigger>
-                            <Button
-                              variant="ghost"
-                              className="h-8 w-8 p-0 cursor-pointer"
-                            >
-                              <Ellipsis className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                              <Link to="">
-                                <FileText className="mr-2 h-4 w-4" /> Xem chi
-                                tiết
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" /> Xóa
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                  {students.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center">
+                        Không có dữ liệu sinh viên
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    students.map((student) => (
+                      <TableRow
+                        className="border border-gray-200"
+                        key={student.id}
+                      >
+                        <TableCell className="font-medium">
+                          {student.id}
+                        </TableCell>
+                        <TableCell
+                          className="max-w-[100px] truncate"
+                          title={student.name}
+                        >
+                          <div className="flex items-center gap-2">
+                            {/* <Avatar className="h-8 w-8">
+                                    <AvatarImage src="/placeholder.svg" />
+                                    <AvatarFallback>
+                                    {student.name
+                                        .split(" ")
+                                        .map((w) => w[0])
+                                        .join("")
+                                        .toUpperCase()
+                                        .slice(0, 2)}
+                                    </AvatarFallback>
+                                </Avatar> */}
+                            {student.lastName} {student.firstName}
+                          </div>
+                        </TableCell>
+                        <TableCell>{student.email}</TableCell>
+                        {/* <TableCell>{student.clas}</TableCell> */}
+                        <TableCell>{renderGender(student.gender)}</TableCell>
+                        <TableCell>
+                          {/* {student.status === "THOI_HOC" ? (
+                            <Badge className="bg-red-100 text-white-800">
+                              {student.status}
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-green-100 text-green-800">
+                              {student.status}
+                            </Badge>
+                          )} */}
+                          <Badge
+                            className={filterStudents(student.status).className}
+                          >
+                            {filterStudents(student.status).label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="pl-4">
+                          <DropdownMenu asChild>
+                            <DropdownMenuTrigger>
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0 cursor-pointer"
+                              >
+                                <Ellipsis className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem asChild>
+                                <Link to="">
+                                  <FileText className="mr-2 h-4 w-4" /> Xem chi
+                                  tiết
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openModalEdit(student)}
+                              >
+                                <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => {
+                                  setSelectedStudent(student);
+                                  setOpenModalDelete(true);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Xóa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
           </CardContent>
         </Card>
+        {openModalDelete && (
+          <DeleteStudent
+            open={true}
+            onClose={() => setOpenModalDelete(false)}
+            student={selectedStudent}
+            onSuccess={() => {
+              fetchStudents();
+            }}
+          />
+        )}
+        <div className="flex justify-center mt-4">
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            onChange={(page) => {
+              fetchStudents(page);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

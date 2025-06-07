@@ -17,3 +17,6 @@ body,
 .ant-layout-content {
   overflow: auto; /* Chỉ cho phép cuộn nội dung nếu cần */
 }
+/* .swal2-container-high-z {
+  z-index: 99999 !important;
+} */

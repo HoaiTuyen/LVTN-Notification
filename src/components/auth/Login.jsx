@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleLogin } from "../../controller/AuthController";
-import { toast } from "react-toastify";
+
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import { showSuccessAlert, showErrorAlert } from "../../util/AlertUtils";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
   const onLogin = async (e) => {
     e.preventDefault();
@@ -12,9 +16,9 @@ const Login = () => {
     const res = await handleLogin(username, password, navigate);
 
     if (res.status === 200) {
-      toast.success(res.message);
+      showSuccessAlert(res.message);
     } else {
-      toast.error(res.message);
+      showErrorAlert(res.message);
     }
   };
   return (
@@ -40,6 +44,7 @@ const Login = () => {
               <input
                 type="text"
                 value={username}
+                placeholder="Username..."
                 onChange={(e) => setUsername(e.target.value)}
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
@@ -54,26 +59,25 @@ const Login = () => {
               >
                 Mật khẩu
               </label>
-              <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-semibold text-indigo-600 hover:text-indigo-500"
-                >
-                  Quên mật khẩu?
-                </a>
-              </div>
             </div>
-            <div className="mt-2">
+            <div className="mt-2 flex relative">
               <input
-                type="password"
+                type={showPass ? "text" : "password"}
                 name="password"
                 id="password"
                 autoComplete="current-password"
+                placeholder="Mật khẩu"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
+              <div
+                onClick={() => setShowPass((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+              >
+                {showPass ? <EyeOutlined /> : <EyeInvisibleOutlined />}
+              </div>
             </div>
           </div>
 

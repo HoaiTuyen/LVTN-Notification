@@ -20,7 +20,7 @@ import Group from "../Admin/Group/Group";
 import Department from "../Admin/Department/Department";
 import ClassRoom from "../Admin/ClassRoom/ClassRoom";
 import Account from "../Admin/Account/Account";
-
+import Lecturer from "../Admin/Lecturer/Lecturer";
 import { handleLogout } from "@/controller/AuthController";
 
 const AdminDashboard = () => {
@@ -129,11 +129,19 @@ const AdminDashboard = () => {
           backgroundColor: "#fff",
           padding: "0 16px",
           display: "flex",
-          justifyContent: "end",
+          justifyContent: "space-between",
           alignItems: "center",
           borderBottom: "1px solid #eee",
         }}
       >
+        <div className="sm:w-full sm:max-w-sm">
+          <img
+            className="h-10 w-auto"
+            src="/img/logo1.png"
+            alt="Your Company"
+          />
+        </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {isMobile && (
             <Button
@@ -141,26 +149,23 @@ const AdminDashboard = () => {
               onClick={() => setDrawerVisible(true)}
             />
           )}
-          <span style={{ fontWeight: "bold", marginRight: "18px" }}>
-            Chào, Admin
-          </span>
+          <span style={{ fontWeight: "bold" }}>Chào, Admin</span>
+          <Dropdown
+            overlay={
+              <Menu
+                items={menuItems}
+                onClick={(e) => {
+                  if (e.key === "logout") handleLogoutUser();
+                }}
+              />
+            }
+            trigger={["click"]}
+          >
+            <div style={{ cursor: "pointer", paddingRight: "25px" }}>
+              <Avatar icon={<UserOutlined />} />
+            </div>
+          </Dropdown>
         </div>
-
-        <Dropdown
-          overlay={
-            <Menu
-              items={menuItems}
-              onClick={(e) => {
-                if (e.key === "logout") handleLogoutUser();
-              }}
-            />
-          }
-          trigger={["click"]}
-        >
-          <div style={{ cursor: "pointer", paddingRight: "25x" }}>
-            <Avatar icon={<UserOutlined />} />
-          </div>
-        </Dropdown>
       </Header>
 
       <Layout>
@@ -194,6 +199,7 @@ const AdminDashboard = () => {
           {selectedTab === "department" && <Department />}
           {selectedTab === "class" && <ClassRoom />}
           {selectedTab === "account" && <Account />}
+          {selectedTab === "lecturer" && <Lecturer />}
         </Content>
       </Layout>
     </Layout>

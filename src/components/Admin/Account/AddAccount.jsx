@@ -21,10 +21,9 @@ import {
 import {
   handleAddUser,
   handleUpdateUser,
-} from "../../../controller/AccountController"; // Import your controller if needed
+} from "../../../controller/AccountController";
+// import { showErrorAlert, showSuccessAlert } from "../../../util/AlertUtils";
 const AddAccount = ({ open, onClose, onSuccess, users }) => {
-  console.log(users);
-
   const checkEdit = !!users?.id;
   const [form, setForm] = useState({
     id: users?.id || "",
@@ -62,19 +61,20 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
         console.log(reqEdit);
 
         if (reqEdit.status === 204) {
-          onClose();
           onSuccess();
           toast.success(reqEdit.message || "Cập nhật tài khoản thành công");
+          onClose();
         } else {
           toast.error(reqEdit.message || "Cập nhật tài khoản thất bại 1111");
         }
       } else {
         const response = await handleAddUser(form);
+        console.log(response);
 
         if (response.status === 201) {
-          onClose();
           onSuccess();
           toast.success(response.message || "Thêm tài khoản thành công");
+          onClose();
         } else {
           toast.error(response.message || "Thêm tài khoản thất bại 1111");
         }

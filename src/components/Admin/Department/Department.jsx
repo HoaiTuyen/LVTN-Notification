@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -26,7 +26,7 @@ import {
   Plus,
   Users,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+
 import {
   Table,
   TableHeader,
@@ -45,44 +45,103 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import AddDepartment from "./AddDepartment";
-
-const department = [
-  {
-    id: "CNTT",
-    name: "Công nghệ thông tin",
-    description: "Khoa công nghệ thông tin",
-    CountMajor: "5",
-    countStudent: "8",
-  },
-];
+import DeleteDepartment from "./DeleteDepartment";
+import {
+  handleListDepartment,
+  handleSearchDepartment,
+} from "../../../controller/DepartmentController";
+import useDebounce from "../../../hooks/useDebounce";
+import { Pagination } from "antd";
 
 const Department = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [selectDepartment, setSelectDepartment] = useState(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0,
+    totalElements: 0,
+  });
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const openEditDepartment = (department) => {
+    setSelectDepartment(department);
+    setOpenModal(true);
+  };
+  const fetchListDepartment = async (page = 1) => {
+    try {
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      if (!keyword) {
+        res = await handleListDepartment(page - 1, pagination.pageSize);
+        console.log(res);
+      } else {
+        res = await handleSearchDepartment(
+          keyword,
+          page - 1,
+          pagination.pageSize
+        );
+      }
+
+      if (res?.data) {
+        setDepartments(res.data.departments || []);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchListDepartment(1);
+  }, [debouncedSearchTerm]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
           {/* <Button variant="outline" className="flex items-center">
-            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
-          </Button> */}
+              <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
+            </Button> */}
 
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setSelectDepartment(null);
+              setOpenModal(true);
+            }}
           >
             <Plus className="mr-2 h-4 w-4" /> Thêm khoa
           </Button>
 
-          <AddDepartment open={openModal} onClose={() => setOpenModal(false)} />
+          {openModal && (
+            <AddDepartment
+              open={openModal}
+              onClose={() => {
+                setOpenModal(false);
+                setSelectDepartment(null);
+              }}
+              department={selectDepartment}
+              onSuccess={() => fetchListDepartment(pagination.current)}
+            />
+          )}
         </div>
 
         {/* Card */}
         <Card className="border border-gray-100">
           <CardHeader>
             <CardTitle>Danh sách khoa</CardTitle>
-            <CardDescription>Tổng số: {department.length} khoa</CardDescription>
+            <CardDescription>
+              Tổng số: {pagination.totalElements} khoa
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -96,16 +155,16 @@ const Department = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select>
-                <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
-                  <SelectValue placeholder="Tất cả các khoa" />
-                </SelectTrigger>
-                <SelectContent className="bg-white rounded border border-gray-200">
-                  <SelectItem value="all">Tất cả các khoa</SelectItem>
-                  <SelectItem value="CNTT">Công nghệ thông tin</SelectItem>
-                  <SelectItem value="QTTD">Quản trị kinh doanh</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* <Select>
+                  <SelectTrigger className="w-[200px] border border-gray-100 rounded-md shadow-none focus:ring-0">
+                    <SelectValue placeholder="Tất cả các khoa" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white rounded border border-gray-200">
+                    <SelectItem value="all">Tất cả các khoa</SelectItem>
+                    <SelectItem value="CNTT">Công nghệ thông tin</SelectItem>
+                    <SelectItem value="QTTD">Quản trị kinh doanh</SelectItem>
+                  </SelectContent>
+                </Select> */}
             </div>
 
             {/* Table */}
@@ -116,83 +175,113 @@ const Department = () => {
                     <TableHead>Mã khoa</TableHead>
                     <TableHead>Tên Khoa</TableHead>
                     <TableHead> Mô tả</TableHead>
-                    <TableHead className="text-center">Số ngành</TableHead>
-                    <TableHead className="text-center">Số sinh viên</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {department.map((department) => (
-                    <TableRow
-                      className="border border-gray-200"
-                      key={department.id}
-                    >
-                      <TableCell className="font-medium">
-                        {department.id}
-                      </TableCell>
+                  {departments.length === 0 ? (
+                    <TableRow>
                       <TableCell
-                        className="max-w-[180px] truncate"
-                        title={department.name}
+                        colSpan={4}
+                        className="text-center py-6 text-gray-500"
                       >
-                        <div className="flex items-center">
-                          {department.name}
-                        </div>
-                      </TableCell>
-                      <TableCell className="">
-                        {department.description}
-                      </TableCell>
-                      <TableCell className="text-center align-middle">
-                        {department.CountMajor}
-                      </TableCell>
-                      <TableCell className="text-center align-middle">
-                        {department.countStudent}
-                      </TableCell>
-
-                      <TableCell className="text-center align-middle">
-                        <DropdownMenu asChild>
-                          <DropdownMenuTrigger>
-                            <Button
-                              variant="ghost"
-                              className="h-8 w-8 p-0 cursor-pointer"
-                            >
-                              <Ellipsis className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              asChild
-                              className="cursor-pointer"
-                            >
-                              <Link to="">
-                                <FileText className="h-4 w-4" />
-                                Xem chi tiết
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer">
-                              <Pencil className="h-4 w-4" /> Chỉnh sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Link to="" className="flex items-center">
-                                <Users className="mr-2 h-4 w-4" /> Danh sách
-                                sinh viên
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" /> Xóa
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        Không tìm thấy khoa phù hợp
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    departments.map((department) => (
+                      <TableRow
+                        className="border border-gray-200"
+                        key={department.id}
+                      >
+                        <TableCell className="font-medium">
+                          {department.id}
+                        </TableCell>
+                        <TableCell
+                          className="max-w-[180px] truncate"
+                          title={department.name}
+                        >
+                          <div className="flex items-center">
+                            {department.name}
+                          </div>
+                        </TableCell>
+                        <TableCell className="">
+                          {department.description}
+                        </TableCell>
+
+                        <TableCell className="text-center align-middle">
+                          <DropdownMenu asChild>
+                            <DropdownMenuTrigger>
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0 cursor-pointer"
+                              >
+                                <Ellipsis className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
+                                <Link to="">
+                                  <FileText className="h-4 w-4" />
+                                  Xem chi tiết
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => openEditDepartment(department)}
+                              >
+                                <Pencil className="h-4 w-4" /> Chỉnh sửa
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Link to="" className="flex items-center">
+                                  <Users className="mr-2 h-4 w-4" /> Danh sách
+                                  lớp
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-red-600 cursor-pointer"
+                                onClick={() => {
+                                  setSelectDepartment(department);
+                                  setOpenModalDelete(true);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Xóa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
           </CardContent>
         </Card>
+        {openModalDelete && (
+          <DeleteDepartment
+            onOpen={openModalDelete}
+            onClose={() => setOpenModalDelete(false)}
+            department={selectDepartment}
+            onSuccess={() => fetchListDepartment(pagination.current)}
+          />
+        )}
+        <div className="flex justify-center mt-4">
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            onChange={(page) => {
+              fetchListDepartment(page);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

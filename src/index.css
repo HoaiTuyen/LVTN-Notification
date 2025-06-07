@@ -118,3 +118,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* SweetAlert2 z-index fix */
+.swal2-container {
+  z-index: 99999 !important;
+}
+
+.swal2-container-high-z {
+  z-index: 99999 !important;
+}
+
+/* Ensure SweetAlert2 is always on top */
+.swal2-shown {
+  overflow: auto !important;
+}
+
+.swal2-shown > .swal2-container {
+  z-index: 99999 !important;
+}
