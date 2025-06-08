@@ -63,12 +63,12 @@ const Lecturer = () => {
   });
   const renderGender = (gender) => {
     switch (gender) {
-      case "MALE":
-        return "Nam";
-      case "FEMALE":
-        return "Nữ";
-      case "OTHER":
-        return "Khác";
+      case "NAM":
+        return "NAM";
+      case "NỮ":
+        return "NỮ";
+      case "KHÁC":
+        return "KHÁC";
       default:
         return "Không rõ";
     }

@@ -184,7 +184,7 @@ const Account = () => {
         </div>
 
         {/* Card */}
-        <Card className="border border-gray-100">
+        <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách tài khoản</CardTitle>
             <CardDescription>

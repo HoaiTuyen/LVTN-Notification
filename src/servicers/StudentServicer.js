@@ -27,3 +27,19 @@ export const searchStudent = (status, keyword, page = 0, pageSize) => {
     },
   });
 };
+// export const getListStudentExcel = (file) => {
+//   const formData = new FormData();
+//   formData.append("file", file);
+//   return api.get("/student/review_students", formData);
+// };
+
+export const getListStudentExcel = (formData) => {
+  return api.post("/student/review_students", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+export const createStudentExcel = (data) => {
+  return api.post("/student/student_excel", data)
+}

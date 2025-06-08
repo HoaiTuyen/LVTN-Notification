@@ -44,6 +44,7 @@ import {
 } from "../../../controller/StudentController";
 import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
+import ImportStudentModal from "./ImportStudentModal";
 const Student = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -51,6 +52,7 @@ const Student = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectStatus, setSelectStatus] = useState("all");
+  const [openUpload, setOpenUpload] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -69,6 +71,7 @@ const Student = () => {
       .join(" ");
     if (keyword.trim() === "") {
       response = await handleListStudent(page - 1, pagination.pageSize);
+      console.log(response);
     } else {
       const searchTerm = debouncedSearchTerm.trim();
       const status = selectStatus !== "all" ? selectStatus : "";
@@ -88,8 +91,8 @@ const Student = () => {
       setPagination({
         current: page,
         pageSize: response.data.pageSize,
-        total: response.data.total,
-        totalElements: response.data.totalElements,
+        total: response.data.totalElements,
+
         totalPages: response.data.totalPages,
       });
     } else {
@@ -102,16 +105,16 @@ const Student = () => {
 
   function filterStudents(status) {
     switch (status) {
-      case "DANG_HOC":
+      case "ĐANG_HỌC":
         return { label: "Đang học", className: "bg-green-100 text-green-800" };
-      case "BAO_LUU":
+      case "BẢO_LƯU":
         return { label: "Bảo lưu", className: "bg-yellow-100 text-yellow-800" };
-      case "DA_TOT_NGHIEP":
+      case "ĐÃ_TỐT_NGHIỆP":
         return {
           label: "Đã tốt nghiệp",
           className: "bg-blue-100 text-blue-800",
         };
-      case "THOI_HOC":
+      case "THÔI_HỌC":
         return { label: "Thôi học", className: "bg-red-100 text-red-800" };
 
       default:
@@ -120,12 +123,12 @@ const Student = () => {
   }
   const renderGender = (gender) => {
     switch (gender) {
-      case "MALE":
-        return "Nam";
-      case "FEMALE":
-        return "Nữ";
-      case "OTHER":
-        return "Khác";
+      case "NAM":
+        return "NAM";
+      case "NỮ":
+        return "NỮ";
+      case "KHÁC":
+        return "KHÁC";
       default:
         return "Không rõ";
     }
@@ -135,14 +138,24 @@ const Student = () => {
     setShowModal(true);
   };
   return (
-    <div className="min-h-screen w-full bg-white p-0">
+    <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
-          <Button variant="outline" className="flex items-center">
+          <Button
+            variant="outline"
+            className="flex items-center"
+            onClick={() => setOpenUpload(true)}
+          >
             <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
           </Button>
-
+          {openUpload && (
+            <ImportStudentModal
+              open={openUpload}
+              onClose={() => setOpenUpload(false)}
+              onSuccess={fetchStudents}
+            />
+          )}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
             onClick={() => setShowModal(true)}
@@ -162,11 +175,14 @@ const Student = () => {
         </div>
 
         {/* Card */}
-        <Card className="border border-gray-100">
+        <Card
+          className="border border-gray-100 overflow-y-auto max-h-[600px]"
+          // style={{ overflowY: "auto", maxHeight: "600px" }}
+        >
           <CardHeader>
             <CardTitle>Danh sách sinh viên</CardTitle>
             <CardDescription>
-              Tổng số: {pagination.totalElements} sinh viên
+              Tổng số: {pagination.total} sinh viên
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -200,16 +216,16 @@ const Student = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-white rounded border border-gray-200">
                   <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="DANG_HOC">Đang học</SelectItem>
-                  <SelectItem value="DA_TOT_NGHIEP">Đã tốt nghiệp</SelectItem>
-                  <SelectItem value="BAO_LUU">Bảo lưu</SelectItem>
-                  <SelectItem value="THOI_HOC">Thôi học</SelectItem>
+                  <SelectItem value="ĐANG_HỌC">Đang học</SelectItem>
+                  <SelectItem value="ĐÃ_TỐT_NGHIỆP">Đã tốt nghiệp</SelectItem>
+                  <SelectItem value="BẢO_LƯU">Bảo lưu</SelectItem>
+                  <SelectItem value="THÔI_HỌC">Thôi học</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Table */}
-            <div className="rounded border border-gray-200">
+            <div className="rounded border border-gray-200 ">
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">

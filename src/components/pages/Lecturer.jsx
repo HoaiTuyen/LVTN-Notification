@@ -96,18 +96,6 @@ const LecturerDashboard = () => {
       },
     },
   ];
-  // const menuItems = [
-  //   {
-  //     key: "settings",
-  //     label: "Cài đặt",
-  //     icon: <SettingOutlined />,
-  //   },
-  //   {
-  //     key: "logout",
-  //     label: "Đăng xuất",
-  //     icon: <LogoutOutlined />,
-  //   },
-  // ];
 
   const SidebarMenu = (
     <Menu
@@ -149,22 +137,7 @@ const LecturerDashboard = () => {
               onClick={() => setDrawerVisible(true)}
             />
           )}
-          {/* <span style={{ fontWeight: "bold" }}>Chào, Admin</span> */}
-          {/* <Dropdown
-            overlay={
-              <Menu
-                items={menuItems}
-                onClick={(e) => {
-                  if (e.key === "logout") handleLogoutUser();
-                }}
-              />
-            }
-            trigger={["click"]}
-          >
-            <div style={{ cursor: "pointer", paddingRight: "25px" }}>
-              <Avatar icon={<UserOutlined />} />
-            </div>
-          </Dropdown> */}
+
           <Dropdown
             overlay={
               <Menu

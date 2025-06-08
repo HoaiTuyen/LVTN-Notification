@@ -34,8 +34,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
     dateOfBirth: teacher?.dateOfBirth?.slice(0, 10) || "",
     departmentId: teacher?.departmentId || "",
     departmentName: teacher?.departmentName || "",
-    gender: teacher?.gender || "MALE",
-    status: teacher?.status || "DANG_CONG_TAC",
+    gender: teacher?.gender || "NAM",
+    status: teacher?.status || "ĐANG_CÔNG_TÁC",
   });
   useEffect(() => {
     if (open && teacher?.id) {
@@ -47,8 +47,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
         dateOfBirth: teacher?.dateOfBirth?.slice(0, 10) || "",
         departmentId: teacher?.departmentId || "",
         departmentName: teacher?.departmentName || "",
-        gender: teacher?.gender || "MALE",
-        status: teacher?.status || "DANG_CONG_TAC",
+        gender: teacher?.gender || "NAM",
+        status: teacher?.status || "ĐANG_CÔNG_TÁC",
       });
     } else {
       setForm({
@@ -59,8 +59,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
         dateOfBirth: "",
         departmentId: "",
         departmentName: "",
-        gender: "MALE",
-        status: "DANG_CONG_TAC",
+        gender: "NAM",
+        status: "ĐANG_CÔNG_TÁC",
       });
     }
   }, [teacher, open]);
@@ -106,10 +106,21 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Thêm giảng viên mới</DialogTitle>
-          <DialogDescription>
-            Nhập thông tin chi tiết về giảng viên mới
-          </DialogDescription>
+          {checkEdit ? (
+            <>
+              <DialogTitle>Cập nhật giảng viên</DialogTitle>
+              <DialogDescription>
+                Nhập thông tin cập nhật về giảng viên
+              </DialogDescription>
+            </>
+          ) : (
+            <>
+              <DialogTitle>Thêm giảng viên mới</DialogTitle>
+              <DialogDescription>
+                Nhập thông tin chi tiết về giảng viên mới
+              </DialogDescription>
+            </>
+          )}
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
@@ -200,9 +211,9 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                     <SelectValue placeholder="Chọn giới tính" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MALE">Nam</SelectItem>
-                    <SelectItem value="FEMALE">Nữ</SelectItem>
-                    <SelectItem value="OTHER">Khác</SelectItem>
+                    <SelectItem value="NAM">Nam</SelectItem>
+                    <SelectItem value="NỮ">Nữ</SelectItem>
+                    <SelectItem value="KHÁC">Khác</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -216,8 +227,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DANG_CONG_TAC">Đang công tác</SelectItem>
-                    <SelectItem value="CHUYEN_CONG_TAC">
+                    <SelectItem value="ĐANG_CÔNG_TÁC">Đang công tác</SelectItem>
+                    <SelectItem value="CHUYỂN_CÔNG_TÁC">
                       Chuyển công tác
                     </SelectItem>
                   </SelectContent>
@@ -231,7 +242,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
               Hủy
             </Button>
             <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-              Thêm giảng viên
+              {checkEdit ? "Cập nhật" : "Thêm giảng viên"}
             </Button>
           </DialogFooter>
         </form>

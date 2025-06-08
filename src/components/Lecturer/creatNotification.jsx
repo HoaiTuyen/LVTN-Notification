@@ -175,7 +175,7 @@ export default function CreateNotification() {
 
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <Card>
+              <Card className="max-h-[calc(100vh-100px)] overflow-y-auto">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="h-5 w-5" />
@@ -361,8 +361,8 @@ export default function CreateNotification() {
 
             <div className="space-y-6">
               {/* Preview */}
-              <Card>
-                <CardHeader>
+              <Card className="h-[500px] overflow-y-auto">
+                <CardHeader className="sticky top-0 bg-white z-10">
                   <CardTitle className="text-lg">Xem trước</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">

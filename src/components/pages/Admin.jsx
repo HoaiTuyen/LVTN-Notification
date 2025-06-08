@@ -21,12 +21,17 @@ import Department from "../Admin/Department/Department";
 import ClassRoom from "../Admin/ClassRoom/ClassRoom";
 import Account from "../Admin/Account/Account";
 import Lecturer from "../Admin/Lecturer/Lecturer";
-import { handleLogout } from "@/controller/AuthController";
+import Subject from "../Admin/Subject/Subject";
+import { handleLogout } from "../../controller/AuthController";
+import { LogOut } from "lucide-react";
 
 const AdminDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
-
+  const [userInfo, setUserInfo] = useState({
+    name: "Nguyễn Văn A",
+    email: "nguyenvana@example.com",
+  });
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
@@ -96,18 +101,6 @@ const AdminDashboard = () => {
       label: "Cài đặt",
     },
   ];
-  const menuItems = [
-    {
-      key: "settings",
-      label: "Cài đặt",
-      icon: <SettingOutlined />,
-    },
-    {
-      key: "logout",
-      label: "Đăng xuất",
-      icon: <LogoutOutlined />,
-    },
-  ];
 
   const SidebarMenu = (
     <Menu
@@ -123,7 +116,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <Layout style={{ minHeight: "100vh", width: "100vw" }}>
+    <Layout style={{ minHeight: "150vh", width: "100vw" }}>
       <Header
         style={{
           backgroundColor: "#fff",
@@ -149,11 +142,36 @@ const AdminDashboard = () => {
               onClick={() => setDrawerVisible(true)}
             />
           )}
-          <span style={{ fontWeight: "bold" }}>Chào, Admin</span>
+
           <Dropdown
             overlay={
               <Menu
-                items={menuItems}
+                items={[
+                  {
+                    key: "userInfo",
+                    label: (
+                      <div style={{ padding: "", textAlign: "start" }}>
+                        <div style={{ fontWeight: "bold" }}>
+                          {userInfo.name}
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#888" }}>
+                          {userInfo.email}
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "settings",
+                    label: "Cài đặt",
+                    icon: <SettingOutlined />,
+                  },
+                  {
+                    key: "logout",
+                    label: "Đăng xuất",
+                    icon: <LogOut size={16} />,
+                    style: { color: "red", fontWeight: "bold" },
+                  },
+                ]}
                 onClick={(e) => {
                   if (e.key === "logout") handleLogoutUser();
                 }}
@@ -200,6 +218,7 @@ const AdminDashboard = () => {
           {selectedTab === "class" && <ClassRoom />}
           {selectedTab === "account" && <Account />}
           {selectedTab === "lecturer" && <Lecturer />}
+          {selectedTab === "subject" && <Subject />}
         </Content>
       </Layout>
     </Layout>

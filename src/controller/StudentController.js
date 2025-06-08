@@ -4,6 +4,8 @@ import {
   updateStudent,
   deleteStudent,
   searchStudent,
+  getListStudentExcel,
+  createStudentExcel
 } from "../servicers/StudentServicer";
 export const handleListStudent = async (page = 0, pageSize = 10) => {
   try {
@@ -90,7 +92,7 @@ export const handleSearchStudent = async (
 ) => {
   try {
     const response = await searchStudent(status, keyword, page, pageSize);
-    console.log(response);
+    
 
     return {
       status: response.status,
@@ -106,3 +108,40 @@ export const handleSearchStudent = async (
     };
   }
 };
+export const handleGetListStudentExcel = async (file) => {
+  try {
+    const response = await getListStudentExcel(file);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+
+export const handleCreateStudentExcel = async (data) => {
+  try {
+    const response = await createStudentExcel(data);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+}

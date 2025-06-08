@@ -35,7 +35,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     email: student?.email || "",
     status: student?.status || "DANG_HOC",
     classId: student?.classId || "",
-    gender: student?.gender || "MALE",
+    gender: student?.gender || "NAM",
     dateOfBirth: student?.dateOfBirth?.slice(0, 10) || "",
   });
   useEffect(() => {
@@ -45,9 +45,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
         firstName: student?.firstName || "",
         lastName: student?.lastName || "",
         email: student?.email || "",
-        status: student?.status || "DANG_HOC",
+        status: student?.status || "ĐANG_HỌC",
         classId: student?.classId || "",
-        gender: student?.gender || "MALE",
+        gender: student?.gender || "NAM",
         dateOfBirth: student?.dateOfBirth?.slice(0, 10) || "",
       });
     } else {
@@ -56,9 +56,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
         firstName: "",
         lastName: "",
         email: "",
-        status: "DANG_HOC",
+        status: "ĐANG_HỌC",
         classId: "",
-        gender: "MALE",
+        gender: "NAM",
         dateOfBirth: "",
       });
     }
@@ -178,30 +178,14 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     <SelectValue placeholder="Chọn giới tính" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MALE">Nam</SelectItem>
-                    <SelectItem value="FEMALE">Nữ</SelectItem>
-                    <SelectItem value="OTHER">Khác</SelectItem>
+                    <SelectItem value="NAM">Nam</SelectItem>
+                    <SelectItem value="NỮ">Nữ</SelectItem>
+                    <SelectItem value="KHÁC">Khác</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="class">Lớp</Label>
-                <Select
-                  value={form.classId}
-                  onValueChange={(e) =>
-                    setForm({ ...form, classId: e.target.value })
-                  }
-                >
-                  <SelectTrigger id="class">
-                    <SelectValue placeholder="Chọn lớp" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="D21_TH12">D21_TH12</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
               <div className="grid gap-2">
                 <Label htmlFor="status">Trạng thái</Label>
                 <Select
@@ -212,10 +196,10 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DANG_HOC">Đang học</SelectItem>
-                    <SelectItem value="DA_TOT_NGHIEP">Đã tốt nghiệp</SelectItem>
-                    <SelectItem value="BAO_LUU">Bảo lưu</SelectItem>
-                    <SelectItem value="THOI_HOC">Thôi học</SelectItem>
+                    <SelectItem value="ĐANG_HỌC">Đang học</SelectItem>
+                    <SelectItem value="ĐÃ_TỐT_NGHIỆP">Đã tốt nghiệp</SelectItem>
+                    <SelectItem value="BẢO_LƯU">Bảo lưu</SelectItem>
+                    <SelectItem value="THÔI_HỌC">Thôi học</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -5,18 +5,17 @@ body,
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: hidden; /* Ngăn chặn cuộn toàn bộ trang */
 }
 
-.ant-layout {
-  height: 100%;
-  width: 100%;
-  overflow: hidden; /* Đảm bảo không tràn trong layout */
-}
-
-.ant-layout-content {
-  overflow: auto; /* Chỉ cho phép cuộn nội dung nếu cần */
-}
 /* .swal2-container-high-z {
   z-index: 99999 !important;
 } */
+#root {
+  height: 100vh; /* Đặt chiều cao toàn bộ trang */
+}
+
+.Card {
+  max-height: calc(100vh - 100px); /* Giới hạn chiều cao của Card */
+  overflow-y: auto; /* Cho phép cuộn nội dung bên trong Card */
+}
