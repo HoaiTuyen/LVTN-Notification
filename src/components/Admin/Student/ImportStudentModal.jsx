@@ -46,19 +46,22 @@ const ImportStudentModal = ({ open, onClose, onSuccess }) => {
 
       const students = res.data.students || [];
       const errs = res.data.errors || [];
-      setPreviewData(students || []);
+
+      const studentsWithErrors = students.map((student) => {
+        const matchingError = errs.find((err) => err.rowIndex === student.stt);
+        return {
+          ...student,
+          error: matchingError?.message || null,
+        };
+      });
+      // setPreviewData(students || []);
+      setPreviewData(studentsWithErrors);
       setErrors(errs || []);
 
       if (!students.length && !errs.length) {
         toast.error(res.message || "File không chứa dữ liệu hợp lệ.");
-      } else {
-        if (errs.length > 0) {
-          errs.forEach((err) => {
-            toast.error(`Dòng ${err.rowIndex}: ${err.message}`);
-          });
-        }
-        setShowPreviewModal(true);
       }
+      setShowPreviewModal(true);
     } catch (error) {
       toast.error(error || "Không thể xử lý file. Vui lòng kiểm tra lại.");
     } finally {
@@ -98,9 +101,7 @@ const ImportStudentModal = ({ open, onClose, onSuccess }) => {
           <div className="py-4">
             <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-md p-8">
               <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-              <p className="text-sm font-medium mb-1">
-                Kéo và thả file vào đây hoặc
-              </p>
+              <p className="text-sm font-medium mb-1"></p>
               <Button
                 onClick={() => inputRef.current?.click()}
                 disabled={loading}
@@ -115,7 +116,7 @@ const ImportStudentModal = ({ open, onClose, onSuccess }) => {
                 onChange={handleFileSelect}
               />
               <p className="text-xs text-muted-foreground mt-2">
-                Chỉ hỗ trợ định dạng: CSV, Excel (.xlsx)
+                Chỉ hỗ trợ định dạng: Excel (.xlsx)
               </p>
               {file && (
                 <div className="mt-2 text-sm text-center text-muted-foreground">
@@ -127,18 +128,6 @@ const ImportStudentModal = ({ open, onClose, onSuccess }) => {
                   {loading ? "Đang xử lý..." : "Xem trước dữ liệu"}
                 </Button>
               </div>
-              {errors.length > 0 && (
-                <div className="text-red-500 mt-4 text-sm">
-                  <p>Phát hiện lỗi trong file:</p>
-                  <ul className="list-disc pl-5 mt-2">
-                    {errors.map((err, idx) => (
-                      <li key={idx}>
-                        Dòng {err.rowIndex - 1}: {err.message}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
             <div className="mt-4">
               <p className="text-sm text-muted-foreground">
@@ -174,86 +163,3 @@ const ImportStudentModal = ({ open, onClose, onSuccess }) => {
 };
 
 export default ImportStudentModal;
-
-// <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-// <DialogContent className="max-w-3xl">
-//   <DialogHeader>
-//     <DialogTitle>Nhập danh sách sinh viên</DialogTitle>
-//   </DialogHeader>
-
-//   <Input
-//     type="file"
-//     accept=".xlsx,.xls"
-//     onChange={(e) => setFile(e.target.files[0])}
-//   />
-//   <Button onClick={handleReview} disabled={!file}>
-//     Xem trước
-//   </Button>
-
-//   {loading && <p>Đang xử lý file...</p>}
-
-//   {errors.length > 0 && (
-//     <div className="text-red-500">
-//       <p>Đã phát hiện lỗi trong file:</p>
-//       <ul>
-//         {errors.map((err, idx) => (
-//           <li
-//             key={idx}
-//           >{`Dòng ${err.row} - Cột ${err.column}: ${err.message}`}</li>
-//         ))}
-//       </ul>
-//     </div>
-//   )}
-
-//   {previewData.length > 0 && (
-//     <Table>
-//       <TableBody>
-//         {previewData.map((student, idx) => (
-//           <TableRow key={idx}>
-//             <TableCell>{student.id}</TableCell>
-//             <TableCell>
-//               {student.lastName} {student.firstName}
-//             </TableCell>
-//             <TableCell>{student.email}</TableCell>
-//             <TableCell>{student.gender}</TableCell>
-//             <TableCell>{student.dateOfBirth}</TableCell>
-//             <TableCell>{student.status}</TableCell>
-//           </TableRow>
-//         ))}
-//       </TableBody>
-//     </Table>
-//   )}
-
-//   <DialogFooter>
-//     <Button variant="outline" onClick={onClose}>
-//       Hủy
-//     </Button>
-//     <Button onClick={handleSave} disabled={errors.length > 0}>
-//       Lưu vào hệ thống
-//     </Button>
-//   </DialogFooter>
-// </DialogContent>
-// </Dialog>
-
-{
-  /* {previewData.length > 0 && (
-            <div className="mt-6">
-              <p className="text-sm font-semibold mb-2">Dữ liệu xem trước:</p>
-              <Table>
-                <TableBody>
-                  {previewData.map((student, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{student.id}</TableCell>
-                      <TableCell>
-                        {student.lastName} {student.firstName}
-                      </TableCell>
-                      <TableCell>{student.email}</TableCell>
-                      <TableCell>{student.gender}</TableCell>
-                      <TableCell>{student.status}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )} */
-}
