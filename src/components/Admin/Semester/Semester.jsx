@@ -43,21 +43,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-
+import dayjs from "dayjs";
 import useDebounce from "../../../hooks/useDebounce";
 import { Pagination } from "antd";
 import {
-  handleListGroup,
-  handleSearchGroup,
-} from "../../../controller/GroupController";
-import AddGroup from "./AddGroup";
-import DeleteGroup from "./DeleteGroup";
-const Group = () => {
+  handleListSemester,
+  handleSearchSemester,
+} from "../../../controller/SemesterController";
+import AddSemester from "./AddSemester";
+import DeleteSemester from "./DeleteSemester";
+const Semester = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [groups, setGroups] = useState([]);
-  const [selectGroup, setSelectGroup] = useState(null);
+  const [semesters, setSemesters] = useState([]);
+  const [selectSemester, setSelectSemester] = useState(null);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -65,38 +65,40 @@ const Group = () => {
     totalPages: 0,
     totalElements: 0,
   });
+
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const openEditGroup = (group) => {
-    setSelectGroup(group);
+  const openEditSemester = (semester) => {
+    setSelectSemester(semester);
     setOpenModal(true);
   };
 
-  const fetchListGroup = async (page = 1) => {
-    try {
-      let res;
-      const keyword = debouncedSearchTerm.trim();
-      if (keyword) {
-        res = await handleSearchGroup(keyword, page - 1, pagination.pageSize);
-      } else {
-        res = await handleListGroup(page - 1, pagination.pageSize);
-      }
-      if (res?.data && res?.status === 200) {
-        setGroups(res.data.studyGroups);
-        setPagination({
-          current: page,
-          pageSize: res.data.pageSize,
-          total: res.data.totalElements,
-          totalPages: res.data.totalPages,
-          totalElements: res.data.totalElements,
-        });
-      }
-    } catch (error) {
-      console.log(error);
+  const fetchListSemester = async (page = 1) => {
+    let res;
+    const keyword = debouncedSearchTerm.trim();
+    if (keyword) {
+      res = await handleSearchSemester(keyword, page - 1, pagination.pageSize);
+    } else {
+      res = await handleListSemester(page - 1, pagination.pageSize);
+    }
+
+    if (res?.data) {
+      setSemesters(res.data.semesters);
+      setPagination({
+        current: page,
+        pageSize: res.data.pageSize,
+        total: res.data.totalElements,
+        totalPages: res.data.totalPages,
+        totalElements: res.data.totalElements,
+      });
     }
   };
+  const handleFormatDate = (date) => {
+    const formatted = dayjs(date).format("DD/MM/YYYY");
 
+    return formatted;
+  };
   useEffect(() => {
-    fetchListGroup(pagination.current);
+    fetchListSemester(pagination.current);
   }, [debouncedSearchTerm, pagination.current]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
@@ -111,16 +113,16 @@ const Group = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm nhóm
+            <Plus className="h-4 w-4" /> Thêm học kỳ
           </Button>
           {openModal && (
-            <AddGroup
+            <AddSemester
               open={openModal}
               onClose={() => {
-                setOpenModal(false), setSelectGroup(null);
+                setOpenModal(false), setSelectSemester(null);
               }}
-              onSuccess={fetchListGroup}
-              group={selectGroup}
+              onSuccess={fetchListSemester}
+              semester={selectSemester}
             />
           )}
         </div>
@@ -128,8 +130,10 @@ const Group = () => {
         {/* Card */}
         <Card className="border border-gray-100">
           <CardHeader>
-            <CardTitle>Danh sách nhóm</CardTitle>
-            <CardDescription>Tổng số: {pagination.total} nhóm</CardDescription>
+            <CardTitle>Danh sách học kỳ</CardTitle>
+            <CardDescription>
+              Tổng số: {pagination.total} học kỳ
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -161,34 +165,46 @@ const Group = () => {
                 <TableHeader>
                   <TableRow className="border border-gray-200">
                     <TableHead>STT</TableHead>
-                    <TableHead>Tên nhóm</TableHead>
-                    <TableHead>Mã code</TableHead>
+                    <TableHead>Tên học kỳ</TableHead>
+                    <TableHead>Năm học</TableHead>
+                    <TableHead>Ngày bắt đầu</TableHead>
+                    <TableHead>Ngày kết thúc</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {groups.length === 0 ? (
+                  {semesters.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={6}
                         className="text-center py-6 text-gray-500"
                       >
                         Không tìm thấy khoa phù hợp
                       </TableCell>
                     </TableRow>
                   ) : (
-                    groups.map((group, index) => (
+                    semesters.map((semester, index) => (
                       <TableRow className="border border-gray-200">
                         <TableCell className="font-medium">
                           {index + 1}
                         </TableCell>
                         <TableCell
                           className="max-w-[180px] truncate"
-                          title={group.name}
+                          title={semester.nameSemester}
                         >
-                          <div className="flex items-center">{group.name}</div>
+                          <div className="flex items-center">
+                            {semester.nameSemester}
+                          </div>
                         </TableCell>
-                        <TableCell className="">{group.code}</TableCell>
+                        <TableCell className="">
+                          {semester.academicYear}
+                        </TableCell>
+                        <TableCell className="">
+                          {handleFormatDate(semester.startDate)}
+                        </TableCell>
+                        <TableCell className="">
+                          {handleFormatDate(semester.endDate)}
+                        </TableCell>
 
                         <TableCell className="text-center align-middle">
                           <DropdownMenu asChild>
@@ -214,7 +230,7 @@ const Group = () => {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
-                                onClick={() => openEditGroup(group)}
+                                onClick={() => openEditSemester(semester)}
                               >
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
@@ -229,7 +245,7 @@ const Group = () => {
                                 className="text-red-600 cursor-pointer"
                                 onClick={() => {
                                   setOpenModalDelete(true),
-                                    setSelectGroup(group);
+                                    setSelectSemester(semester);
                                 }}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Xóa
@@ -246,11 +262,11 @@ const Group = () => {
           </CardContent>
         </Card>
         {openModalDelete && (
-          <DeleteGroup
+          <DeleteSemester
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
-            group={selectGroup}
-            onSuccess={() => fetchListGroup(pagination.current)}
+            semester={selectSemester}
+            onSuccess={() => fetchListSemester(pagination.current)}
           />
         )}
         <div className="flex justify-center mt-4">
@@ -271,4 +287,4 @@ const Group = () => {
   );
 };
 
-export default Group;
+export default Semester;

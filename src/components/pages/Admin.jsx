@@ -12,6 +12,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 const { Header, Sider, Content } = Layout;
+import { Sheet } from "lucide-react";
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
 
@@ -22,6 +23,8 @@ import ClassRoom from "../Admin/ClassRoom/ClassRoom";
 import Account from "../Admin/Account/Account";
 import Lecturer from "../Admin/Lecturer/Lecturer";
 import Subject from "../Admin/Subject/Subject";
+import Semester from "../Admin/Semester/Semester";
+import NotificationType from "../Admin/NotificationType/NotìicationType";
 import { handleLogout } from "../../controller/AuthController";
 import { LogOut } from "lucide-react";
 
@@ -64,6 +67,11 @@ const AdminDashboard = () => {
       label: "Quản lý môn học",
     },
     {
+      key: "semester",
+      icon: <Sheet size={16} />,
+      label: "Quản lý học kỳ",
+    },
+    {
       key: "notificationGroup",
       icon: <NotificationOutlined />,
       label: "Quản lý thông báo nhóm học tập",
@@ -73,6 +81,11 @@ const AdminDashboard = () => {
       key: "group",
       icon: <TeamOutlined />,
       label: "Quản lý  nhóm học tập",
+    },
+    {
+      key: "notificationType",
+      icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
+      label: "Quản lý loại thông báo",
     },
     {
       key: "notification",
@@ -219,6 +232,8 @@ const AdminDashboard = () => {
           {selectedTab === "account" && <Account />}
           {selectedTab === "lecturer" && <Lecturer />}
           {selectedTab === "subject" && <Subject />}
+          {selectedTab === "semester" && <Semester />}
+          {selectedTab === "notificationType" && <NotificationType />}
         </Content>
       </Layout>
     </Layout>

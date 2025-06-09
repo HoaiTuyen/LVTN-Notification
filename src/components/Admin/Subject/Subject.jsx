@@ -46,16 +46,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import AddSubject from "./AddSubject";
 import DeleteSubject from "./DeleteSubject";
-import { handleListSubject } from "../../../controller/SubjectController";
+import {
+  handleListSubject,
+  handleSearchSubject,
+} from "../../../controller/SubjectController";
 import { toast } from "react-toastify";
 import { Pagination } from "antd";
-
+import useDebounce from "../../../hooks/useDebounce";
 const Subject = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [subjects, setSubjects] = useState([]);
   const [selectSubject, setSelectSubject] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -67,8 +71,16 @@ const Subject = () => {
     setOpenModal(true);
   };
   const fetchListSubject = async (page = 1) => {
-    const res = await handleListSubject(page - 1, pagination.pageSize);
-    console.log(res);
+    let res;
+    const keyword = debouncedSearchTerm.trim();
+    console.log(keyword);
+
+    if (keyword.trim() === "") {
+      res = await handleListSubject(page - 1, pagination.pageSize);
+    } else {
+      res = await handleSearchSubject(keyword, page - 1, pagination.pageSize);
+      console.log(res);
+    }
 
     if (res?.data) {
       setSubjects(res.data.subjects);
@@ -84,7 +96,7 @@ const Subject = () => {
   };
   useEffect(() => {
     fetchListSubject(1);
-  }, []);
+  }, [debouncedSearchTerm]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">

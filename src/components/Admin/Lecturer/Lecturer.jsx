@@ -45,14 +45,15 @@ import {
 } from "../../../controller/TeacherController";
 import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
+import ImportTeacherModal from "./ImportTeacherModal";
 const Lecturer = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [teachers, setTeachers] = useState([]);
-  // const [listDepartment, setListDepartment] = useState([]);
   const [selectTeacher, setSelectTeacher] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectStatus, setSelectStatus] = useState("all");
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   // Lưu tên khoa được chọn
   const [pagination, setPagination] = useState({
@@ -64,11 +65,11 @@ const Lecturer = () => {
   const renderGender = (gender) => {
     switch (gender) {
       case "NAM":
-        return "NAM";
+        return "Nam";
       case "NỮ":
-        return "NỮ";
+        return "Nữ";
       case "KHÁC":
-        return "KHÁC";
+        return "Khác";
       default:
         return "Không rõ";
     }
@@ -123,10 +124,20 @@ const Lecturer = () => {
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
-          <Button variant="outline" className="flex items-center">
+          <Button
+            variant="outline"
+            className="flex items-center"
+            onClick={() => setOpenModalUpdate(true)}
+          >
             <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
           </Button>
-
+          {openModalUpdate && (
+            <ImportTeacherModal
+              open={openModalUpdate}
+              onClose={() => setOpenModalUpdate(false)}
+              onSuccess={fetchListTeacher}
+            />
+          )}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
             onClick={() => setShowModal(true)}
@@ -147,11 +158,11 @@ const Lecturer = () => {
         </div>
 
         {/* Card */}
-        <Card className="border border-gray-100">
+        <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách giảng viên</CardTitle>
             <CardDescription>
-              Tổng số: {teachers.length} giảng viên
+              Tổng số: {pagination.total} giảng viên
             </CardDescription>
           </CardHeader>
           <CardContent>

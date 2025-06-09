@@ -3,6 +3,7 @@ import {
   listSubject,
   updateSubject,
   deleteSubject,
+  searchSubject,
 } from "../servicers/SubjectServicer";
 
 export const handleAddSubject = async (data) => {
@@ -73,5 +74,23 @@ export const handleDeleteSubject = async (id) => {
         message: errMsg,
       };
     }
+  }
+};
+export const handleSearchSubject = async (keyword, page = 0, pageSize = 10) => {
+  try {
+    const response = await searchSubject(keyword, page, pageSize);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi tìm kiếm khoa",
+      data: [],
+    };
   }
 };

@@ -17,3 +17,12 @@ export const updateSubject = (data) => {
 export const deleteSubject = (id) => {
   return api.delete(`/subject/delete/${id}`);
 };
+export const searchSubject = (keyword, page, pageSize = 10) => {
+  return api.get("/subject/list_subjects", {
+    params: {
+      keyword: keyword,
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};

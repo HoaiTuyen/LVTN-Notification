@@ -84,6 +84,7 @@ const Department = () => {
           page - 1,
           pagination.pageSize
         );
+        console.log(res);
       }
 
       if (res?.data) {
@@ -101,8 +102,8 @@ const Department = () => {
     }
   };
   useEffect(() => {
-    fetchListDepartment(1);
-  }, [debouncedSearchTerm]);
+    fetchListDepartment(pagination.current);
+  }, [debouncedSearchTerm, pagination.current]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -277,9 +278,12 @@ const Department = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
-            onChange={(page) => {
-              fetchListDepartment(page);
-            }}
+            onChange={(page) =>
+              setPagination((prev) => ({
+                ...prev,
+                current: page,
+              }))
+            }
           />
         </div>
       </div>

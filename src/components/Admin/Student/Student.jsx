@@ -124,11 +124,11 @@ const Student = () => {
   const renderGender = (gender) => {
     switch (gender) {
       case "NAM":
-        return "NAM";
+        return "Nam";
       case "NỮ":
-        return "NỮ";
+        return "Nữ";
       case "KHÁC":
-        return "KHÁC";
+        return "Khác";
       default:
         return "Không rõ";
     }

@@ -4,6 +4,8 @@ import {
   updateTeacher,
   deleteTeacher,
   searchTeacher,
+  createTeacherExcel,
+  getListTeacherExcel,
 } from "../servicers/TeacherServicer";
 
 export const handleAddTeacher = async (dataTeacher) => {
@@ -121,6 +123,44 @@ export const handleSearchTeacher = async (
       status: error.response?.status || 500,
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi tìm kiếm khoa",
+      data: [],
+    };
+  }
+};
+
+export const handleGetListTeacherExcel = async (file) => {
+  try {
+    const response = await getListTeacherExcel(file);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+
+export const handleCreateTeacherExcel = async (data) => {
+  try {
+    const response = await createTeacherExcel(data);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
       data: [],
     };
   }
