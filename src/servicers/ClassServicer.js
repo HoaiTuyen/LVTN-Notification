@@ -36,3 +36,23 @@ export const getListClassExcel = (formData) => {
 export const createClassExcel = (data) => {
   return api.post("/class/class_excel", data);
 };
+export const listStudentByClass = (classId, page, pageSize = 10) => {
+  return api.get("/class/student_by_class", {
+    params: {
+      classId: classId,
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};
+
+export const getListStudentByClassExcel = (formData) => {
+  return api.post("/class/review_classes_student", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+export const createStudentByClassExcel = (data) => {
+  return api.post("/class/add_student_class", data);
+};

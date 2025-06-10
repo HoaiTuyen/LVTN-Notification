@@ -6,6 +6,9 @@ import {
   searchClass,
   createClassExcel,
   getListClassExcel,
+  listStudentByClass,
+  getListStudentByClassExcel,
+  createStudentByClassExcel,
 } from "../servicers/ClassServicer";
 
 export const handleAddClass = async (data) => {
@@ -117,6 +120,62 @@ export const handleGetListClassExcel = async (file) => {
 export const handleCreateClassExcel = async (data) => {
   try {
     const response = await createClassExcel(data);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+
+export const handleListStudentByClass = async (data) => {
+  try {
+    const response = await listStudentByClass(data);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+
+export const handleGetListStudentByClassExcel = async (file) => {
+  try {
+    const response = await getListStudentByClassExcel(file);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+export const handleCreateStudentByClassExcel = async (data) => {
+  try {
+    const response = await createStudentByClassExcel(data);
 
     return {
       status: response.status,

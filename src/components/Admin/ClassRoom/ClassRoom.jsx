@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
+import { Outlet } from "react-router-dom";
 import {
   Card,
   CardHeader,
@@ -53,8 +53,9 @@ import {
 import useDebounce from "../../../hooks/useDebounce";
 import DeleteClass from "./DeleteClass";
 import ImportClassModal from "./ImportClassModal";
-import ListStudentOfClass from "./ListStudentOfClass";
+import ListStudentOfClass from "./ListStudentByClass/ListStudentOfClass";
 const ClassName = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [classRoom, setClasses] = useState([]);
@@ -238,13 +239,15 @@ const ClassName = () => {
                                 asChild
                                 className="cursor-pointer"
                               >
-                                <Link
-                                  to={`/admin/${item.id}/students`}
-                                  state={{ from: "/admin/class" }}
+                                <DropdownMenuItem
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    navigate(`/admin/class/${item.id}/students`)
+                                  }
                                 >
                                   <Users className="h-4 w-4" />
                                   Danh sách sinh viên
-                                </Link>
+                                </DropdownMenuItem>
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
@@ -296,6 +299,7 @@ const ClassName = () => {
           />
         </div>
       </div>
+      <Outlet />
     </div>
   );
 };

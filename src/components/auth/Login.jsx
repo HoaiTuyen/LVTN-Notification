@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { handleLogin } from "../../controller/AuthController";
 
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
-import { showSuccessAlert, showErrorAlert } from "../../util/AlertUtils";
 
+import { toast } from "react-toastify";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,9 +16,9 @@ const Login = () => {
     const res = await handleLogin(username, password, navigate);
 
     if (res.status === 200) {
-      showSuccessAlert(res.message);
+      toast.success(res.message);
     } else {
-      showErrorAlert(res.message);
+      toast.error(res.message);
     }
   };
   return (

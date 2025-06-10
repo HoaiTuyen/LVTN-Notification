@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Layout, Menu, Button, Avatar, Drawer, Grid, Dropdown } from "antd";
 import {
   UserOutlined,
@@ -36,8 +36,12 @@ const AdminDashboard = () => {
     email: "nguyenvana@example.com",
   });
   const navigate = useNavigate();
+  const location = useLocation();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
+
+  // Kiểm tra xem có đang ở trang danh sách sinh viên không
+  const isStudentListPage = location.pathname.includes("/students");
 
   const handleLogoutUser = () => {
     handleLogout(navigate);
@@ -202,22 +206,24 @@ const AdminDashboard = () => {
         </Header>
 
         <Layout>
-          {!isMobile && (
+          {!isStudentListPage && !isMobile && (
             <Sider width={250} theme="light" style={{ height: "100vh" }}>
               {SidebarMenu}
             </Sider>
           )}
 
-          <Drawer
-            title="Menu"
-            placement="left"
-            onClose={() => setDrawerVisible(false)}
-            open={drawerVisible}
-            bodyStyle={{ padding: 0 }}
-            style={{ height: "100vh" }}
-          >
-            {SidebarMenu}
-          </Drawer>
+          {!isStudentListPage && (
+            <Drawer
+              title="Menu"
+              placement="left"
+              onClose={() => setDrawerVisible(false)}
+              open={drawerVisible}
+              bodyStyle={{ padding: 0 }}
+              style={{ height: "100vh" }}
+            >
+              {SidebarMenu}
+            </Drawer>
+          )}
 
           {/* NỘI DUNG */}
           <Content
@@ -225,21 +231,13 @@ const AdminDashboard = () => {
               padding: 0,
               height: "100%",
               overflow: "auto",
+              width: isStudentListPage ? "100%" : "auto",
             }}
           >
-            {selectedTab === "student-admin" && <Student />}
-            {selectedTab === "group" && <Group />}
-            {selectedTab === "department" && <Department />}
-            {selectedTab === "class" && <ClassRoom />}
-            {selectedTab === "account" && <Account />}
-            {selectedTab === "lecturer-admin" && <Lecturer />}
-            {selectedTab === "subject" && <Subject />}
-            {selectedTab === "semester" && <Semester />}
-            {selectedTab === "notification-type" && <NotificationType />}
+            <Outlet />
           </Content>
         </Layout>
       </Layout>
-      <Outlet />
     </>
   );
 };
