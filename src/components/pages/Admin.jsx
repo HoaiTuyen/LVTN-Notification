@@ -16,15 +16,7 @@ import { Sheet } from "lucide-react";
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
-import Student from "../Admin/Student/Student";
-import Group from "../Admin/Group/Group";
-import Department from "../Admin/Department/Department";
-import ClassRoom from "../Admin/ClassRoom/ClassRoom";
-import Account from "../Admin/Account/Account";
-import Lecturer from "../Admin/Lecturer/Lecturer";
-import Subject from "../Admin/Subject/Subject";
-import Semester from "../Admin/Semester/Semester";
-import NotificationType from "../Admin/NotificationType/NotificationType";
+
 import { handleLogout } from "../../controller/AuthController";
 import { LogOut } from "lucide-react";
 

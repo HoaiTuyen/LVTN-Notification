@@ -78,7 +78,7 @@ const ImportTeacherModal = ({ open, onClose, onSuccess }) => {
     try {
       const res = await handleCreateTeacherExcel(data);
 
-      if (res?.data && res?.status === 201) {
+      if (res?.data || res?.status === 201) {
         onSuccess();
         toast.success(res.message || "Lưu thành công!");
         onClose();

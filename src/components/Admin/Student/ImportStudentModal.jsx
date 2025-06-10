@@ -69,11 +69,10 @@ const ImportStudentModal = ({ open, onClose, onSuccess }) => {
     }
   };
   const handleCreateStudent = async (data) => {
-    console.log(data);
-
     try {
       const res = await handleCreateStudentExcel(data);
-      if (res?.data && res?.status === 200) {
+
+      if (res?.data || res?.status === 201) {
         onSuccess();
         toast.success("Lưu thành công!");
         onClose();

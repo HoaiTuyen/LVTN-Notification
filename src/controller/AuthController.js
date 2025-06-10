@@ -13,6 +13,7 @@ export const handleLogin = async (username, password, navigate) => {
       );
       const roles = tokenPayload.role || [];
       const authority = roles.length > 0 ? roles[0].authority : "STUDENT";
+      console.log(authority);
 
       if (authority === "ADMIN") {
         navigate("/admin");

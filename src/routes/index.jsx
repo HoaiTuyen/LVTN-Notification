@@ -17,6 +17,8 @@ import LecturerAdmin from "../components/Admin/Lecturer/Lecturer";
 import Subject from "../components/Admin/Subject/Subject";
 import Semester from "../components/Admin/Semester/Semester";
 import NotificationType from "../components/Admin/NotificationType/NotificationType";
+//student
+import NotificationsPage from "../components/Student/NotificationPage";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -67,7 +69,9 @@ function AppRoutes() {
               <Student />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="notification" element={<NotificationsPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

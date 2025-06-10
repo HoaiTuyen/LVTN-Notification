@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,23 +29,45 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-
+import useWebSocket from "@/config/Websorket";
+import { handleCreateNotification } from "../../controller/NotificationController";
+import { toast } from "react-toastify";
 export default function CreateNotification() {
+  const { connected } = useWebSocket();
+
+  useEffect(() => {
+    if (connected) {
+      console.log("🎉 Kết nối WebSocket thành công!");
+    }
+  }, [connected]);
+
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    type: "",
-    priority: "medium",
-    targetAudience: [],
-    scheduleDate: "",
-    scheduleTime: "",
-    attachments: [],
+    // type: "",
+    // priority: "medium",
+    // targetAudience: [],
+    // scheduleDate: "",
+    // scheduleTime: "",
+    // attachments: [],
   });
 
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const hanndleSubmit = async () => {
+    const req = await handleCreateNotification(
+      formData.title,
+      formData.content
+    );
+    console.log(req);
 
+    toast.success(req.message);
+    setFormData({
+      title: "",
+      content: "",
+    });
+  };
   const notificationTypes = [
     { value: "announcement", label: "Thông báo chung", icon: "" },
     { value: "assignment", label: "Bài tập", icon: "" },
@@ -55,25 +77,25 @@ export default function CreateNotification() {
     { value: "urgent", label: "Khẩn cấp", icon: "" },
   ];
 
-  const priorityLevels = [
-    { value: "low", label: "Thấp", color: "bg-gray-100 text-gray-800" },
-    {
-      value: "medium",
-      label: "Trung bình",
-      color: "bg-blue-100 text-blue-800",
-    },
-    { value: "high", label: "Cao", color: "bg-orange-100 text-orange-800" },
-    { value: "urgent", label: "Khẩn cấp", color: "bg-red-100 text-red-800" },
-  ];
+  // const priorityLevels = [
+  //   { value: "low", label: "Thấp", color: "bg-gray-100 text-gray-800" },
+  //   {
+  //     value: "medium",
+  //     label: "Trung bình",
+  //     color: "bg-blue-100 text-blue-800",
+  //   },
+  //   { value: "high", label: "Cao", color: "bg-orange-100 text-orange-800" },
+  //   { value: "urgent", label: "Khẩn cấp", color: "bg-red-100 text-red-800" },
+  // ];
 
-  const audienceOptions = [
-    { id: "all-students", label: "Tất cả sinh viên" },
-    { id: "it301", label: "Lớp IT301 - Lập trình Web" },
-    { id: "it205", label: "Lớp IT205 - Cơ sở dữ liệu" },
-    { id: "it401", label: "Lớp IT401 - Phân tích thiết kế hệ thống" },
-    { id: "it501", label: "Lớp IT501 - Trí tuệ nhân tạo" },
-    { id: "study-groups", label: "Nhóm học tập" },
-  ];
+  // const audienceOptions = [
+  //   { id: "all-students", label: "Tất cả sinh viên" },
+  //   { id: "it301", label: "Lớp IT301 - Lập trình Web" },
+  //   { id: "it205", label: "Lớp IT205 - Cơ sở dữ liệu" },
+  //   { id: "it401", label: "Lớp IT401 - Phân tích thiết kế hệ thống" },
+  //   { id: "it501", label: "Lớp IT501 - Trí tuệ nhân tạo" },
+  //   { id: "study-groups", label: "Nhóm học tập" },
+  // ];
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -91,19 +113,19 @@ export default function CreateNotification() {
     setSuccess(false);
   };
 
-  const handleAudienceChange = (audienceId, checked) => {
-    if (checked) {
-      setFormData((prev) => ({
-        ...prev,
-        targetAudience: [...prev.targetAudience, audienceId],
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        targetAudience: prev.targetAudience.filter((id) => id !== audienceId),
-      }));
-    }
-  };
+  // const handleAudienceChange = (audienceId, checked) => {
+  //   if (checked) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       targetAudience: [...prev.targetAudience, audienceId],
+  //     }));
+  //   } else {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       targetAudience: prev.targetAudience.filter((id) => id !== audienceId),
+  //     }));
+  //   }
+  // };
 
   const validateForm = () => {
     const newErrors = {};
@@ -156,9 +178,9 @@ export default function CreateNotification() {
   const selectedType = notificationTypes.find(
     (type) => type.value === formData.type
   );
-  const selectedPriority = priorityLevels.find(
-    (priority) => priority.value === formData.priority
-  );
+  // const selectedPriority = priorityLevels.find(
+  //   (priority) => priority.value === formData.priority
+  // );
 
   return (
     <div className="min-h-screen w-full bg-white p-0">
@@ -203,7 +225,7 @@ export default function CreateNotification() {
                       )}
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
+                    {/* <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="type">Loại thông báo *</Label>
                         <Select
@@ -256,7 +278,7 @@ export default function CreateNotification() {
                           </SelectContent>
                         </Select>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="space-y-2">
                       <Label htmlFor="content">Nội dung thông báo *</Label>
@@ -275,7 +297,7 @@ export default function CreateNotification() {
                       )}
                     </div>
 
-                    <div className="space-y-3">
+                    {/* <div className="space-y-3">
                       <Label>Đối tượng nhận thông báo *</Label>
                       <div className="space-y-2">
                         {audienceOptions.map((option) => (
@@ -306,9 +328,9 @@ export default function CreateNotification() {
                           {errors.targetAudience}
                         </p>
                       )}
-                    </div>
+                    </div> */}
 
-                    <div className="grid gap-4 md:grid-cols-2">
+                    {/* <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="scheduleDate">
                           Lên lịch gửi (tùy chọn)
@@ -335,7 +357,7 @@ export default function CreateNotification() {
                           disabled={!formData.scheduleDate}
                         />
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="flex gap-4">
                       <Button
@@ -349,6 +371,7 @@ export default function CreateNotification() {
                         type="submit"
                         className="flex-1"
                         disabled={isLoading}
+                        onClick={() => hanndleSubmit()}
                       >
                         <Send className="mr-2 h-4 w-4" />
                         {isLoading ? "Đang gửi..." : "Gửi thông báo"}
@@ -380,11 +403,11 @@ export default function CreateNotification() {
                     </div>
                   )}
 
-                  {selectedPriority && (
+                  {/* {selectedPriority && (
                     <Badge className={selectedPriority.color}>
                       {selectedPriority.label}
                     </Badge>
-                  )}
+                  )} */}
 
                   {formData.content && (
                     <div className="max-h-40 overflow-y-auto rounded-md border p-3 text-sm text-muted-foreground bg-gray-50">
@@ -393,7 +416,7 @@ export default function CreateNotification() {
                     </div>
                   )}
 
-                  {formData.targetAudience.length > 0 && (
+                  {/* {formData.targetAudience.length > 0 && (
                     <div>
                       <p className="text-sm font-medium mb-2">Gửi đến:</p>
                       <div className="space-y-1">
@@ -413,7 +436,7 @@ export default function CreateNotification() {
                         })}
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </CardContent>
               </Card>
 
@@ -429,10 +452,10 @@ export default function CreateNotification() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Tổng người nhận:</span>
                     <Badge variant="secondary">
-                      {formData.targetAudience.includes("all-students")
+                      {/* {formData.targetAudience.includes("all-students")
                         ? "245"
                         : formData.targetAudience.length * 35}{" "}
-                      sinh viên
+                      sinh viên */}
                     </Badge>
                   </div>
 
