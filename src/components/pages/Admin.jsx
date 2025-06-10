@@ -15,7 +15,7 @@ const { Header, Sider, Content } = Layout;
 import { Sheet } from "lucide-react";
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
-
+import { Outlet } from "react-router-dom";
 import Student from "../Admin/Student/Student";
 import Group from "../Admin/Group/Group";
 import Department from "../Admin/Department/Department";
@@ -129,114 +129,117 @@ const AdminDashboard = () => {
   );
 
   return (
-    <Layout style={{ minHeight: "150vh", width: "100vw" }}>
-      <Header
-        style={{
-          backgroundColor: "#fff",
-          padding: "0 16px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #eee",
-        }}
-      >
-        <div className="sm:w-full sm:max-w-sm">
-          <img
-            className="h-10 w-auto"
-            src="/img/logo1.png"
-            alt="Your Company"
-          />
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {isMobile && (
-            <Button
-              icon={<MenuUnfoldOutlined />}
-              onClick={() => setDrawerVisible(true)}
-            />
-          )}
-
-          <Dropdown
-            overlay={
-              <Menu
-                items={[
-                  {
-                    key: "userInfo",
-                    label: (
-                      <div style={{ padding: "", textAlign: "start" }}>
-                        <div style={{ fontWeight: "bold" }}>
-                          {userInfo.name}
-                        </div>
-                        <div style={{ fontSize: "12px", color: "#888" }}>
-                          {userInfo.email}
-                        </div>
-                      </div>
-                    ),
-                  },
-                  {
-                    key: "settings",
-                    label: "Cài đặt",
-                    icon: <SettingOutlined />,
-                  },
-                  {
-                    key: "logout",
-                    label: "Đăng xuất",
-                    icon: <LogOut size={16} />,
-                    style: { color: "red", fontWeight: "bold" },
-                  },
-                ]}
-                onClick={(e) => {
-                  if (e.key === "logout") handleLogoutUser();
-                }}
-              />
-            }
-            trigger={["click"]}
-          >
-            <div style={{ cursor: "pointer", paddingRight: "25px" }}>
-              <Avatar icon={<UserOutlined />} />
-            </div>
-          </Dropdown>
-        </div>
-      </Header>
-
-      <Layout>
-        {!isMobile && (
-          <Sider width={250} theme="light" style={{ height: "100vh" }}>
-            {SidebarMenu}
-          </Sider>
-        )}
-
-        <Drawer
-          title="Menu"
-          placement="left"
-          onClose={() => setDrawerVisible(false)}
-          open={drawerVisible}
-          bodyStyle={{ padding: 0 }}
-          style={{ height: "100vh" }}
-        >
-          {SidebarMenu}
-        </Drawer>
-
-        {/* NỘI DUNG */}
-        <Content
+    <>
+      <Layout style={{ minHeight: "150vh", width: "100vw" }}>
+        <Header
           style={{
-            padding: 0,
-            height: "100%",
-            overflow: "auto",
+            backgroundColor: "#fff",
+            padding: "0 16px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid #eee",
           }}
         >
-          {selectedTab === "student" && <Student />}
-          {selectedTab === "group" && <Group />}
-          {selectedTab === "department" && <Department />}
-          {selectedTab === "class" && <ClassRoom />}
-          {selectedTab === "account" && <Account />}
-          {selectedTab === "lecturer" && <Lecturer />}
-          {selectedTab === "subject" && <Subject />}
-          {selectedTab === "semester" && <Semester />}
-          {selectedTab === "notificationType" && <NotificationType />}
-        </Content>
+          <div className="sm:w-full sm:max-w-sm">
+            <img
+              className="h-10 w-auto"
+              src="/img/logo1.png"
+              alt="Your Company"
+            />
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            {isMobile && (
+              <Button
+                icon={<MenuUnfoldOutlined />}
+                onClick={() => setDrawerVisible(true)}
+              />
+            )}
+
+            <Dropdown
+              overlay={
+                <Menu
+                  items={[
+                    {
+                      key: "userInfo",
+                      label: (
+                        <div style={{ padding: "", textAlign: "start" }}>
+                          <div style={{ fontWeight: "bold" }}>
+                            {userInfo.name}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#888" }}>
+                            {userInfo.email}
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "settings",
+                      label: "Cài đặt",
+                      icon: <SettingOutlined />,
+                    },
+                    {
+                      key: "logout",
+                      label: "Đăng xuất",
+                      icon: <LogOut size={16} />,
+                      style: { color: "red", fontWeight: "bold" },
+                    },
+                  ]}
+                  onClick={(e) => {
+                    if (e.key === "logout") handleLogoutUser();
+                  }}
+                />
+              }
+              trigger={["click"]}
+            >
+              <div style={{ cursor: "pointer", paddingRight: "25px" }}>
+                <Avatar icon={<UserOutlined />} />
+              </div>
+            </Dropdown>
+          </div>
+        </Header>
+
+        <Layout>
+          {!isMobile && (
+            <Sider width={250} theme="light" style={{ height: "100vh" }}>
+              {SidebarMenu}
+            </Sider>
+          )}
+
+          <Drawer
+            title="Menu"
+            placement="left"
+            onClose={() => setDrawerVisible(false)}
+            open={drawerVisible}
+            bodyStyle={{ padding: 0 }}
+            style={{ height: "100vh" }}
+          >
+            {SidebarMenu}
+          </Drawer>
+
+          {/* NỘI DUNG */}
+          <Content
+            style={{
+              padding: 0,
+              height: "100%",
+              overflow: "auto",
+            }}
+          >
+            {selectedTab === "student" && <Student />}
+            {selectedTab === "group" && <Group />}
+            {selectedTab === "department" && <Department />}
+            {selectedTab === "class" && <ClassRoom />}
+            {selectedTab === "account" && <Account />}
+            {selectedTab === "lecturer" && <Lecturer />}
+            {selectedTab === "subject" && <Subject />}
+            {selectedTab === "semester" && <Semester />}
+            {selectedTab === "notificationType" && <NotificationType />}
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+      <Outlet />
+    </>
   );
 };
 

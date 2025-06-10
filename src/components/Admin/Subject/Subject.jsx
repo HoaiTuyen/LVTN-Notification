@@ -53,12 +53,14 @@ import {
 import { toast } from "react-toastify";
 import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
+import ImportSubjectModal from "./ImportSubjectModal";
 const Subject = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [subjects, setSubjects] = useState([]);
   const [selectSubject, setSelectSubject] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [openUpload, setOpenUpload] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -95,8 +97,8 @@ const Subject = () => {
     }
   };
   useEffect(() => {
-    fetchListSubject(1);
-  }, [debouncedSearchTerm]);
+    fetchListSubject(pagination.current);
+  }, [debouncedSearchTerm, pagination.current]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -105,10 +107,17 @@ const Subject = () => {
           <Button
             variant="outline"
             className="flex items-center cursor-pointer"
+            onClick={() => setOpenUpload(true)}
           >
             <Upload className="mr-2 h-4 w-4" /> Nhập danh sách môn học
           </Button>
-
+          {openUpload && (
+            <ImportSubjectModal
+              open={openUpload}
+              onClose={() => setOpenUpload(false)}
+              onSuccess={fetchListSubject}
+            />
+          )}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
@@ -128,7 +137,7 @@ const Subject = () => {
         </div>
 
         {/* Card */}
-        <Card className="border border-gray-100">
+        <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách lớp</CardTitle>
             <CardDescription>

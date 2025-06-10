@@ -1,16 +1,16 @@
 import {
-  addSubject,
-  listSubject,
-  updateSubject,
-  deleteSubject,
-  searchSubject,
-  createSubjectExcel,
-  getListSubjectExcel,
-} from "../servicers/SubjectServicer";
+  listClass,
+  addClass,
+  deleteClass,
+  updateClass,
+  searchClass,
+  createClassExcel,
+  getListClassExcel,
+} from "../servicers/ClassServicer";
 
-export const handleAddSubject = async (data) => {
+export const handleAddClass = async (data) => {
   try {
-    const response = await addSubject(data);
+    const response = await addClass(data);
 
     return {
       status: response.status,
@@ -26,9 +26,9 @@ export const handleAddSubject = async (data) => {
     };
   }
 };
-export const handleListSubject = async (page, pageSize) => {
+export const handleListClass = async (page, pageSize) => {
   try {
-    const response = await listSubject(page, pageSize);
+    const response = await listClass(page, pageSize);
 
     return {
       status: response.status,
@@ -45,10 +45,9 @@ export const handleListSubject = async (page, pageSize) => {
   }
 };
 
-export const handleUpdateSubject = async (data) => {
+export const handleUpdateClass = async (data) => {
   try {
-    const response = await updateSubject(data);
-
+    const response = await updateClass(data);
     return {
       status: response.status,
       data: response.data,
@@ -63,9 +62,9 @@ export const handleUpdateSubject = async (data) => {
     };
   }
 };
-export const handleDeleteSubject = async (id) => {
+export const handleDeleteClass = async (id) => {
   try {
-    const response = await deleteSubject(id);
+    const response = await deleteClass(id);
     return response;
   } catch (error) {
     if (error) {
@@ -78,9 +77,9 @@ export const handleDeleteSubject = async (id) => {
     }
   }
 };
-export const handleSearchSubject = async (keyword, page = 0, pageSize = 10) => {
+export const handleSearchClass = async (keyword, page = 0, pageSize = 10) => {
   try {
-    const response = await searchSubject(keyword, page, pageSize);
+    const response = await searchClass(keyword, page, pageSize);
 
     return {
       status: response.status,
@@ -96,9 +95,9 @@ export const handleSearchSubject = async (keyword, page = 0, pageSize = 10) => {
     };
   }
 };
-export const handleGetListSubjectExcel = async (file) => {
+export const handleGetListClassExcel = async (file) => {
   try {
-    const response = await getListSubjectExcel(file);
+    const response = await getListClassExcel(file);
 
     return {
       status: response.status,
@@ -115,9 +114,9 @@ export const handleGetListSubjectExcel = async (file) => {
   }
 };
 
-export const handleCreateSubjectExcel = async (data) => {
+export const handleCreateClassExcel = async (data) => {
   try {
-    const response = await createSubjectExcel(data);
+    const response = await createClassExcel(data);
 
     return {
       status: response.status,

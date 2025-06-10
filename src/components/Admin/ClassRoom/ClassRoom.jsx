@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -45,18 +45,56 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import AddClass from "./AddClass";
-const classRooms = [
-  {
-    id: "D21_TH12",
-    className: "Công nghệ thông tin",
-    lecturerName: "Thầy Duy",
-    major: "CNTT",
-  },
-];
-
+import { Pagination } from "antd";
+import {
+  handleListClass,
+  handleSearchClass,
+} from "../../../controller/ClassController";
+import useDebounce from "../../../hooks/useDebounce";
+import DeleteClass from "./DeleteClass";
+import ImportClassModal from "./ImportClassModal";
+import ListStudentOfClass from "./ListStudentOfClass";
 const ClassName = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [classRoom, setClasses] = useState([]);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [openUpload, setOpenUpload] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [selectClass, setSelectClass] = useState(null);
+
+  const openEditClass = (item) => {
+    setSelectClass(item);
+    setOpenModal(true);
+  };
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const fetchListClass = async (page = 1) => {
+    let res;
+    const keyword = debouncedSearchTerm.trim();
+    if (keyword) {
+      res = await handleSearchClass(keyword, page - 1, pagination.pageSize);
+    } else {
+      res = await handleListClass(page - 1, pagination.pageSize);
+    }
+    if (res?.data && res?.status === 200) {
+      setClasses(res.data.classes);
+      setPagination({
+        current: page,
+        pageSize: res.data.pageSize,
+        total: res.data.totalElements,
+        totalPages: res.data.totalPages,
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchListClass(pagination.current);
+  }, [debouncedSearchTerm, pagination.current]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -65,24 +103,40 @@ const ClassName = () => {
           <Button
             variant="outline"
             className="flex items-center cursor-pointer"
+            onClick={() => setOpenUpload(true)}
           >
             <Upload className="mr-2 h-4 w-4" /> Nhập danh sách lớp
           </Button>
-
+          {openUpload && (
+            <ImportClassModal
+              open={openUpload}
+              onClose={() => setOpenUpload(false)}
+              onSuccess={fetchListClass}
+            />
+          )}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => setOpenModal(true)}
           >
             <Plus className="mr-2 h-4 w-4" /> Thêm lớp
           </Button>
-          <AddClass open={openModal} onClose={() => setOpenModal(false)} />
+          {openModal && (
+            <AddClass
+              open={openModal}
+              onClose={() => {
+                setOpenModal(false), setSelectClass(null);
+              }}
+              onSuccess={fetchListClass}
+              classRoom={selectClass}
+            />
+          )}
         </div>
 
         {/* Card */}
-        <Card className="border border-gray-100">
+        <Card className="border border-gray-100 overflow-x-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách lớp</CardTitle>
-            <CardDescription>Tổng số: {classRooms.length} lớp</CardDescription>
+            <CardDescription>Tổng số: {pagination.total} lớp</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -90,7 +144,7 @@ const ClassName = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm khoa..."
+                  placeholder="Tìm kiếm lớp..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -113,75 +167,134 @@ const ClassName = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>Mã lớp</TableHead>
+                    <TableHead>STT</TableHead>
                     <TableHead>Tên lớp</TableHead>
+                    <TableHead>Mô tả</TableHead>
                     <TableHead>Giáo viên phụ trách</TableHead>
-                    <TableHead className="">Khoa</TableHead>
+                    <TableHead>Khoa</TableHead>
                     <TableHead className="text-center">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {classRooms.map((classRoom) => (
-                    <TableRow
-                      className="border border-gray-200"
-                      key={classRoom.id}
-                    >
-                      <TableCell className="font-medium">
-                        {classRoom.id}
-                      </TableCell>
+                  {classRoom.length === 0 ? (
+                    <TableRow>
                       <TableCell
-                        className="max-w-[180px] truncate"
-                        title={classRoom.className}
+                        colSpan={6}
+                        className="text-center py-6 text-gray-500"
                       >
-                        <div className="flex items-center">
-                          {classRoom.className}
-                        </div>
-                      </TableCell>
-                      <TableCell className="">
-                        {classRoom.lecturerName}
-                      </TableCell>
-                      <TableCell className="">{classRoom.major}</TableCell>
-
-                      <TableCell className="text-center align-middle">
-                        <DropdownMenu asChild>
-                          <DropdownMenuTrigger>
-                            <Button
-                              variant="ghost"
-                              className="h-8 w-8 p-0 cursor-pointer"
-                            >
-                              <Ellipsis className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              asChild
-                              className="cursor-pointer"
-                            >
-                              <Link to="">
-                                <FileText className="h-4 w-4" />
-                                Xem chi tiết
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer">
-                              <Pencil className="h-4 w-4" /> Chỉnh sửa
-                            </DropdownMenuItem>
-
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" /> Xóa
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        Không tìm thấy lớp học phù hợp
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    classRoom.map((item, index) => (
+                      <TableRow className="border border-gray-200" key={index}>
+                        <TableCell className="font-medium">
+                          {index + 1}
+                        </TableCell>
+                        <TableCell
+                          className="max-w-[180px] truncate"
+                          title={item.name}
+                        >
+                          <div className="flex items-center">{item.name}</div>
+                        </TableCell>
+                        <TableCell className="">{item?.description}</TableCell>
+                        <TableCell className="">
+                          {item.teacherName === null
+                            ? "Trống"
+                            : item.teacherName}
+                          {/* {getTeacherName(item.teacherName)} */}
+                        </TableCell>
+
+                        <TableCell className="">
+                          {item.departmentName === null
+                            ? "Trống"
+                            : item.departmentName}
+                          {/* {item.departmentName} */}
+                        </TableCell>
+
+                        <TableCell className="text-center align-middle">
+                          <DropdownMenu asChild>
+                            <DropdownMenuTrigger>
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0 cursor-pointer"
+                              >
+                                <Ellipsis className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
+                                <Link to="">
+                                  <FileText className="h-4 w-4" />
+                                  Xem chi tiết
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer"
+                              >
+                                <Link
+                                  to={`/admin/class/${item.id}/students`}
+                                  state={{ from: "/admin/class" }}
+                                >
+                                  <Users className="h-4 w-4" />
+                                  Danh sách sinh viên
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => openEditClass(item)}
+                              >
+                                <Pencil className="h-4 w-4" /> Chỉnh sửa
+                              </DropdownMenuItem>
+
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => {
+                                  setOpenModalDelete(true);
+                                  setSelectClass(item);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Xóa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
           </CardContent>
         </Card>
+        {openModalDelete && (
+          <DeleteClass
+            onOpen={openModalDelete}
+            onClose={() => setOpenModalDelete(false)}
+            classRoom={selectClass}
+            onSuccess={() => fetchListClass(pagination.current)}
+          />
+        )}
+        <div className="flex justify-center mt-4">
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            onChange={(page) =>
+              setPagination((prev) => ({
+                ...prev,
+                current: page,
+              }))
+            }
+          />
+        </div>
       </div>
     </div>
   );

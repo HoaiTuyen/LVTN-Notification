@@ -6,6 +6,8 @@ import Lecturer from "../components/pages/Lecturer";
 import Student from "../components/pages/Student";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
+import ClassRoom from "../components/Admin/ClassRoom/ClassRoom";
+import ListStudentOfClass from "../components/Admin/ClassRoom/ListStudentOfClass";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -25,6 +27,11 @@ function AppRoutes() {
               <Admin />
             </ProtectedRoute>
           }
+        />
+        <Route path="class" element={<ClassRoom />} />
+        <Route
+          path="class/:classId/students"
+          element={<ListStudentOfClass />}
         />
         <Route
           path="/giang-vien"

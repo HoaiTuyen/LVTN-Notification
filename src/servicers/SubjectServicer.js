@@ -26,3 +26,13 @@ export const searchSubject = (keyword, page, pageSize = 10) => {
     },
   });
 };
+export const getListSubjectExcel = (formData) => {
+  return api.post("/subject/review_subjects", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+export const createSubjectExcel = (data) => {
+  return api.post("/subject/subject_excel", data);
+};
