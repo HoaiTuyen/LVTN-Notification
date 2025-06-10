@@ -35,6 +35,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 const ListStudentOfClass = () => {
   const location = useLocation();
+  console.log(location);
+
   const navigate = useNavigate();
   const backUrl = location.state?.from || "/admin/class";
   const newStudents = [
@@ -62,13 +64,10 @@ const ListStudentOfClass = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(backUrl)}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
+          <Button variant="outline" size="sm" onClick={() => navigate(backUrl)}>
+            <div className="flex items-center">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
+            </div>
           </Button>
           <h2 className="text-2xl font-bold">Danh sách đăng ký môn học</h2>
         </div>

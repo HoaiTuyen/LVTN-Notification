@@ -24,7 +24,7 @@ import Account from "../Admin/Account/Account";
 import Lecturer from "../Admin/Lecturer/Lecturer";
 import Subject from "../Admin/Subject/Subject";
 import Semester from "../Admin/Semester/Semester";
-import NotificationType from "../Admin/NotificationType/NotìicationType";
+import NotificationType from "../Admin/NotificationType/NotificationType";
 import { handleLogout } from "../../controller/AuthController";
 import { LogOut } from "lucide-react";
 
@@ -83,7 +83,7 @@ const AdminDashboard = () => {
       label: "Quản lý  nhóm học tập",
     },
     {
-      key: "notificationType",
+      key: "notification-type",
       icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
       label: "Quản lý loại thông báo",
     },
@@ -93,12 +93,12 @@ const AdminDashboard = () => {
       label: "Quản lý  thông báo",
     },
     {
-      key: "student",
+      key: "student-admin",
       icon: <img src="/img/menu/student.png" alt="icon" width={16} />,
       label: "Quản lý  sinh viên",
     },
     {
-      key: "lecturer",
+      key: "lecturer-admin",
       icon: <img src="/img/menu/lecturer.png" alt="icon" width={16} />,
       label: "Quản lý  giảng viên",
     },
@@ -122,6 +122,7 @@ const AdminDashboard = () => {
       onClick={(e) => {
         setSelectedTab(e.key);
         setDrawerVisible(false);
+        navigate(`/admin/${e.key}`);
       }}
       items={items}
       style={{ height: "100%", borderRight: "1px solid #e5e7eb" }}
@@ -226,15 +227,15 @@ const AdminDashboard = () => {
               overflow: "auto",
             }}
           >
-            {selectedTab === "student" && <Student />}
+            {selectedTab === "student-admin" && <Student />}
             {selectedTab === "group" && <Group />}
             {selectedTab === "department" && <Department />}
             {selectedTab === "class" && <ClassRoom />}
             {selectedTab === "account" && <Account />}
-            {selectedTab === "lecturer" && <Lecturer />}
+            {selectedTab === "lecturer-admin" && <Lecturer />}
             {selectedTab === "subject" && <Subject />}
             {selectedTab === "semester" && <Semester />}
-            {selectedTab === "notificationType" && <NotificationType />}
+            {selectedTab === "notification-type" && <NotificationType />}
           </Content>
         </Layout>
       </Layout>

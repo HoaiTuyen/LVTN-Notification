@@ -8,6 +8,15 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import ClassRoom from "../components/Admin/ClassRoom/ClassRoom";
 import ListStudentOfClass from "../components/Admin/ClassRoom/ListStudentOfClass";
+import Account from "../components/Admin/Account/Account";
+import Department from "../components/Admin/Department/Department";
+import StudentAdmin from "../components/Admin/Student/Student";
+import Group from "../components/Admin/Group/Group";
+
+import LecturerAdmin from "../components/Admin/Lecturer/Lecturer";
+import Subject from "../components/Admin/Subject/Subject";
+import Semester from "../components/Admin/Semester/Semester";
+import NotificationType from "../components/Admin/NotificationType/NotificationType";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -27,12 +36,21 @@ function AppRoutes() {
               <Admin />
             </ProtectedRoute>
           }
-        />
-        <Route path="class" element={<ClassRoom />} />
-        <Route
-          path="class/:classId/students"
-          element={<ListStudentOfClass />}
-        />
+        >
+          <Route path="account" element={<Account />} />
+          <Route path="department" element={<Department />} />
+          <Route path="subject" element={<Subject />} />
+          <Route path="semester" element={<Semester />} />
+          <Route path="group" element={<Group />} />
+          <Route path="notification-type" element={<NotificationType />} />
+          <Route path="student-admin" element={<StudentAdmin />} />
+          <Route path="lecturer-admin" element={<LecturerAdmin />} />
+          <Route path="class" element={<ClassRoom />} />
+          <Route
+            path="/admin/:classId/students"
+            element={<ListStudentOfClass />}
+          />
+        </Route>
         <Route
           path="/giang-vien"
           element={

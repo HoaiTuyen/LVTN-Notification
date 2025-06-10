@@ -239,7 +239,7 @@ const ClassName = () => {
                                 className="cursor-pointer"
                               >
                                 <Link
-                                  to={`/admin/class/${item.id}/students`}
+                                  to={`/admin/${item.id}/students`}
                                   state={{ from: "/admin/class" }}
                                 >
                                   <Users className="h-4 w-4" />
