@@ -24,6 +24,7 @@ import {
   handleUpdateUser,
   handleUploadImage,
 } from "../../../controller/AccountController";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import { showErrorAlert, showSuccessAlert } from "../../../util/AlertUtils";
 const AddAccount = ({ open, onClose, onSuccess, users }) => {
   console.log(users);
@@ -52,7 +53,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
         image: users.image || "",
         imageFile: null,
       });
-      // Set image preview if user has image
+
       if (users.image) {
         setImagePreview(users.image);
       }
@@ -194,23 +195,28 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
               )}
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="grid gap-2">
+              <div className="grid gap-2 ">
                 <Label htmlFor="image">Ảnh</Label>
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                {imagePreview && (
-                  <div className="mt-2">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                  </div>
-                )}
+                <div className="flex items-center gap-4">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                  {imagePreview && (
+                    // <div className="mt-2">
+                    //   <img
+                    //     src={imagePreview}
+                    //     alt="Preview"
+                    //     className="w-20 h-20 object-cover rounded"
+                    //   />
+                    // </div>
+                    <Avatar className="rounded-lg">
+                      <AvatarImage src={imagePreview} alt={form.username} />
+                    </Avatar>
+                  )}
+                </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="">Trạng thái</Label>
