@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Layout, Menu, Button, Avatar, Drawer, Grid, Dropdown } from "antd";
 import {
@@ -16,30 +16,20 @@ import { Sheet, Send } from "lucide-react";
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 import { handleLogout } from "../../controller/AuthController";
 import { LogOut } from "lucide-react";
-
+import { handleGetDetailUser } from "../../controller/AccountController";
 const AdminDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-  });
+  const [userInfo, setUserInfo] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
-
-  // Kiểm tra xem có đang ở trang danh sách sinh viên không
   const isStudentListPage = location.pathname.includes("/students");
-
-  const handleLogoutUser = () => {
-    handleLogout(navigate);
-    toast.success("Đăng xuất thành công");
-  };
-
   const items = [
     { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
     {
@@ -110,7 +100,44 @@ const AdminDashboard = () => {
       label: "Cài đặt",
     },
   ];
+  const handleLogoutUser = () => {
+    handleLogout(navigate);
+    toast.success("Đăng xuất thành công");
+  };
+  const fetchUserDetail = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
 
+      const data = jwtDecode(token);
+      if (!data || !data.userId) {
+        console.error("Invalid token or missing userId");
+        return;
+      }
+
+      const req = await handleGetDetailUser(data.userId);
+      if (req?.data) {
+        const userData = req.data;
+        if (userData.student) {
+          setUserInfo(userData.student);
+        } else if (userData.teacher) {
+          setUserInfo(userData.teacher);
+        } else {
+          console.error("No user data found in response");
+        }
+      } else {
+        console.error("Invalid response from server:", req);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
   const SidebarMenu = (
     <Menu
       mode="inline"
@@ -163,7 +190,7 @@ const AdminDashboard = () => {
                       label: (
                         <div style={{ padding: "", textAlign: "start" }}>
                           <div style={{ fontWeight: "bold" }}>
-                            {userInfo.name}
+                            {userInfo.firstName} {userInfo.lastName}
                           </div>
                           <div style={{ fontSize: "12px", color: "#888" }}>
                             {userInfo.email}

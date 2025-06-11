@@ -28,3 +28,10 @@ export const searchUser = (keyword, page = 0, pageSize = 10) => {
 export const getDetailUser = (userId) => {
   return api.post(`/account/user-detail?id=${userId}`);
 };
+export const uploadImage = (id, formData) => {
+  return api.put(`/account/profile_img?id=${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

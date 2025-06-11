@@ -5,6 +5,7 @@ import {
   updateUser,
   searchUser,
   getDetailUser,
+  uploadImage,
 } from "../servicers/AccountServicer";
 
 export const handleListUser = async (page, pageSize) => {
@@ -98,6 +99,24 @@ export const handleSearchUser = async (keyword) => {
 export const handleGetDetailUser = async (userId) => {
   try {
     const response = await getDetailUser(userId);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Lấy thông tin người dùng thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+export const handleUploadImage = async (id, formData) => {
+  try {
+    const response = await uploadImage(id, formData);
+    console.log(response);
+
     return response;
   } catch (error) {
     if (error) {

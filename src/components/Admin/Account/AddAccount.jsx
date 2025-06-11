@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { Spin } from "antd";
 import {
   Dialog,
   DialogContent,
@@ -21,9 +22,15 @@ import {
 import {
   handleAddUser,
   handleUpdateUser,
+  handleUploadImage,
 } from "../../../controller/AccountController";
 // import { showErrorAlert, showSuccessAlert } from "../../../util/AlertUtils";
 const AddAccount = ({ open, onClose, onSuccess, users }) => {
+  console.log(users);
+
+  const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const checkEdit = !!users?.id;
   const [form, setForm] = useState({
     id: users?.id || "",
@@ -32,6 +39,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
     status: users?.status || "ACTIVE",
     role: users?.role || "ADMIN",
     image: users?.image || "",
+    imageFile: null,
   });
   useEffect(() => {
     if (users?.id) {
@@ -42,7 +50,12 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
         status: users.status || "ACTIVE",
         role: users.role || "ADMIN",
         image: users.image || "",
+        imageFile: null,
       });
+      // Set image preview if user has image
+      if (users.image) {
+        setImagePreview(users.image);
+      }
     } else {
       setForm({
         id: "",
@@ -51,16 +64,36 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
         status: "ACTIVE",
         role: "ADMIN",
         image: "",
+        imageFile: null,
       });
+      setImagePreview(null);
     }
   }, [users]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setForm({ ...form, imageFile: file });
+      // Create preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
+      setLoading(true);
+      let accountId = form.id;
+
       if (checkEdit) {
         const reqEdit = await handleUpdateUser(form);
-        console.log(reqEdit);
 
         if (reqEdit.status === 204) {
+          if (form.imageFile) {
+            const imageForm = new FormData();
+            imageForm.append("file", form.imageFile);
+            await handleUploadImage(accountId, imageForm);
+          }
           onSuccess();
           toast.success(reqEdit.message || "Cập nhật tài khoản thành công");
           onClose();
@@ -69,9 +102,15 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
         }
       } else {
         const response = await handleAddUser(form);
-        console.log(response);
 
         if (response.status === 201) {
+          const newAccountId = response.data?.id;
+
+          if (form.imageFile && newAccountId) {
+            const imageForm = new FormData();
+            imageForm.append("file", form.imageFile);
+            await handleUploadImage(newAccountId, imageForm);
+          }
           onSuccess();
           toast.success(response.message || "Thêm tài khoản thành công");
           onClose();
@@ -83,6 +122,8 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
       if (error) {
         toast.error(error.message || "Thêm tài khoản thất bại");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,7 +149,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
             )}
           </DialogHeader>
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4">
               {checkEdit && (
                 <div className="grid gap-2">
                   <Label htmlFor="id">ID</Label>
@@ -121,7 +162,8 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   />
                 </div>
               )}
-
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
                 <Input
@@ -134,12 +176,11 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   }
                 />
               </div>
-
               {checkEdit ? (
                 <div className="grid gap-2"></div>
               ) : (
                 <div className="grid gap-2">
-                  <Label htmlFor="password">password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -151,40 +192,56 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   />
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="">Trạng thái</Label>
-                  <Select
-                    value={form.status}
-                    onValueChange={(value) =>
-                      setForm({ ...form, status: value })
-                    }
-                  >
-                    <SelectTrigger id="">
-                      <SelectValue placeholder="Chọn trạng thái" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ACTIVE">ACTIVE</SelectItem>
-                      <SelectItem value="INACTIVE">INACTIVE</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="">Role</Label>
-                  <Select
-                    value={form.role}
-                    onValueChange={(value) => setForm({ ...form, role: value })}
-                  >
-                    <SelectTrigger id="">
-                      <SelectValue placeholder="Chọn role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="STUDENT">Student</SelectItem>
-                      <SelectItem value="TEACHER">Teacher</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="image">Ảnh</Label>
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="">Trạng thái</Label>
+                <Select
+                  value={form.status}
+                  onValueChange={(value) => setForm({ ...form, status: value })}
+                >
+                  <SelectTrigger id="">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+                    <SelectItem value="INACTIVE">INACTIVE</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="">Role</Label>
+                <Select
+                  value={form.role}
+                  onValueChange={(value) => setForm({ ...form, role: value })}
+                >
+                  <SelectTrigger id="">
+                    <SelectValue placeholder="Chọn role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="STUDENT">Student</SelectItem>
+                    <SelectItem value="TEACHER">Teacher</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -202,6 +259,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                   role: "ADMIN",
                   image: "",
                 });
+                setImagePreview(null);
               }}
             >
               Hủy
@@ -209,7 +267,9 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
             <Button
               className="bg-blue-600 hover:bg-blue-700"
               onClick={handleSubmit}
+              disabled={loading}
             >
+              {loading ? <Spin size="small" className="mr-2" /> : null}
               {checkEdit ? "Cập nhật" : "Thêm"}
             </Button>
           </DialogFooter>

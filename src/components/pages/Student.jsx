@@ -45,19 +45,34 @@ const Student = () => {
     toast.success("Đăng xuất thành công");
   };
   const fetchUserDetail = async () => {
-    const token = localStorage.getItem("access_token");
-    const data = jwtDecode(token);
-    const req = await handleGetDetailUser(data.userId);
-    if (req?.data) {
-      const userData = req.data;
-
-      if (userData.student) {
-        setUserInfo(userData.student);
-      } else if (userData.teacher) {
-        setUserInfo(userData.teacher);
-      } else {
-        console.log("Lỗi");
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("No access token found");
+        return;
       }
+
+      const data = jwtDecode(token);
+      if (!data || !data.userId) {
+        console.error("Invalid token or missing userId");
+        return;
+      }
+
+      const req = await handleGetDetailUser(data.userId);
+      if (req?.data) {
+        const userData = req.data;
+        if (userData.student) {
+          setUserInfo(userData.student);
+        } else if (userData.teacher) {
+          setUserInfo(userData.teacher);
+        } else {
+          console.error("No user data found in response");
+        }
+      } else {
+        console.error("Invalid response from server:", req);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
     }
   };
   const items = [

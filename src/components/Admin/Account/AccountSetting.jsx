@@ -66,14 +66,14 @@ const StudentProfilePage = () => {
     }
   };
 
-  const academicHistory = [
-    { semester: "HK1 2022-2023", gpa: 3.5, credits: 18, status: "Đạt" },
-    { semester: "HK2 2022-2023", gpa: 3.7, credits: 20, status: "Đạt" },
-    { semester: "HK3 2022-2023", gpa: 3.6, credits: 16, status: "Đạt" },
-    { semester: "HK1 2023-2024", gpa: 3.8, credits: 18, status: "Đang học" },
-  ];
+  //   const academicHistory = [
+  //     { semester: "HK1 2022-2023", gpa: 3.5, credits: 18, status: "Đạt" },
+  //     { semester: "HK2 2022-2023", gpa: 3.7, credits: 20, status: "Đạt" },
+  //     { semester: "HK3 2022-2023", gpa: 3.6, credits: 16, status: "Đạt" },
+  //     { semester: "HK1 2023-2024", gpa: 3.8, credits: 18, status: "Đang học" },
+  //   ];
 
-  const progressPercentage = Math.round((profileData.credits / 150) * 100);
+  //   const progressPercentage = Math.round((profileData.credits / 150) * 100);
   useEffect(() => {
     fetchUserDetail();
   }, []);
@@ -299,7 +299,7 @@ const StudentProfilePage = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="academic" className="space-y-4 ]">
+          {/* <TabsContent value="academic" className="space-y-4 ]">
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
@@ -409,7 +409,7 @@ const StudentProfilePage = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </div>
     </div>
