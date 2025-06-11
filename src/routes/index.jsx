@@ -17,6 +17,7 @@ import LecturerAdmin from "../components/Admin/Lecturer/Lecturer";
 import Subject from "../components/Admin/Subject/Subject";
 import Semester from "../components/Admin/Semester/Semester";
 import NotificationType from "../components/Admin/NotificationType/NotificationType";
+import CreateNotificationAdmin from "../components/Admin/Notification/createNotification";
 //student
 import NotificationsPage from "../components/Student/NotificationPage";
 function AppRoutes() {
@@ -46,6 +47,7 @@ function AppRoutes() {
           <Route path="subject" element={<Subject />} />
           <Route path="semester" element={<Semester />} />
           <Route path="group" element={<Group />} />
+          <Route path="notification" element={<CreateNotificationAdmin />} />
           <Route path="notification-type" element={<NotificationType />} />
           <Route path="student-admin" element={<StudentAdmin />} />
           <Route path="lecturer-admin" element={<LecturerAdmin />} />

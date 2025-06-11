@@ -12,7 +12,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 const { Header, Sider, Content } = Layout;
-import { Sheet } from "lucide-react";
+import { Sheet, Send } from "lucide-react";
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
@@ -85,7 +85,7 @@ const AdminDashboard = () => {
     },
     {
       key: "notification",
-      icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
+      icon: <Send size={16} />,
       label: "Quản lý  thông báo",
     },
     {

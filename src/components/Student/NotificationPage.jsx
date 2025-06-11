@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,26 +28,47 @@ import {
 } from "lucide-react";
 // import { format } from "date-fns";
 // import { vi } from "date-fns/locale";
-
+import { handleListNotification } from "../../controller/NotificationController";
+import useWebSocket from "../../config/Websorket";
 const NotificationsPage = () => {
+  const { stompClient, connected, error } = useWebSocket();
+  useEffect(() => {
+    if (connected && stompClient.current) {
+      console.log("✅ WebSocket is connected in Student component");
+
+      // Đăng ký nhận tin nhắn từ server
+      stompClient.current.subscribe("/notification", (message) => {
+        console.log("Received message:", JSON.parse(message.body));
+        fetchListNotify();
+      });
+    }
+  }, [connected, stompClient]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedPriority, setSelectedPriority] = useState("all");
-
+  const [notifications, setNotifications] = useState([]);
+  const fetchListNotify = async () => {
+    const req = await handleListNotification();
+    if (req?.data) {
+      setNotifications(req.data.notifications);
+    }
+  };
   // Dữ liệu mẫu thông báo cho sinh viên
-  const notifications = [
-    {
-      id: 1,
-      title: "Thông báo lịch thi cuối kỳ môn Cấu trúc dữ liệu",
-      content:
-        "Lịch thi cuối kỳ môn Cấu trúc dữ liệu và giải thuật đã được công bố. Thời gian thi: 15/01/2024 lúc 08:00 tại phòng A101.",
-      type: "Thông báo",
+  // const notifications = [
+  //   {
+  //     id: 1,
+  //     title: "Thông báo lịch thi cuối kỳ môn Cấu trúc dữ liệu",
+  //     content:
+  //       "Lịch thi cuối kỳ môn Cấu trúc dữ liệu và giải thuật đã được công bố. Thời gian thi: 15/01/2024 lúc 08:00 tại phòng A101.",
+  //     type: "Thông báo",
 
-      isRead: false,
-      createdAt: "2024-01-10T10:00:00Z",
-    },
-  ];
-
+  //     isRead: false,
+  //     createdAt: "2024-01-10T10:00:00Z",
+  //   },
+  // ];
+  useEffect(() => {
+    fetchListNotify();
+  }, []);
   // Lọc thông báo
   // const filteredNotifications = notifications.filter((notification) => {
   //   const matchesSearch =
@@ -186,7 +207,7 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-white p-0">
-      <div className="space-y-6 p-10">
+      <div className="space-y-6 p-10 overflow-x-auto max-h-[700px]">
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Thông báo</h2>

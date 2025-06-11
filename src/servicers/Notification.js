@@ -6,3 +6,11 @@ export const createNotification = (title, content) => {
     content: content,
   });
 };
+export const listNotification = (page, pageSize = 10) => {
+  return api.get("/notification/list_notifications", {
+    params: {
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};
