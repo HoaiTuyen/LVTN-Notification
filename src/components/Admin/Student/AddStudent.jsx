@@ -139,9 +139,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 <Input
                   id="lastName"
                   placeholder="Nhập họ sinh viên"
-                  value={form.lastName}
+                  value={form.firstName}
                   onChange={(e) =>
-                    setForm({ ...form, lastName: e.target.value })
+                    setForm({ ...form, firstName: e.target.value })
                   }
                 />
               </div>
@@ -150,9 +150,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 <Input
                   id="firstName"
                   placeholder="Nhập tên sinh viên"
-                  value={form.firstName}
+                  value={form.lastName}
                   onChange={(e) =>
-                    setForm({ ...form, firstName: e.target.value })
+                    setForm({ ...form, lastName: e.target.value })
                   }
                 />
               </div>

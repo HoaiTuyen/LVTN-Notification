@@ -1,13 +1,13 @@
 // src/routes/ProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
-
+import { jwtDecode } from "jwt-decode";
 function ProtectedRoute({ children, allowedRoles }) {
   const token = localStorage.getItem("access_token");
 
   if (!token) return <Navigate to="/" replace />;
 
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const payload = jwtDecode(token);
 
     const roles = payload.role || [];
 

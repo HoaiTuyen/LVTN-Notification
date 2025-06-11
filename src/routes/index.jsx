@@ -18,6 +18,7 @@ import Subject from "../components/Admin/Subject/Subject";
 import Semester from "../components/Admin/Semester/Semester";
 import NotificationType from "../components/Admin/NotificationType/NotificationType";
 import CreateNotificationAdmin from "../components/Admin/Notification/createNotification";
+import StudentProfilePage from "../components/Admin/Account/AccountSetting";
 //student
 import NotificationsPage from "../components/Student/NotificationPage";
 function AppRoutes() {
@@ -55,6 +56,7 @@ function AppRoutes() {
             <Route index element={<ClassRoom />} />
             <Route path=":classId/students" element={<ListStudentOfClass />} />
           </Route>
+          <Route path="setting" element={<StudentProfilePage />} />
         </Route>
         <Route
           path="/giang-vien"

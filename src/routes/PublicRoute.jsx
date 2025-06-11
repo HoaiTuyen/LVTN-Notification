@@ -1,12 +1,12 @@
 import { Navigate } from "react-router-dom";
-
+import { jwtDecode } from "jwt-decode";
 const PublicRoute = ({ children }) => {
   const token = localStorage.getItem("access_token");
   console.log("PublicRoute - Token:", token);
 
   if (token) {
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
+      const payload = jwtDecode(token);
       console.log("payload:", payload);
 
       const roles = payload.role || [];

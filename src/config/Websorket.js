@@ -18,8 +18,6 @@ const useWebSocket = () => {
       return;
     }
 
-    console.log("Connecting with token:", token);
-
     stompClient.connect(
       {
         Authorization: `Bearer ${token}`,

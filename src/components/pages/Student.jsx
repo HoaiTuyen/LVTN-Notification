@@ -11,9 +11,10 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import { Bell, User, LogOut } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
-
+import { handleGetDetailUser } from "../../controller/AccountController";
 const Student = () => {
   const { stompClient, connected, error } = useWebSocket();
   const [notificationCount, setNotificationCount] = useState(0);
@@ -31,16 +32,33 @@ const Student = () => {
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
 
-  const [userInfo, setUserInfo] = useState({
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-  });
+  // const [userInfo, setUserInfo] = useState({
+  //   name: "Nguyễn Văn A",
+  //   email: "nguyenvana@example.com",
+  // });
+  const [userInfo, setUserInfo] = useState([]);
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
   const handleLogoutUser = () => {
     handleLogout(navigate);
     toast.success("Đăng xuất thành công");
+  };
+  const fetchUserDetail = async () => {
+    const token = localStorage.getItem("access_token");
+    const data = jwtDecode(token);
+    const req = await handleGetDetailUser(data.userId);
+    if (req?.data) {
+      const userData = req.data;
+
+      if (userData.student) {
+        setUserInfo(userData.student);
+      } else if (userData.teacher) {
+        setUserInfo(userData.teacher);
+      } else {
+        console.log("Lỗi");
+      }
+    }
   };
   const items = [
     { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
@@ -83,7 +101,9 @@ const Student = () => {
       style={{ height: "100%", borderRight: "1px solid #e5e7eb" }}
     />
   );
-
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
   return (
     <Layout style={{ minHeight: "150vh", width: "100vw" }}>
       <Header
@@ -129,7 +149,7 @@ const Student = () => {
                     label: (
                       <div style={{ padding: "", textAlign: "start" }}>
                         <div style={{ fontWeight: "bold" }}>
-                          {userInfo.name}
+                          {userInfo.firstName} {userInfo.lastName}
                         </div>
                         <div style={{ fontSize: "12px", color: "#888" }}>
                           {userInfo.email}
