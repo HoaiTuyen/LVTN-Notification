@@ -17,6 +17,21 @@ import {
 } from "../../../controller/ClassController";
 import { toast } from "react-toastify";
 import PreviewModalClass from "./PreviewClass";
+
+import * as XLSX from "xlsx";
+
+const generateSampleExcel = () => {
+  const sampleData = [
+    ["STT", "Tên lớp", "Mô tả"],
+    ["1", "D21_TH12", "Niên khoá 2021 - 2025"],
+    ["2", "D21_TH13", "Niên khoá 2021 - 2025"],
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(sampleData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách lớp");
+  XLSX.writeFile(wb, "file_mau.xlsx");
+};
 const ImportClassModal = ({ open, onClose, onSuccess }) => {
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
@@ -137,7 +152,14 @@ const ImportClassModal = ({ open, onClose, onSuccess }) => {
                 học, số tín chỉ
               </p>
             </div>
-
+            <div className="mt-4">
+              <Button
+                onClick={() => generateSampleExcel()}
+                className="bg-green-500 hover:bg-green-600"
+              >
+                Tải file mẫu
+              </Button>
+            </div>
             {showPreviewModal && (
               <PreviewModalClass
                 open={showPreviewModal}

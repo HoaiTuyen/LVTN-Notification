@@ -11,12 +11,50 @@ import {
 import { Spin } from "antd";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import * as XLSX from "xlsx";
 import {
   handleGetListStudentExcel,
   handleCreateStudentExcel,
 } from "../../../controller/StudentController";
 import { toast } from "react-toastify";
 import PreviewModal from "./PreviewStudent";
+
+const generateSampleExcel = () => {
+  const sampleData = [
+    [
+      "STT",
+      "Mã SV",
+      "Họ và tên",
+      "Email",
+      "Ngày sinh",
+      "Giới tính",
+      "Trạng thái",
+    ],
+    [
+      "1",
+      "SV001",
+      "Nguyễn Văn A",
+      "a@example.com",
+      "01/01/2000",
+      "Nam",
+      "Đang_học",
+    ],
+    [
+      "2",
+      "SV002",
+      "Trần Thị B",
+      "b@example.com",
+      "02/02/2000",
+      "Nữ",
+      "Đã_tốt_nghiệp",
+    ],
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(sampleData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách sinh viên");
+  XLSX.writeFile(wb, "file_mau.xlsx");
+};
 const ImportStudentModal = ({ open, onClose, onSuccess }) => {
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
@@ -134,7 +172,14 @@ const ImportStudentModal = ({ open, onClose, onSuccess }) => {
                 Ngày sinh, Giới tính, Trạng thái
               </p>
             </div>
-
+            <div className="mt-4">
+              <Button
+                onClick={() => generateSampleExcel()}
+                className="bg-green-500 hover:bg-green-600"
+              >
+                Tải file mẫu
+              </Button>
+            </div>
             {showPreviewModal && (
               <PreviewModal
                 open={showPreviewModal}

@@ -60,6 +60,7 @@ import DetailAccount from "./DetailAccount";
 //   showConfirmAlert,
 // } from "../../../util/AlertUtils";
 import { toast } from "react-toastify";
+import ImportAccountModal from "./ImportAccountModal";
 const Account = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
@@ -68,7 +69,7 @@ const Account = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [openDetailModal, setOpenDetailModal] = useState(false);
-
+  const [openUpload, setOpenUpload] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -154,13 +155,20 @@ const Account = () => {
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
-          {/* <Button
+          <Button
             variant="outline"
             className="flex items-center cursor-pointer"
+            onClick={() => setOpenUpload(true)}
           >
-            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách lớp
-          </Button> */}
-
+            <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản
+          </Button>
+          {openUpload && (
+            <ImportAccountModal
+              open={openUpload}
+              onClose={() => setOpenUpload(false)}
+              onSuccess={fetchListUser}
+            />
+          )}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {

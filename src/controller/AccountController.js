@@ -6,6 +6,8 @@ import {
   searchUser,
   getDetailUser,
   uploadImage,
+  createAccountExcel,
+  getListAccountExcel,
 } from "../servicers/AccountServicer";
 
 export const handleListUser = async (page, pageSize) => {
@@ -128,5 +130,42 @@ export const handleUploadImage = async (id, formData) => {
         message: errMsg,
       };
     }
+  }
+};
+export const handleGetListAccountExcel = async (file) => {
+  try {
+    const response = await getListAccountExcel(file);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+
+export const handleCreateAccountExcel = async (data) => {
+  try {
+    const response = await createAccountExcel(data);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
   }
 };

@@ -16,7 +16,44 @@ import {
   handleGetListTeacherExcel,
 } from "../../../controller/TeacherController";
 import { toast } from "react-toastify";
-// import PreviewModal from "./PreviewStudent";
+import * as XLSX from "xlsx";
+
+const generateSampleExcel = () => {
+  const sampleData = [
+    [
+      "STT",
+      "Mã GV",
+      "Họ và tên",
+      "Email",
+      "Ngày sinh",
+      "Giới tính",
+      "Trạng thái",
+    ],
+    [
+      "1",
+      "SV001",
+      "Nguyễn Văn A",
+      "a@example.com",
+      "01/01/2000",
+      "Nam",
+      "Đang_công_tác",
+    ],
+    [
+      "2",
+      "SV002",
+      "Trần Thị B",
+      "b@example.com",
+      "02/02/2000",
+      "Nữ",
+      "Chuyển_công_tác",
+    ],
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(sampleData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách giảng viên");
+  XLSX.writeFile(wb, "file_mau.xlsx");
+};
 import PreviewTeacher from "./PreviewTeacher";
 const ImportTeacherModal = ({ open, onClose, onSuccess }) => {
   const [file, setFile] = useState(null);
@@ -140,7 +177,14 @@ const ImportTeacherModal = ({ open, onClose, onSuccess }) => {
                 Email , Ngày sinh, Giới tính, Trạng thái
               </p>
             </div>
-
+            <div className="mt-4">
+              <Button
+                onClick={() => generateSampleExcel()}
+                className="bg-green-500 hover:bg-green-600"
+              >
+                Tải file mẫu
+              </Button>
+            </div>
             {showPreviewModal && (
               <PreviewTeacher
                 open={showPreviewModal}

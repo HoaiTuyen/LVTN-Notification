@@ -12,27 +12,60 @@ import { Spin } from "antd";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import {
-  handleCreateSubjectExcel,
-  handleGetListSubjectExcel,
-} from "../../../controller/SubjectController";
+  handleCreateAccountExcel,
+  handleGetListAccountExcel,
+} from "../../../controller/AccountController";
 import { toast } from "react-toastify";
-import PreviewModalSubject from "./PreviewSubject";
+import PreviewModalAccount from "./PreviewAccount";
 
 import * as XLSX from "xlsx";
 
 const generateSampleExcel = () => {
   const sampleData = [
-    ["STT", "Mã môn học", "Tên môn học", "Số tín chỉ"],
-    ["1", "GS09821", "Toán cao cấp A1", "3"],
-    ["2", "GS87651", "Lập trình web", "3"],
+    [
+      "STT",
+      "Mã số sinh viên",
+      "Họ",
+      "Tên",
+      "Email",
+      "Giới tính",
+      "Ngày sinh",
+      "Trạng thái",
+      "Tên đăng nhập",
+      "Mật khẩu",
+    ],
+    [
+      "1",
+      "DH52112031",
+      "Nguyễn",
+      "A",
+      "exemple@gamil.com",
+      "Nam",
+      "13/01/200",
+      "Đang học",
+      "DH52112031",
+      "DH52112031",
+    ],
+    [
+      "2",
+      "DH52113550",
+      "Nguyễn",
+      "B",
+      "exemple@gamil.com",
+      "Nữ",
+      "13/01/200",
+      "Bảo lưu",
+      "DH52113550",
+      "DH52113550",
+    ],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(sampleData);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Danh sách môn học");
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách tài khoản");
   XLSX.writeFile(wb, "file_mau.xlsx");
 };
-const ImportSubjectModal = ({ open, onClose, onSuccess }) => {
+const ImportAccountModal = ({ open, onClose, onSuccess }) => {
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -56,24 +89,24 @@ const ImportSubjectModal = ({ open, onClose, onSuccess }) => {
     formData.append("file", file);
     setLoading(true);
     try {
-      const res = await handleGetListSubjectExcel(formData);
+      const res = await handleGetListAccountExcel(formData);
       console.log(res);
 
-      const subjects = res.data.subjects || [];
+      const accounts = res.data.students || [];
       const errs = res.data.errors || [];
 
-      const subjectsWithErrors = subjects.map((subject) => {
-        const matchingError = errs.find((err) => err.rowIndex === subject.stt);
+      const accountsWithErrors = accounts.map((account) => {
+        const matchingError = errs.find((err) => err.rowIndex === account.stt);
         return {
-          ...subject,
+          ...account,
           error: matchingError?.message || null,
         };
       });
       // setPreviewData(students || []);
-      setPreviewData(subjectsWithErrors);
+      setPreviewData(accountsWithErrors);
       setErrors(errs || []);
 
-      if (!subjects.length && !errs.length) {
+      if (!accounts.length && !errs.length) {
         toast.error(res.message || "File không chứa dữ liệu hợp lệ.");
       }
       setShowPreviewModal(true);
@@ -85,12 +118,12 @@ const ImportSubjectModal = ({ open, onClose, onSuccess }) => {
   };
   const handleCreateSubject = async (data) => {
     try {
-      const res = await handleCreateSubjectExcel(data);
+      const res = await handleCreateAccountExcel(data);
       console.log(res);
 
       if (res?.data || res?.status === 201) {
         onSuccess();
-        toast.success(res.message || "Thêm danh sách môn học thành công!");
+        toast.success(res.message || "Thêm danh sách tài khoản thành công!");
         onClose();
       } else {
         toast.error(res.message);
@@ -159,7 +192,7 @@ const ImportSubjectModal = ({ open, onClose, onSuccess }) => {
               </Button>
             </div>
             {showPreviewModal && (
-              <PreviewModalSubject
+              <PreviewModalAccount
                 open={showPreviewModal}
                 onClose={() => setShowPreviewModal(false)}
                 data={previewData}
@@ -184,4 +217,4 @@ const ImportSubjectModal = ({ open, onClose, onSuccess }) => {
   );
 };
 
-export default ImportSubjectModal;
+export default ImportAccountModal;
