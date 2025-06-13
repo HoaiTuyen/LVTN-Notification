@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout, Menu, Button, Avatar, Drawer, Grid, Dropdown } from "antd";
 import {
@@ -28,16 +28,16 @@ import {
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
-
+import { Outlet } from "react-router-dom";
 import { handleLogout } from "@/controller/AuthController";
+import { handleGetDetailUser } from "../../controller/AccountController";
 import CreateNotification from "../Lecturer/creatNotification";
+import { jwtDecode } from "jwt-decode";
 const LecturerDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-  });
+  const [userInfo, setUserInfo] = useState([]);
+  const [userImage, setUserImage] = useState("");
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
@@ -104,12 +104,49 @@ const LecturerDashboard = () => {
       onClick={(e) => {
         setSelectedTab(e.key);
         setDrawerVisible(false);
+        navigate(`/giang-vien/${e.key}`);
       }}
       items={items}
       style={{ height: "100%", borderRight: "1px solid #e5e7eb" }}
     />
   );
+  const fetchUserDetail = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
 
+      const data = jwtDecode(token);
+      if (!data || !data.userId) {
+        console.error("Invalid token or missing userId");
+        return;
+      }
+
+      const req = await handleGetDetailUser(data.userId);
+      console.log(req);
+
+      if (req?.data) {
+        const userData = req.data;
+        setUserImage(userData.image);
+        if (userData.student) {
+          setUserInfo(userData.student);
+        } else if (userData.teacher) {
+          setUserInfo(userData.teacher);
+        } else {
+          console.error("No user data found in response");
+        }
+      } else {
+        console.error("Invalid response from server:", req);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+  useEffect(() => {
+    fetchUserDetail();
+  }, []);
   return (
     <Layout style={{ minHeight: "150vh", width: "100vw" }}>
       <Header
@@ -147,7 +184,7 @@ const LecturerDashboard = () => {
                     label: (
                       <div style={{ padding: "", textAlign: "start" }}>
                         <div style={{ fontWeight: "bold" }}>
-                          {userInfo.name}
+                          {userInfo.firstName} {userInfo.lastName}
                         </div>
                         <div style={{ fontSize: "12px", color: "#888" }}>
                           {userInfo.email}
@@ -174,8 +211,19 @@ const LecturerDashboard = () => {
             }
             trigger={["click"]}
           >
-            <div style={{ cursor: "pointer", paddingRight: "25px" }}>
-              <Avatar icon={<UserOutlined />} />
+            <div
+              style={{
+                cursor: "pointer",
+                paddingRight: "25px",
+              }}
+            >
+              <Avatar
+                style={{
+                  borderRadius: "50%",
+                  backgroundColor: "#f0f0f0", // Màu nền khi không có ảnh
+                }}
+                src={userImage || <UserOutlined size={16} />}
+              />
             </div>
           </Dropdown>
         </div>
@@ -207,7 +255,8 @@ const LecturerDashboard = () => {
             overflow: "auto",
           }}
         >
-          {selectedTab === "notification" && <CreateNotification />}
+          {/* {selectedTab === "notification" && <CreateNotification />} */}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

@@ -32,7 +32,7 @@ import {
 import useWebSocket from "@/config/Websorket";
 import { handleCreateNotification } from "../../controller/NotificationController";
 import { toast } from "react-toastify";
-export default function CreateNotification() {
+const LecturerCreateNotification = () => {
   const { connected } = useWebSocket();
 
   useEffect(() => {
@@ -493,4 +493,5 @@ export default function CreateNotification() {
       </div>
     </div>
   );
-}
+};
+export default LecturerCreateNotification;

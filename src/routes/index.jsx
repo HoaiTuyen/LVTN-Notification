@@ -18,9 +18,13 @@ import Subject from "../components/Admin/Subject/Subject";
 import Semester from "../components/Admin/Semester/Semester";
 import NotificationType from "../components/Admin/NotificationType/NotificationType";
 import CreateNotificationAdmin from "../components/Admin/Notification/createNotification";
-import StudentProfilePage from "../components/Admin/Account/AccountSetting";
+import AdminProfilePage from "../components/Admin/Account/AccountSetting";
 //student
 import NotificationsPage from "../components/Student/NotificationPage";
+import StudentProfilePage from "../components/Student/ProfileStudent";
+//Lecturer
+import TeacherProfile from "../components/Lecturer/settingLecturer";
+import LecturerCreateNotification from "../components/Lecturer/creatNotification";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -56,7 +60,7 @@ function AppRoutes() {
             <Route index element={<ClassRoom />} />
             <Route path=":classId/students" element={<ListStudentOfClass />} />
           </Route>
-          <Route path="setting" element={<StudentProfilePage />} />
+          <Route path="setting" element={<AdminProfilePage />} />
         </Route>
         <Route
           path="/giang-vien"
@@ -65,7 +69,10 @@ function AppRoutes() {
               <Lecturer />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="notification" element={<LecturerCreateNotification />} />
+          <Route path="profile" element={<TeacherProfile />} />
+        </Route>
         <Route
           path="/sinh-vien"
           element={
@@ -74,6 +81,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
+          <Route path="profile" element={<StudentProfilePage />} />
           <Route path="notification" element={<NotificationsPage />} />
         </Route>
       </Routes>

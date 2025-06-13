@@ -19,3 +19,12 @@ body,
   max-height: calc(100vh - 100px); /* Giới hạn chiều cao của Card */
   overflow-y: auto; /* Cho phép cuộn nội dung bên trong Card */
 }
+/* Ngừng đóng khi nhấn ngoài modal */
+[data-state="open"] [data-slot="dialog-overlay"] {
+  pointer-events: none; /* Tắt sự kiện click trên backdrop (overlay) */
+}
+
+/* Cho phép các nút trong modal nhận sự kiện */
+[data-state="open"] [data-slot="dialog-content"] {
+  pointer-events: auto; /* Bật lại sự kiện cho nội dung modal */
+}

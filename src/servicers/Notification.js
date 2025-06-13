@@ -14,3 +14,6 @@ export const listNotification = (page, pageSize = 10) => {
     },
   });
 };
+export const deleteNotification = (id) => {
+  return api.delete(`/notification/delete/${id}`);
+};

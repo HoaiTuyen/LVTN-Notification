@@ -30,6 +30,7 @@ import {
 // import { vi } from "date-fns/locale";
 import { handleListNotification } from "../../controller/NotificationController";
 import useWebSocket from "../../config/Websorket";
+import { Pagination } from "antd";
 const NotificationsPage = () => {
   const { stompClient, connected, error } = useWebSocket();
   useEffect(() => {
@@ -47,10 +48,22 @@ const NotificationsPage = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedPriority, setSelectedPriority] = useState("all");
   const [notifications, setNotifications] = useState([]);
-  const fetchListNotify = async () => {
-    const req = await handleListNotification();
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const fetchListNotify = async (page = 1) => {
+    const req = await handleListNotification(page - 1, pagination.pageSize);
     if (req?.data) {
       setNotifications(req.data.notifications);
+      setPagination({
+        current: page,
+        pageSize: req.data.pageSize,
+        total: req.data.totalElements,
+        totalPages: req.data.totalPages,
+      });
     }
   };
   // Dữ liệu mẫu thông báo cho sinh viên
@@ -67,7 +80,7 @@ const NotificationsPage = () => {
   //   },
   // ];
   useEffect(() => {
-    fetchListNotify();
+    fetchListNotify(pagination.current);
   }, []);
   // Lọc thông báo
   // const filteredNotifications = notifications.filter((notification) => {
@@ -139,10 +152,10 @@ const NotificationsPage = () => {
   const NotificationCard = ({ notification }) => (
     <Card
       className={`${
-        !notification.isRead ? "border-blue-200 bg-blue-50/50" : ""
+        !notification.isRead ? "border-blue-200 bg-blue-50/50 p-0" : ""
       } ${isUrgent(notification) ? "border-red-200 bg-red-50/50" : ""}`}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pt-5">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3">
             {!notification.isRead && (
@@ -151,21 +164,21 @@ const NotificationsPage = () => {
             <div className="flex-1">
               <CardTitle className="text-base">{notification.title}</CardTitle>
               {/* <CardDescription className="mt-1">
-                Từ: {notification.sender} • {notification.course}
-              </CardDescription> */}
+                  Từ: {notification.sender} • {notification.course}
+                </CardDescription> */}
             </div>
           </div>
           {/* <div className="flex items-center space-x-2">
-            {isUrgent(notification) && (
-              <AlertCircle className="h-4 w-4 text-red-500" />
-            )}
-            <Badge variant={getPriorityBadgeVariant(notification.priority)}>
-              {notification.priority}
-            </Badge>
-            <Badge variant={getTypeBadgeVariant(notification.type)}>
-              {notification.type}
-            </Badge>
-          </div> */}
+              {isUrgent(notification) && (
+                <AlertCircle className="h-4 w-4 text-red-500" />
+              )}
+              <Badge variant={getPriorityBadgeVariant(notification.priority)}>
+                {notification.priority}
+              </Badge>
+              <Badge variant={getTypeBadgeVariant(notification.type)}>
+                {notification.type}
+              </Badge>
+            </div> */}
         </div>
       </CardHeader>
       <CardContent>
@@ -174,32 +187,33 @@ const NotificationsPage = () => {
         </p>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center">
-            <Clock className="h-3 w-3 mr-1" />
+            <Clock className="h-3 w-3 mr-1" /> {notification.createdAt}
           </div>
-          {notification.deadline && (
+          {/* {notification.deadline && (
             <div
               className={`flex items-center ${
                 isUrgent(notification) ? "text-red-600 font-medium" : ""
               }`}
             >
               <AlertCircle className="h-3 w-3 mr-1" />
-              Hạn:
+              Hạn: {notification.createdAt}
             </div>
-          )}
+            
+          )} */}
         </div>
-        <div className="flex items-center justify-end space-x-2 mt-3">
+        <div className="flex items-center justify-end space-x-2 mb-3">
           <Button variant="ghost" size="sm">
             <MarkAsUnread className="h-3 w-3 mr-1" />
             {notification.isRead ? "Đánh dấu chưa đọc" : "Đánh dấu đã đọc"}
           </Button>
-          <Button
+          {/* <Button
             variant="ghost"
             size="sm"
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="h-3 w-3 mr-1" />
             Xóa
-          </Button>
+          </Button> */}
         </div>
       </CardContent>
     </Card>
@@ -207,7 +221,7 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-white p-0">
-      <div className="space-y-6 p-10 overflow-x-auto max-h-[700px]">
+      <div className="space-y-6 px-10 pt-10 overflow-x-auto max-h-[730px]">
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Thông báo</h2>
@@ -292,7 +306,10 @@ const NotificationsPage = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
+          <TabsContent
+            value="all"
+            className="space-y-4 border-1 p-5 rounded-2xl overflow-x-auto max-h-[500px]"
+          >
             {notifications.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
@@ -361,6 +378,16 @@ const NotificationsPage = () => {
             )}
           </TabsContent> */}
         </Tabs>
+        <div className="flex justify-center mt-4">
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            onChange={(page) => {
+              fetchListNotify(page);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

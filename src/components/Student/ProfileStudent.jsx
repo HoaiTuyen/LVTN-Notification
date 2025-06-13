@@ -38,9 +38,9 @@ import { jwtDecode } from "jwt-decode";
 import {
   handleGetDetailUser,
   handleUploadImage,
-} from "../../../controller/AccountController";
-import { handleUpdateStudent } from "../../../controller/StudentController";
-const ProfilePage = () => {
+} from "../../controller/AccountController";
+import { handleUpdateStudent } from "../../controller/StudentController";
+const StudentProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userImage, setUserImage] = useState("");
@@ -498,4 +498,4 @@ const ProfilePage = () => {
     </div>
   );
 };
-export default ProfilePage;
+export default StudentProfilePage;

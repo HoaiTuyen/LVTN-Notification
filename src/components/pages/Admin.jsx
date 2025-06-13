@@ -25,6 +25,7 @@ const AdminDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
+  const [userImage, setUserImage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
@@ -121,6 +122,7 @@ const AdminDashboard = () => {
       const req = await handleGetDetailUser(data.userId);
       if (req?.data) {
         const userData = req.data;
+        setUserImage(userData.image);
         if (userData.student) {
           setUserInfo(userData.student);
         } else if (userData.teacher) {
@@ -218,7 +220,7 @@ const AdminDashboard = () => {
               trigger={["click"]}
             >
               <div style={{ cursor: "pointer", paddingRight: "25px" }}>
-                <Avatar icon={<UserOutlined />} />
+                <Avatar icon={<UserOutlined />} src={userImage} />
               </div>
             </Dropdown>
           </div>
