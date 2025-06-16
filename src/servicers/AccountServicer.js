@@ -37,7 +37,7 @@ export const uploadImage = (id, formData) => {
 };
 
 export const getListAccountExcel = (formData) => {
-  return api.post("/user/reviews_account_students", formData, {
+  return api.post("/user/preview_account_students", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

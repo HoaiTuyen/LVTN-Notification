@@ -27,7 +27,7 @@ export const searchSubject = (keyword, page, pageSize = 10) => {
   });
 };
 export const getListSubjectExcel = (formData) => {
-  return api.post("/subject/review_subjects", formData, {
+  return api.post("/subject/preview_subjects", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

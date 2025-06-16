@@ -3,9 +3,9 @@ import {
   listNotification,
 } from "../servicers/Notification";
 
-export const handleCreateNotification = async (title, content) => {
+export const handleCreateNotification = async (formData) => {
   try {
-    const response = await createNotification(title, content);
+    const response = await createNotification(formData);
 
     if (response?.data) {
       return {

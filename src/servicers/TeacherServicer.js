@@ -28,7 +28,7 @@ export const searchTeacher = (status, keyword, page = 0, pageSize) => {
   });
 };
 export const getListTeacherExcel = (formData) => {
-  return api.post("/teacher/review_teachers", formData, {
+  return api.post("/teacher/preview_teachers", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

@@ -14,6 +14,7 @@ import { Bell, User, LogOut } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
+
 import { handleGetDetailUser } from "../../controller/AccountController";
 const Student = () => {
   const { stompClient, connected, error } = useWebSocket();
@@ -24,7 +25,11 @@ const Student = () => {
 
       // Đăng ký nhận tin nhắn từ server
       stompClient.current.subscribe("/notification", (message) => {
+        const parsedMessage = JSON.parse(message.body);
+        console.log(parsedMessage);
+
         setNotificationCount((prev) => prev + 1);
+
         console.log("Received message:", JSON.parse(message.body));
       });
     }

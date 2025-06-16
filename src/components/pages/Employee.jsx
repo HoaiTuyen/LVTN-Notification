@@ -33,7 +33,7 @@ import { handleLogout } from "@/controller/AuthController";
 import { handleGetDetailUser } from "../../controller/AccountController";
 import CreateNotification from "../Lecturer/Notification/creatNotification";
 import { jwtDecode } from "jwt-decode";
-const LecturerDashboard = () => {
+const EmployeeDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
@@ -53,21 +53,6 @@ const LecturerDashboard = () => {
       key: "profile",
       icon: <User size={16} />,
       label: "Thông tin cá nhân",
-    },
-    {
-      key: "subjectCharge",
-      icon: <BookOpen size={16} />,
-      label: "Môn học phụ trách",
-    },
-    {
-      key: "classCharge",
-      icon: <GraduationCap size={16} />,
-      label: "Lớp học phụ trách",
-    },
-    {
-      key: "groupClass",
-      icon: <Users size={16} />,
-      label: "Nhóm học tập",
     },
     {
       key: "notification",
@@ -263,4 +248,4 @@ const LecturerDashboard = () => {
   );
 };
 
-export default LecturerDashboard;
+export default EmployeeDashboard;

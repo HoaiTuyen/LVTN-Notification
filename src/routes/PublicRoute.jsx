@@ -18,6 +18,7 @@ const PublicRoute = ({ children }) => {
       if (authority === "ADMIN") return <Navigate to="/admin" replace />;
       if (authority === "TEACHER") return <Navigate to="/giang-vien" replace />;
       if (authority === "STUDENT") return <Navigate to="/sinh-vien" replace />;
+      if (authority === "EMPLOYEE") return <Navigate to="/nhan-vien" replace />;
     } catch (error) {
       console.error("PublicRoute - Error parsing token:", error);
       return children;

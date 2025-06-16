@@ -246,6 +246,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                     <SelectItem value="ADMIN">Admin</SelectItem>
                     <SelectItem value="STUDENT">Student</SelectItem>
                     <SelectItem value="TEACHER">Teacher</SelectItem>
+                    <SelectItem value="EMPLOYEE">Employee</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -255,6 +256,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
           <DialogFooter>
             <Button
               variant="outline"
+              className="cursor-pointer"
               onClick={() => {
                 onClose();
                 setForm({
@@ -271,7 +273,7 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               onClick={handleSubmit}
               disabled={loading}
             >

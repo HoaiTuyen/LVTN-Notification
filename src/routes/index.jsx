@@ -17,14 +17,15 @@ import LecturerAdmin from "../components/Admin/Lecturer/Lecturer";
 import Subject from "../components/Admin/Subject/Subject";
 import Semester from "../components/Admin/Semester/Semester";
 import NotificationType from "../components/Admin/NotificationType/NotificationType";
-import CreateNotificationAdmin from "../components/Admin/Notification/createNotification";
+
 import AdminProfilePage from "../components/Admin/Account/AccountSetting";
 //student
 import NotificationsPage from "../components/Student/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
-import LecturerCreateNotification from "../components/Lecturer/creatNotification";
+import LecturerCreateNotification from "../components/Lecturer/Notification/creatNotification";
+import SentNotifications from "../components/Lecturer/Notification/sentNotification";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -52,7 +53,6 @@ function AppRoutes() {
           <Route path="subject" element={<Subject />} />
           <Route path="semester" element={<Semester />} />
           <Route path="group" element={<Group />} />
-          <Route path="notification" element={<CreateNotificationAdmin />} />
           <Route path="notification-type" element={<NotificationType />} />
           <Route path="student-admin" element={<StudentAdmin />} />
           <Route path="lecturer-admin" element={<LecturerAdmin />} />
@@ -70,9 +70,18 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route path="notification" element={<LecturerCreateNotification />} />
           <Route path="profile" element={<TeacherProfile />} />
+          <Route path="notification" element={<LecturerCreateNotification />} />
+          <Route path="sentNotification" element={<SentNotifications />} />
         </Route>
+        <Route
+          path="/nhan-vien"
+          element={
+            <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
+              <Student />
+            </ProtectedRoute>
+          }
+        ></Route>
         <Route
           path="/sinh-vien"
           element={

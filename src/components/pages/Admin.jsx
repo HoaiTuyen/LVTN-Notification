@@ -75,11 +75,6 @@ const AdminDashboard = () => {
       label: "Quản lý loại thông báo",
     },
     {
-      key: "notification",
-      icon: <Send size={16} />,
-      label: "Quản lý  thông báo",
-    },
-    {
       key: "student-admin",
       icon: <img src="/img/menu/student.png" alt="icon" width={16} />,
       label: "Quản lý  sinh viên",

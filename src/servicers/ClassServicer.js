@@ -27,7 +27,7 @@ export const searchClass = (keyword, page, pageSize = 10) => {
   });
 };
 export const getListClassExcel = (formData) => {
-  return api.post("/class/review_classes", formData, {
+  return api.post("/class/preview_classes", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -47,7 +47,7 @@ export const listStudentByClass = (classId, page, pageSize = 10) => {
 };
 
 export const getListStudentByClassExcel = (formData) => {
-  return api.post("/class/review_classes_student", formData, {
+  return api.post("/class/preview_classes_student", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

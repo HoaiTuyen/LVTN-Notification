@@ -27,6 +27,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
+  console.log(classRoom);
+
   const checkEdit = !!classRoom?.id;
   const [teachers, setTeachers] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -104,18 +106,33 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     <>
       <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
         <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Thêm lớp mới</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin chi tiết về lớp mới
-            </DialogDescription>
-          </DialogHeader>
+          {checkEdit ? (
+            <DialogHeader>
+              <DialogTitle>Cập nhật lớp</DialogTitle>
+              <DialogDescription>
+                Nhập thông tin cập nhật về lớp
+              </DialogDescription>
+            </DialogHeader>
+          ) : (
+            <DialogHeader>
+              <DialogTitle>Thêm lớp mới</DialogTitle>
+              <DialogDescription>
+                Nhập thông tin chi tiết về lớp mới
+              </DialogDescription>
+            </DialogHeader>
+          )}
           <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
             <div className="grid gap-4">
-              {/* <div className="grid gap-2">
-                <Label htmlFor="studentId">Mã lớp</Label>
-                <Input id="departmentId" placeholder="VD: CNTT01" />
-              </div> */}
+              <div className="grid gap-2">
+                <Label htmlFor="classId">Mã lớp</Label>
+                <Input
+                  id="classId"
+                  placeholder="VD: CNTT01"
+                  value={form.id}
+                  onChange={(e) => setForm({ ...form, id: e.target.value })}
+                  disabled={checkEdit}
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="nameClass">Tên lớp</Label>
                 <Input
@@ -197,7 +214,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
               className="bg-blue-600 hover:bg-blue-700"
               onClick={() => handleSubmit()}
             >
-              Thêm lớp
+              {checkEdit ? "Cập nhật" : "Thêm lớp"}
             </Button>
           </DialogFooter>
         </DialogContent>

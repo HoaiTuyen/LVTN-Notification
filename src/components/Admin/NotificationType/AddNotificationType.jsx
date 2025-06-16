@@ -113,7 +113,7 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
                 <Input
                   id="nameGroup"
                   type="text"
-                  placeholder="Nhập tên nhóm"
+                  placeholder="Nhập tên loại thông báo"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />

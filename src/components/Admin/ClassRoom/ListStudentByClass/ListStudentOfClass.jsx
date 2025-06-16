@@ -39,7 +39,9 @@ import { Pagination } from "antd";
 import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
 const ListStudentOfClass = () => {
   const [studentByClass, setStudentByClass] = useState([]);
+
   const [openUpload, setOpenUpload] = useState(false);
+  const [dataClass, setDataClass] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -50,26 +52,7 @@ const ListStudentOfClass = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const backUrl = location.state?.from || "/admin/class";
-  // const newStudents = [
-  //   {
-  //     id: 101,
-  //     studentId: "SV101",
-  //     name: "Nguyễn Văn Nhập",
-  //     email: "nguyenvannhap@example.edu.vn",
-  //     department: "Công nghệ thông tin",
-  //     enrollmentDate: new Date().toISOString().split("T")[0],
-  //     status: "Đã đăng ký",
-  //   },
-  //   {
-  //     id: 102,
-  //     studentId: "SV102",
-  //     name: "Trần Thị Khẩu",
-  //     email: "tranthikhau@example.edu.vn",
-  //     department: "Công nghệ thông tin",
-  //     enrollmentDate: new Date().toISOString().split("T")[0],
-  //     status: "Đã đăng ký",
-  //   },
-  // ];
+
   const renderGender = (gender) => {
     switch (gender) {
       case "NAM":
@@ -106,8 +89,11 @@ const ListStudentOfClass = () => {
       page - 1,
       pagination.pageSize
     );
+    console.log(res);
+
     if (res?.data && res?.status === 200) {
       setStudentByClass(res.data.students);
+      setDataClass(res.data);
       setPagination({
         current: page,
         pageSize: res.data.pageSize,
@@ -136,8 +122,14 @@ const ListStudentOfClass = () => {
             <h2 className="text-2xl font-bold">Danh sách sinh viên</h2>
           </div>
           <div>
-            <span className="font-medium mr-2">Lớp: D21_TH12</span>
-            <Badge>00001</Badge>
+            {[...new Set(studentByClass.map((item) => item.className))].map(
+              (className) => (
+                <span key={className} className="font-medium mr-2">
+                  Lớp: {className}
+                </span>
+              )
+            )}
+            <Badge>{dataClass.totalElements}</Badge>
           </div>
         </div>
 

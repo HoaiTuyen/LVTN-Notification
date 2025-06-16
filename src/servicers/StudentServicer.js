@@ -34,12 +34,12 @@ export const searchStudent = (status, keyword, page = 0, pageSize) => {
 // };
 
 export const getListStudentExcel = (formData) => {
-  return api.post("/student/review_students", formData, {
+  return api.post("/student/preview_students", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
 };
 export const createStudentExcel = (data) => {
-  return api.post("/student/student_excel", data)
-}
+  return api.post("/student/student_excel", data);
+};
