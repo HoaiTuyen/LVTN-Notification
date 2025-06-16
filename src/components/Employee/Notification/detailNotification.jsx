@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-// import { useParams, useRouter } from "next/navigation";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,22 +30,26 @@ import { Outlet } from "react-router-dom";
 // Type definitions based on API response
 
 export default function EmployeeNotificationDetail() {
+  const { notificationId } = useParams();
+  const navigate = useNavigate();
   const [notification, setNotification] = useState(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
 
   useEffect(() => {
-    // Simulate API call to fetch notification details
     const fetchNotificationDetail = async () => {
       try {
         setLoading(true);
+        // TODO: Replace with actual API call
+        // const response = await handleGetNotificationDetail(notificationId);
+        // setNotification(response.data);
 
-        // Mock API response based on your structure
+        // Mock data for now
         const mockResponse = {
           status: 200,
           message: "Lấy thông báo thành công!",
           data: {
-            // id: .id,
+            id: notificationId,
             title: "Thông báo lịch thi cuối kỳ môn Cấu trúc dữ liệu",
             content: `Kính gửi các sinh viên,
 
@@ -102,16 +106,7 @@ Phòng Đào tạo`,
           },
         };
 
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
         setNotification(mockResponse.data);
-
-        // Mark as read
-        if (!mockResponse.data.isRead) {
-          // API call to mark as read would go here
-          setNotification((prev) => (prev ? { ...prev, isRead: true } : null));
-        }
       } catch (error) {
         console.error("Error fetching notification:", error);
         toast.error("Không thể tải thông báo");
@@ -120,10 +115,10 @@ Phòng Đào tạo`,
       }
     };
 
-    // if (params.id) {
-    //   fetchNotificationDetail();
-    // }
-  }, []);
+    if (notificationId) {
+      fetchNotificationDetail();
+    }
+  }, [notificationId]);
 
   const handleDownloadFile = async (file) => {
     try {
@@ -230,10 +225,10 @@ Phòng Đào tạo`,
         <p className="text-muted-foreground text-center mb-4">
           Thông báo này có thể đã bị xóa hoặc bạn không có quyền truy cập.
         </p>
-        {/* <Button onClick={() => router.back()}>
+        <Button variant="ghost" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Quay lại
-        </Button> */}
+          Quay lại danh sách
+        </Button>
       </div>
     );
   }
@@ -242,10 +237,10 @@ Phòng Đào tạo`,
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        {/* <Button variant="ghost" onClick={() => router.back()}>
+        <Button variant="ghost" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại danh sách
-        </Button> */}
+        </Button>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="h-4 w-4 mr-2" />

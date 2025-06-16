@@ -192,7 +192,7 @@ const AdminDashboard = () => {
                             {userInfo.lastName}
                           </div>
                           <div style={{ fontSize: "12px", color: "#888" }}>
-                            {userInfo.email || "exp@gmail.com"}
+                            {userInfo.email || "exp@gmai  l.com"}
                           </div>
                         </div>
                       ),

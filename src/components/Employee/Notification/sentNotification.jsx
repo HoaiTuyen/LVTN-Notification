@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,6 +33,7 @@ import { Pagination } from "antd";
 import dayjs from "dayjs";
 const EmployeeSentNotifications = () => {
   const navigate = useNavigate();
+  const { notificationId } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -220,6 +221,11 @@ const EmployeeSentNotifications = () => {
   useEffect(() => {
     fetchListNotification(pagination.current);
   }, []);
+
+  const handleViewDetail = (id) => {
+    navigate(`/nhan-vien/sentNotification/${id}`);
+  };
+
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
@@ -420,11 +426,7 @@ const EmployeeSentNotifications = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() =>
-                            navigate(
-                              `/nhan-vien/sentNotification/${notification.id}`
-                            )
-                          }
+                          onClick={() => handleViewDetail(notification.id)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>

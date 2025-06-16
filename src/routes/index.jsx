@@ -91,13 +91,11 @@ function AppRoutes() {
           <Route
             path="sentNotification"
             element={<EmployeeSentNotifications />}
-          >
-            <Route index element={<SentNotifications />} />
-            <Route
-              path=":notificationId"
-              element={<EmployeeNotificationDetail />}
-            ></Route>
-          </Route>
+          />
+          <Route
+            path="sentNotification/:notificationId"
+            element={<EmployeeNotificationDetail />}
+          />
         </Route>
         <Route
           path="/sinh-vien"
