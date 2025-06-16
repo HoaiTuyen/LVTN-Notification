@@ -115,6 +115,7 @@ const AdminDashboard = () => {
       }
 
       const req = await handleGetDetailUser(data.userId);
+
       if (req?.data) {
         const userData = req.data;
         setUserImage(userData.image);
@@ -187,10 +188,11 @@ const AdminDashboard = () => {
                       label: (
                         <div style={{ padding: "", textAlign: "start" }}>
                           <div style={{ fontWeight: "bold" }}>
-                            {userInfo.firstName} {userInfo.lastName}
+                            {userInfo.firstName || "Anonymous"}
+                            {userInfo.lastName}
                           </div>
                           <div style={{ fontSize: "12px", color: "#888" }}>
-                            {userInfo.email}
+                            {userInfo.email || "exp@gmail.com"}
                           </div>
                         </div>
                       ),

@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import { handleLogout } from "@/controller/AuthController";
 import { handleGetDetailUser } from "../../controller/AccountController";
-import CreateNotification from "../Lecturer/Notification/creatNotification";
+
 import { jwtDecode } from "jwt-decode";
 const EmployeeDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
@@ -89,7 +89,7 @@ const EmployeeDashboard = () => {
       onClick={(e) => {
         setSelectedTab(e.key);
         setDrawerVisible(false);
-        navigate(`/giang-vien/${e.key}`);
+        navigate(`/nhan-vien/${e.key}`);
       }}
       items={items}
       style={{ height: "100%", borderRight: "1px solid #e5e7eb" }}
@@ -110,7 +110,6 @@ const EmployeeDashboard = () => {
       }
 
       const req = await handleGetDetailUser(data.userId);
-      console.log(req);
 
       if (req?.data) {
         const userData = req.data;

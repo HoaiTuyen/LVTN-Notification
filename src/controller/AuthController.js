@@ -21,6 +21,8 @@ export const handleLogin = async (username, password, navigate) => {
         navigate("/giang-vien");
       } else if (authority === "STUDENT") {
         navigate("/sinh-vien");
+      } else if (authority === "EMPLOYEE") {
+        navigate("/nhan-vien");
       } else {
         throw new Error("Unknown user role");
       }

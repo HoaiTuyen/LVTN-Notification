@@ -4,6 +4,7 @@ import Admin from "../components/pages/Admin";
 // import NotFound from "../pages/NotFound";
 import Lecturer from "../components/pages/Lecturer";
 import Student from "../components/pages/Student";
+import EmployeeDashboard from "../components/pages/Employee";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import ClassRoom from "../components/Admin/ClassRoom/ClassRoom";
@@ -26,6 +27,10 @@ import StudentProfilePage from "../components/Student/ProfileStudent";
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/creatNotification";
 import SentNotifications from "../components/Lecturer/Notification/sentNotification";
+//Employee
+import EmployeeCreateNotification from "../components/Employee/Notification/createNotification";
+import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
+import EmployeeNotificationDetail from "../components/Employee/Notification/detailNotification";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -78,10 +83,22 @@ function AppRoutes() {
           path="/nhan-vien"
           element={
             <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
-              <Student />
+              <EmployeeDashboard />
             </ProtectedRoute>
           }
-        ></Route>
+        >
+          <Route path="notification" element={<EmployeeCreateNotification />} />
+          <Route
+            path="sentNotification"
+            element={<EmployeeSentNotifications />}
+          >
+            <Route index element={<SentNotifications />} />
+            <Route
+              path=":notificationId"
+              element={<EmployeeNotificationDetail />}
+            ></Route>
+          </Route>
+        </Route>
         <Route
           path="/sinh-vien"
           element={
