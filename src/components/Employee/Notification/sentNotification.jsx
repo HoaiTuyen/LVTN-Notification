@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,6 +40,7 @@ import DeleteNotification from "./deleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
 const EmployeeSentNotifications = () => {
   const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [type, setType] = useState([]);
@@ -106,183 +108,192 @@ const EmployeeSentNotifications = () => {
 
     navigate(`/nhan-vien/sentNotification/${id}`);
   };
-  // const handleWapper = (id, e) => {
-  //   e.stopPropagation();
-  //   navigate(`/nhan-vien/sentNotification/${id}`);
-  // };
+  const handleWapper = (id, e) => {
+    e.stopPropagation();
+
+    navigate(`/nhan-vien/sentNotification/${id}`);
+  };
 
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
-      <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
-        <div>
-          <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
-          <p className="text-muted-foreground">
-            Quản lý và theo dõi các thông báo bạn đã gửi
-          </p>
-        </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="min-h-screen w-full bg-white p-0 ">
+        <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
+          <div>
+            <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
+            <p className="text-muted-foreground">
+              Quản lý và theo dõi các thông báo bạn đã gửi
+            </p>
+          </div>
 
-        {/* Statistics */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Statistics */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Tổng thông báo
+                </CardTitle>
+                <Bell className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalSent}</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Filters */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Tổng thông báo
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="h-5 w-5" />
+                Bộ lọc và tìm kiếm
               </CardTitle>
-              <Bell className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalSent}</div>
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Tìm kiếm thông báo..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <Select
+                  value={selectType}
+                  onValueChange={(value) => setSelectType(value)}
+                >
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Loại thông báo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả loại</SelectItem>
+                    {type.length === 0 ? (
+                      <SelectItem>Trống</SelectItem>
+                    ) : (
+                      type.map((item) => (
+                        <SelectItem value={item.name}>{item.name}</SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
-        </div>
 
-        {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Bộ lọc và tìm kiếm
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Tìm kiếm thông báo..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
+          {/* Notifications List */}
+          <Card className="overflow-x-auto max-h-[800px]">
+            <CardHeader>
+              <CardTitle>Danh sách thông báo</CardTitle>
+              <CardDescription>
+                Hiển thị {pagination.totalElements} thông báo
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-x-auto max-h-[400px]">
+              <div className="space-y-4 cursor-pointer">
+                {dataNotify.map((notification) => {
+                  return (
+                    <div
+                      key={notification.id}
+                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                      onClick={(e) => handleWapper(notification.id, e)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold">
+                              {notification.title}
+                            </h3>
+                            {notification.notificationType && (
+                              <Badge className="bg-blue-100 text-blue-800">
+                                {notification.notificationType}
+                              </Badge>
+                            )}
+                          </div>
 
-              <Select
-                value={selectType}
-                onValueChange={(value) => setSelectType(value)}
-              >
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Loại thông báo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả loại</SelectItem>
-                  {type.length === 0 ? (
-                    <SelectItem>Trống</SelectItem>
-                  ) : (
-                    type.map((item) => (
-                      <SelectItem value={item.name}>{item.name}</SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Notifications List */}
-        <Card className="overflow-x-auto max-h-[800px]">
-          <CardHeader>
-            <CardTitle>Danh sách thông báo</CardTitle>
-            <CardDescription>
-              Hiển thị {pagination.totalElements} thông báo
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="overflow-x-auto max-h-[400px]">
-            <div className="space-y-4 cursor-pointer">
-              {dataNotify.map((notification) => {
-                return (
-                  <div
-                    key={notification.id}
-                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                    // onClick={(e) => handleWapper(notification.id, e)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold">
-                            {notification.title}
-                          </h3>
-                          {notification.notificationType && (
-                            <Badge className="bg-blue-100 text-blue-800">
-                              {notification.notificationType}
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>
-                              {dayjs(notification.createdAt).format(
-                                "DD/MM/YYYY HH:mm"
-                              )}
-                            </span>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              <span>
+                                {dayjs(notification.createdAt).format(
+                                  "DD/MM/YYYY HH:mm"
+                                )}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          className="cursor-pointer"
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => {
-                            handleViewDetail(notification.id, e);
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700"
-                          onClick={() => {
-                            setSelectNotify(notification);
-                            setModalDelete(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2 ml-4">
+                          <Button
+                            className="cursor-pointer"
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              handleViewDetail(notification.id, e);
+                            }}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectNotify(notification);
+                              setModalDelete(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
 
-              {dataNotify.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Không tìm thấy thông báo nào phù hợp với bộ lọc</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              fetchListNotification(page);
-            }}
-          />
+                {dataNotify.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Không tìm thấy thông báo nào phù hợp với bộ lọc</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                fetchListNotification(page);
+              }}
+            />
+          </div>
         </div>
+        {openModalDelete && (
+          <DeleteNotification
+            onOpen={openModalDelete}
+            onSuccess={fetchListNotification}
+            onClose={() => setModalDelete(false)}
+            notify={selectNotify}
+          />
+        )}
+        <Outlet />
       </div>
-      {openModalDelete && (
-        <DeleteNotification
-          onOpen={openModalDelete}
-          onSuccess={fetchListNotification}
-          onClose={() => setModalDelete(false)}
-          notify={selectNotify}
-        />
-      )}
-      <Outlet />
-    </div>
+    </motion.div>
   );
 };
 export default EmployeeSentNotifications;

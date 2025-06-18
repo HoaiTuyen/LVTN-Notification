@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { Spin } from "antd";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -41,6 +43,8 @@ import {
 } from "../../controller/AccountController";
 import { handleUpdateStudent } from "../../controller/StudentController";
 const StudentProfilePage = () => {
+  const [loading, setLoading] = useState(true);
+
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userImage, setUserImage] = useState("");
@@ -77,7 +81,11 @@ const StudentProfilePage = () => {
 
   //   const progressPercentage = Math.round((profileData.credits / 150) * 100);
   useEffect(() => {
-    fetchUserDetail();
+    const fetchData = async () => {
+      await fetchUserDetail();
+      setLoading(false);
+    };
+    fetchData();
   }, []);
   const handleImageUpload = async () => {
     if (!file) {
@@ -127,262 +135,284 @@ const StudentProfilePage = () => {
 
     setIsEditing(false); // Disable editing after saving
   };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <Spin size="large" tip="Đang tải dữ liệu..." />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen w-full bg-white p-0 ">
-      <div className="space-y-6 p-10">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">
-              Thông tin cá nhân
-            </h2>
-            <p className="text-muted-foreground">
-              Quản lý thông tin cá nhân và học tập của bạn
-            </p>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="min-h-screen w-full bg-white p-0 ">
+        <div className="space-y-6 p-10">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight">
+                Thông tin cá nhân
+              </h2>
+              <p className="text-muted-foreground">
+                Quản lý thông tin cá nhân và học tập của bạn
+              </p>
+            </div>
+            <Button
+              onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+              className={
+                isEditing
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }
+            >
+              {isEditing ? (
+                <>
+                  <Save className="mr-2 h-4 w-4" /> Lưu thay đổi
+                </>
+              ) : (
+                "Chỉnh sửa"
+              )}
+            </Button>
           </div>
-          <Button
-            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-            className={
-              isEditing
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-blue-600 hover:bg-blue-700"
-            }
-          >
-            {isEditing ? (
-              <>
-                <Save className="mr-2 h-4 w-4" /> Lưu thay đổi
-              </>
-            ) : (
-              "Chỉnh sửa"
-            )}
-          </Button>
-        </div>
 
-        <Tabs defaultValue="personal" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="personal">Thông tin cá nhân</TabsTrigger>
-            <TabsTrigger value="academic">Thông tin học tập</TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="personal" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="personal">Thông tin cá nhân</TabsTrigger>
+              <TabsTrigger value="academic">Thông tin học tập</TabsTrigger>
+            </TabsList>
 
-          <TabsContent
-            value="personal"
-            className="space-y-4 overflow-x-auto max-h-[600px]"
-          >
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="md:col-span-1">
-                <CardHeader>
-                  <CardTitle>Ảnh đại diện</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center space-y-4">
-                  <Avatar className="h-32 w-32">
-                    <AvatarImage
-                      src={tempImage || userImage}
-                      alt={profileData.firstName}
-                    />
-                    <AvatarFallback>{profileData.lastName}</AvatarFallback>
-                  </Avatar>
-                  {isEditing && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => inputRef.current.click()}
-                      >
-                        <Camera className="mr-2 h-4 w-4" />
-                        Thay đổi ảnh
-                      </Button>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={inputRef}
-                        style={{ display: "none" }}
-                        onChange={handleFileSelect}
+            <TabsContent
+              value="personal"
+              className="space-y-4 overflow-y-auto max-h-[600px]"
+            >
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card className="md:col-span-1">
+                  <CardHeader>
+                    <CardTitle>Ảnh đại diện</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center space-y-4">
+                    <Avatar className="h-32 w-32">
+                      <AvatarImage
+                        src={tempImage || userImage}
+                        alt={profileData.firstName}
                       />
-                      {file && (
-                        <div className="flex">
-                          <Button
-                            className="mr-2"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleSave}
-                          >
-                            Lưu ảnh
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600"
-                            onClick={handleCancel}
-                          >
-                            Hủy
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  <div className="text-center">
-                    <h3 className="font-semibold">
-                      {profileData.firstName} {profileData.lastName}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Mã: {profileData.id}
-                    </p>
-                    <Badge variant="success" className="mt-2">
-                      {profileData.status}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Thông tin chi tiết</CardTitle>
-                  <CardDescription>
-                    Thông tin cá nhân và liên hệ
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="studentId">Mã sinh viên</Label>
-                      <Input id="studentId" value={profileData.id} disabled />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="email"
-                          type="email"
-                          value={profileData.email}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              email: e.target.value,
-                            })
-                          }
-                          disabled
-                          className="pl-10"
+                      <AvatarFallback>{profileData.lastName}</AvatarFallback>
+                    </Avatar>
+                    {isEditing && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => inputRef.current.click()}
+                        >
+                          <Camera className="mr-2 h-4 w-4" />
+                          Thay đổi ảnh
+                        </Button>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          ref={inputRef}
+                          style={{ display: "none" }}
+                          onChange={handleFileSelect}
                         />
+                        {file && (
+                          <div className="flex">
+                            <Button
+                              className="mr-2"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleSave}
+                            >
+                              Lưu ảnh
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600"
+                              onClick={handleCancel}
+                            >
+                              Hủy
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    <div className="text-center">
+                      <h3 className="font-semibold">
+                        {profileData.firstName} {profileData.lastName}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Mã: {profileData.id}
+                      </p>
+                      <Badge variant="success" className="mt-2">
+                        {profileData.status}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle>Thông tin chi tiết</CardTitle>
+                    <CardDescription>
+                      Thông tin cá nhân và liên hệ
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="studentId">Mã sinh viên</Label>
+                        <Input id="studentId" value={profileData.id} disabled />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="email"
+                            type="email"
+                            value={profileData.email}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                email: e.target.value,
+                              })
+                            }
+                            disabled
+                            className="pl-10"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Họ</Label>
-                      <Input
-                        id="firstName"
-                        value={profileData.firstName}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            firstName: e.target.value,
-                          })
-                        }
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Tên</Label>
-                      <Input
-                        id="firstName"
-                        value={profileData.lastName}
-                        onChange={(e) =>
-                          setProfileData({
-                            ...profileData,
-                            lastName: e.target.value,
-                          })
-                        }
-                        disabled={!isEditing}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="dateOfBirth">Ngày sinh</Label>
-                      <div className="relative">
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Họ</Label>
                         <Input
-                          id="dateOfBirth"
-                          type="date"
-                          value={profileData.dateOfBirth}
+                          id="firstName"
+                          value={profileData.firstName}
                           onChange={(e) =>
                             setProfileData({
                               ...profileData,
-                              dateOfBirth: e.target.value,
+                              firstName: e.target.value,
                             })
                           }
                           disabled={!isEditing}
-                          className="pl-8"
                         />
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="gender">Giới tính</Label>
-                      <Select
-                        value={profileData.gender}
-                        onValueChange={(value) =>
-                          setProfileData({ ...profileData, gender: value })
-                        }
-                        disabled={!isEditing}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="NAM">Nam</SelectItem>
-                          <SelectItem value="NỮ">Nữ</SelectItem>
-                          <SelectItem value="KHÁC">Khác</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Lớp</Label>
-                      <div className="relative">
-                        <School className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Tên</Label>
                         <Input
-                          id="address"
-                          value={
-                            profileData?.className
-                              ? profileData?.className
-                              : "Trống"
-                          }
+                          id="firstName"
+                          value={profileData.lastName}
                           onChange={(e) =>
                             setProfileData({
                               ...profileData,
-                              className: e.target.value,
+                              lastName: e.target.value,
                             })
                           }
-                          disabled
-                          className="pl-8"
+                          disabled={!isEditing}
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Tài khoản</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="address"
-                          value={profileData?.userName}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              userName: e.target.value,
-                            })
-                          }
-                          disabled
-                          className="pl-8"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
-          {/* <TabsContent value="academic" className="space-y-4 ]">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="dateOfBirth">Ngày sinh</Label>
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="dateOfBirth"
+                            type="date"
+                            value={profileData.dateOfBirth}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                dateOfBirth: e.target.value,
+                              })
+                            }
+                            disabled={!isEditing}
+                            className="pl-8"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="gender">Giới tính</Label>
+                        <Select
+                          value={profileData.gender}
+                          onValueChange={(value) =>
+                            setProfileData({ ...profileData, gender: value })
+                          }
+                          disabled={!isEditing}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="NAM">Nam</SelectItem>
+                            <SelectItem value="NỮ">Nữ</SelectItem>
+                            <SelectItem value="KHÁC">Khác</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Lớp</Label>
+                        <div className="relative">
+                          <School className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="address"
+                            value={
+                              profileData?.className
+                                ? profileData?.className
+                                : "Trống"
+                            }
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                className: e.target.value,
+                              })
+                            }
+                            disabled
+                            className="pl-8"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Tài khoản</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="address"
+                            value={profileData?.userName}
+                            onChange={(e) =>
+                              setProfileData({
+                                ...profileData,
+                                userName: e.target.value,
+                              })
+                            }
+                            disabled
+                            className="pl-8"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+export default StudentProfilePage;
+
+/* <TabsContent value="academic" className="space-y-4 ]">
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
@@ -492,10 +522,4 @@ const StudentProfilePage = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent> */}
-        </Tabs>
-      </div>
-    </div>
-  );
-};
-export default StudentProfilePage;
+          </TabsContent> */

@@ -19,3 +19,36 @@ body,
   max-height: calc(100vh - 100px);
   overflow-y: auto;
 }
+
+/* Framer Motion Page Container Styles */
+.framer-motion-page {
+  overflow: hidden;
+  height: 100vh;
+  width: 100%;
+}
+
+.framer-motion-content {
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Customize scrollbar for Webkit browsers */
+.framer-motion-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.framer-motion-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.framer-motion-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.framer-motion-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

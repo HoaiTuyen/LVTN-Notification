@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import Login from "../components/auth/Login";
 import Admin from "../components/pages/Admin";
 // import NotFound from "../pages/NotFound";
@@ -22,9 +23,10 @@ import ListClassOfDepartment from "../components/Admin/Department/ListClassByDep
 
 import AdminProfilePage from "../components/Admin/Account/AccountSetting";
 //student
-import NotificationsPage from "../components/Student/NotificationPage";
+import NotificationsPage from "../components/Student/Notification/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
 import GroupStudyStudent from "../components/Student/Group/GroupStudy";
+import StudentNotificationDetail from "../components/Student/Notification/DetailNotification";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/creatNotification";
@@ -38,89 +40,107 @@ import EmployeeNotificationDetail from "../components/Employee/Notification/deta
 function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRoles={["ADMIN"]}>
-              <Admin />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="home" replace />} />
-          <Route path="home" element={<HomeAdmin />} />
-          <Route path="account" element={<Account />} />
-          <Route path="department">
-            <Route index element={<Department />} />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <Admin />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<HomeAdmin />} />
+            <Route path="account" element={<Account />} />
+            <Route path="department">
+              <Route index element={<Department />} />
+              <Route
+                path=":departmentId/class"
+                element={<ListClassOfDepartment />}
+              ></Route>
+            </Route>
+            <Route path="subject" element={<Subject />} />
+            <Route path="semester" element={<Semester />} />
+            <Route path="group" element={<Group />} />
+            <Route path="notification-type" element={<NotificationType />} />
+            <Route path="student-admin" element={<StudentAdmin />} />
+            <Route path="lecturer-admin" element={<LecturerAdmin />} />
+            <Route path="class">
+              <Route index element={<ClassRoom />} />
+              <Route
+                path=":classId/students"
+                element={<ListStudentOfClass />}
+              />
+            </Route>
+            <Route path="setting" element={<AdminProfilePage />} />
+          </Route>
+          <Route
+            path="/giang-vien"
+            element={
+              <ProtectedRoute allowedRoles={["TEACHER"]}>
+                <Lecturer />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="profile" element={<TeacherProfile />} />
             <Route
-              path=":departmentId/class"
-              element={<ListClassOfDepartment />}
-            ></Route>
+              path="notification"
+              element={<LecturerCreateNotification />}
+            />
+            <Route path="groupClass" element={<GroupClassTeacher />} />
+            <Route path="sentNotification" element={<SentNotifications />} />
           </Route>
-          <Route path="subject" element={<Subject />} />
-          <Route path="semester" element={<Semester />} />
-          <Route path="group" element={<Group />} />
-          <Route path="notification-type" element={<NotificationType />} />
-          <Route path="student-admin" element={<StudentAdmin />} />
-          <Route path="lecturer-admin" element={<LecturerAdmin />} />
-          <Route path="class">
-            <Route index element={<ClassRoom />} />
-            <Route path=":classId/students" element={<ListStudentOfClass />} />
+
+          <Route
+            path="/nhan-vien"
+            element={
+              <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
+                <EmployeeDashboard />
+              </ProtectedRoute>
+            }
+          >
+            <Route
+              path="notification"
+              element={<EmployeeCreateNotification />}
+            />
+            <Route
+              path="sentNotification"
+              element={<EmployeeSentNotifications />}
+            />
+            <Route
+              path="sentNotification/:notificationId"
+              element={<EmployeeNotificationDetail />}
+            />
           </Route>
-          <Route path="setting" element={<AdminProfilePage />} />
-        </Route>
-        <Route
-          path="/giang-vien"
-          element={
-            <ProtectedRoute allowedRoles={["TEACHER"]}>
-              <Lecturer />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="profile" element={<TeacherProfile />} />
-          <Route path="notification" element={<LecturerCreateNotification />} />
-          <Route path="groupClass" element={<GroupClassTeacher />} />
-          <Route path="sentNotification" element={<SentNotifications />} />
-        </Route>
-        <Route
-          path="/nhan-vien"
-          element={
-            <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
-              <EmployeeDashboard />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="notification" element={<EmployeeCreateNotification />} />
+
           <Route
-            path="sentNotification"
-            element={<EmployeeSentNotifications />}
-          />
-          <Route
-            path="sentNotification/:notificationId"
-            element={<EmployeeNotificationDetail />}
-          />
-        </Route>
-        <Route
-          path="/sinh-vien"
-          element={
-            <ProtectedRoute allowedRoles={["STUDENT"]}>
-              <Student />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="profile" element={<StudentProfilePage />} />
-          <Route path="notification" element={<NotificationsPage />} />
-          <Route path="groupStudy" element={<GroupStudyStudent />} />
-        </Route>
-      </Routes>
+            path="/sinh-vien"
+            element={
+              <ProtectedRoute allowedRoles={["STUDENT"]}>
+                <Student />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="profile" element={<StudentProfilePage />} />
+            <Route path="notification" element={<NotificationsPage />}>
+              <Route
+                path="notification/:notificationId"
+                element={<StudentNotificationDetail />}
+              />
+            </Route>
+            <Route path="groupStudy" element={<GroupStudyStudent />} />
+          </Route>
+        </Routes>
+      </AnimatePresence>
     </BrowserRouter>
   );
 }

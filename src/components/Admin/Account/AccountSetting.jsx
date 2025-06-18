@@ -243,7 +243,7 @@ const ProfilePage = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="studentId">Mã sinh viên</Label>
+                      <Label htmlFor="studentId">Mã</Label>
                       <Input id="studentId" value={profileData.id} disabled />
                     </div>
                     <div className="space-y-2">
