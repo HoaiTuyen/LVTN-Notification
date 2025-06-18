@@ -51,6 +51,24 @@ const AdminDashboard = () => {
       key: "account",
       icon: <UserOutlined />,
       label: "Quản lý tài khoản",
+      children: [
+        {
+          key: "account-admin",
+          label: "Tài khoản quản trị viên",
+        },
+        {
+          key: "account-employee",
+          label: "Tài khoản nhân viên",
+        },
+        {
+          key: "account-student",
+          label: "Tài khoản sinh viên",
+        },
+        {
+          key: "account-teacher",
+          label: "Tài khoản giảng viên",
+        },
+      ],
     },
     {
       key: "department",

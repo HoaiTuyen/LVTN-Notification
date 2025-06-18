@@ -36,13 +36,43 @@ export const uploadImage = (id, formData) => {
   });
 };
 
-export const getListAccountExcel = (formData) => {
+export const getListStudentAccountExcel = (formData) => {
   return api.post("/user/preview_account_students", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
 };
-export const createAccountExcel = (data) => {
+export const createStudentAccountExcel = (data) => {
   return api.post("/user/account_student", data);
+};
+
+export const getListLecturerAccountExcel = (formData) => {
+  return api.post("/user/preview_account_teachers", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+export const createLecturerAccountExcel = (data) => {
+  return api.post("/user/account_teacher", data);
+};
+
+export const filterUser = (keyword = "teacher", page = 0, pageSize = 10) => {
+  return api.get("/user/list_users", {
+    params: {
+      keyword: keyword,
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};
+// /user/list_study_group_by_user?userId=
+export const listGroupByStudent = async (id, page = 0, pageSize = 10) => {
+  return api.get(`/account/list_study_group_by_user?userId=${id}`, {
+    params: {
+      page,
+      pageSize,
+    },
+  });
 };

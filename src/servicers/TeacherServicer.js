@@ -37,3 +37,13 @@ export const getListTeacherExcel = (formData) => {
 export const createTeacherExcel = (data) => {
   return api.post("/teacher/teacher_excel", data);
 };
+
+export const filterTeacher = (keyword = "TEACHER", page = 0, pageSize = 10) => {
+  return api.get("/teacher/list_teachers", {
+    params: {
+      keyword: keyword,
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};

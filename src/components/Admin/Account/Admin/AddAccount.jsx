@@ -23,12 +23,10 @@ import {
   handleAddUser,
   handleUpdateUser,
   handleUploadImage,
-} from "../../../controller/AccountController";
+} from "../../../../controller/AccountController";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { showErrorAlert, showSuccessAlert } from "../../../util/AlertUtils";
-const AddAccount = ({ open, onClose, onSuccess, users }) => {
-  console.log(users);
 
+const AddAccount = ({ open, onClose, onSuccess, users }) => {
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -238,15 +236,16 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
                 <Select
                   value={form.role}
                   onValueChange={(value) => setForm({ ...form, role: value })}
+                  disabled={true}
                 >
                   <SelectTrigger id="">
                     <SelectValue placeholder="Chọn role" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ADMIN">Admin</SelectItem>
-                    <SelectItem value="STUDENT">Student</SelectItem>
+                    {/* <SelectItem value="STUDENT">Student</SelectItem>
                     <SelectItem value="TEACHER">Teacher</SelectItem>
-                    <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                    <SelectItem value="EMPLOYEE">Employee</SelectItem> */}
                   </SelectContent>
                 </Select>
               </div>

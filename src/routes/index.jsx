@@ -10,7 +10,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import ClassRoom from "../components/Admin/ClassRoom/ClassRoom";
 import ListStudentOfClass from "../components/Admin/ClassRoom/ListStudentByClass/ListStudentOfClass";
-import Account from "../components/Admin/Account/Account";
+import Account from "../components/Admin/Account/Admin/Account";
 import Department from "../components/Admin/Department/Department";
 import StudentAdmin from "../components/Admin/Student/Student";
 import Group from "../components/Admin/Group/Group";
@@ -20,8 +20,9 @@ import Subject from "../components/Admin/Subject/Subject";
 import Semester from "../components/Admin/Semester/Semester";
 import NotificationType from "../components/Admin/NotificationType/NotificationType";
 import ListClassOfDepartment from "../components/Admin/Department/ListClassByDepartment/ListClassByDepartment";
-
 import AdminProfilePage from "../components/Admin/Account/AccountSetting";
+import EmployeeAccount from "../components/Admin/Account/Employee/AccountEmployee";
+import LecturerAccount from "../components/Admin/Account/Lecturer/LecturerAccount";
 //student
 import NotificationsPage from "../components/Student/Notification/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
@@ -60,7 +61,9 @@ function AppRoutes() {
           >
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<HomeAdmin />} />
-            <Route path="account" element={<Account />} />
+            <Route path="account-admin" element={<Account />} />
+            <Route path="account-employee" element={<EmployeeAccount />} />
+            <Route path="account-teacher" element={<LecturerAccount />} />
             <Route path="department">
               <Route index element={<Department />} />
               <Route

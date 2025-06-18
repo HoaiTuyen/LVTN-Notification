@@ -6,6 +6,7 @@ import {
   searchTeacher,
   createTeacherExcel,
   getListTeacherExcel,
+  filterTeacher,
 } from "../servicers/TeacherServicer";
 
 export const handleAddTeacher = async (dataTeacher) => {
@@ -162,6 +163,32 @@ export const handleCreateTeacherExcel = async (data) => {
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
       data: [],
+    };
+  }
+};
+
+export const handleFilterTeacher = async (page = 0, pageSize = 10) => {
+  try {
+    const response = await filterTeacher(page, pageSize);
+    if (response?.data?.teachers) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+    return {
+      status: response?.status || 500,
+      message:
+        response?.message || "Đã xảy ra lỗi khi lấy danh sách giảng viên",
+      data: [],
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message ||
+        "Đã xảy ra lỗi khi lấy danh sách giảng viên",
     };
   }
 };

@@ -49,23 +49,17 @@ import {
   handleListUser,
   handleLockUser,
   handleSearchUser,
-} from "../../../controller/AccountController";
-import useDebounce from "../../../hooks/useDebounce";
-import AddAccount from "./AddAccount";
-import DetailAccount from "./DetailAccount";
-
-// import {
-//   showErrorAlert,
-//   showSuccessAlert,
-//   showConfirmAlert,
-// } from "../../../util/AlertUtils";
+} from "../../../../controller/AccountController";
+import useDebounce from "../../../../hooks/useDebounce";
+import AddAccountEmployee from "./AddAccountEmployee";
+import DetailAccount from "../DetailAccount";
 import { toast } from "react-toastify";
-import ImportAccountModal from "./ImportAccountModal";
-const Account = () => {
+const EmployeeAccount = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(0);
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [openDetailModal, setOpenDetailModal] = useState(false);
@@ -111,7 +105,12 @@ const Account = () => {
       }
 
       if (response?.status === 200 && response?.data) {
-        setUsers(response.data.users || []);
+        const userFilter = response.data.users;
+        let adminUsers = userFilter.filter(
+          (user) => user.role?.toUpperCase() === "EMPLOYEE"
+        );
+        setTotal(adminUsers.length);
+        setUsers(adminUsers || []);
         setPagination({
           current: page,
           pageSize: response.data.pageSize,
@@ -155,7 +154,7 @@ const Account = () => {
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
-          <Button
+          {/* <Button
             variant="outline"
             className="flex items-center cursor-pointer"
             onClick={() => setOpenUpload(true)}
@@ -168,7 +167,7 @@ const Account = () => {
               onClose={() => setOpenUpload(false)}
               onSuccess={fetchListUser}
             />
-          )}
+          )} */}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
@@ -176,10 +175,10 @@ const Account = () => {
               setSelectedUser(null);
             }}
           >
-            <Plus className="mr-2 h-4 w-4" /> Tạo tài khoản
+            <Plus className="h-4 w-4" /> Tạo tài khoản
           </Button>
           {openModal && (
-            <AddAccount
+            <AddAccountEmployee
               open={openModal}
               onClose={() => {
                 setOpenModal(false);
@@ -194,10 +193,8 @@ const Account = () => {
         {/* Card */}
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
-            <CardTitle>Danh sách tài khoản</CardTitle>
-            <CardDescription>
-              Tổng số: {pagination.total} tài khoản
-            </CardDescription>
+            <CardTitle>Danh sách tài khoản nhân viên</CardTitle>
+            <CardDescription>Tổng số: {total} tài khoản</CardDescription>
           </CardHeader>
           <CardContent>
             {/* Filters */}
@@ -338,4 +335,4 @@ const Account = () => {
   );
 };
 
-export default Account;
+export default EmployeeAccount;

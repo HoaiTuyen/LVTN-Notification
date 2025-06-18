@@ -38,7 +38,7 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
       onSuccess();
       onClose();
     } else {
-      setError("Nhóm học tập không tồn tại.");
+      toast.error(joinStudent.message);
     }
   };
   return (

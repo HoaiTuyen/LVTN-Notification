@@ -6,8 +6,12 @@ import {
   searchUser,
   getDetailUser,
   uploadImage,
-  createAccountExcel,
-  getListAccountExcel,
+  filterUser,
+  createStudentAccountExcel,
+  getListStudentAccountExcel,
+  createLecturerAccountExcel,
+  getListLecturerAccountExcel,
+  listGroupByStudent,
 } from "../servicers/AccountServicer";
 
 export const handleListUser = async (page, pageSize) => {
@@ -132,9 +136,27 @@ export const handleUploadImage = async (id, formData) => {
     }
   }
 };
-export const handleGetListAccountExcel = async (file) => {
+export const handleGetListStudentAccountExcel = async (file) => {
   try {
-    const response = await getListAccountExcel(file);
+    const response = await getListStudentAccountExcel(file);
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+
+export const handleCreateStudentAccountExcel = async (data) => {
+  try {
+    const response = await createStudentAccountExcel(data);
 
     return {
       status: response.status,
@@ -151,9 +173,27 @@ export const handleGetListAccountExcel = async (file) => {
   }
 };
 
-export const handleCreateAccountExcel = async (data) => {
+export const handleGetListLecturerAccountExcel = async (file) => {
   try {
-    const response = await createAccountExcel(data);
+    const response = await getListLecturerAccountExcel(file);
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+
+export const handleCreateLecturerAccountExcel = async (data) => {
+  try {
+    const response = await createLecturerAccountExcel(data);
 
     return {
       status: response.status,
@@ -165,6 +205,45 @@ export const handleCreateAccountExcel = async (data) => {
       status: error.response?.status || 500,
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+export const handleFilterUser = async (keyword, page, pageSize) => {
+  try {
+    const response = await filterUser(keyword, page, pageSize);
+
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Lấy danh sách người dùng thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+
+export const handleListGroupByStudent = async (userId, page, pageSize) => {
+  try {
+    const response = await listGroupByStudent(userId, page, pageSize);
+
+    if (response?.data) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
       data: [],
     };
   }

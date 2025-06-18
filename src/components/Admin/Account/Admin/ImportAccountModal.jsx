@@ -11,10 +11,10 @@ import {
 import { Spin } from "antd";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
-import {
-  handleCreateAccountExcel,
-  handleGetListAccountExcel,
-} from "../../../controller/AccountController";
+// import {
+//   handleCreateAccountExcel,
+//   handleGetListAccountExcel,
+// } from "../../../../controller/AccountController";
 import { toast } from "react-toastify";
 import PreviewModalAccount from "./PreviewAccount";
 
@@ -141,9 +141,9 @@ const ImportAccountModal = ({ open, onClose, onSuccess }) => {
       <Spin spinning={loading} className="fixed inset-0 z-50 bg-black/50">
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Nhập danh sách môn học</DialogTitle>
+            <DialogTitle>Nhập danh sách tài khoản</DialogTitle>
             <DialogDescription>
-              Nhập danh sách môn học từ file CSV hoặc Excel
+              Nhập danh sách tài khoản từ file CSV hoặc Excel
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -179,8 +179,8 @@ const ImportAccountModal = ({ open, onClose, onSuccess }) => {
             </div>
             <div className="mt-4">
               <p className="text-sm text-muted-foreground">
-                Lưu ý: File nhập vào cần có các cột: STT, Mã môn học, tên môn
-                học, số tín chỉ
+                Lưu ý: File nhập vào cần có các cột: STT, Mã, Tên, email , trạng
+                thái, giới tính, tên đăng nhập, mật khẩu
               </p>
             </div>
             <div className="mt-4">
