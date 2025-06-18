@@ -139,7 +139,7 @@ const ListClassOfDepartment = () => {
             <div className="relative flex-1 mb-4">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Tìm kiếm sinh viên..."
+                placeholder="Tìm kiếm lớp..."
                 className="pl-8"
                 //   value={searchTerm}
                 //   onChange={(e) => setSearchTerm(e.target.value)}
@@ -157,9 +157,9 @@ const ListClassOfDepartment = () => {
                       Giáo viên phụ trách
                     </TableHead>
                     <TableHead className="w-1/6  text-center">Khoa</TableHead>
-                    <TableHead className="w-1/6 text-center">
+                    {/* <TableHead className="w-1/6 text-center">
                       Thao tác
-                    </TableHead>
+                    </TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -189,7 +189,7 @@ const ListClassOfDepartment = () => {
                           {classes.departmentName}
                         </TableCell>
 
-                        <TableCell className="text-center">
+                        {/* <TableCell className="text-center">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -198,7 +198,7 @@ const ListClassOfDepartment = () => {
                             <span className="sr-only">Xóa</span>
                             <X className="h-4 w-4" />
                           </Button>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))
                   )}

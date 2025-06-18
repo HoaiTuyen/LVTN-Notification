@@ -185,9 +185,9 @@ const ListStudentOfClass = () => {
                     <TableHead className="w-1/6  text-center">
                       Trạng thái
                     </TableHead>
-                    <TableHead className="w-1/6 text-center">
+                    {/* <TableHead className="w-1/6 text-center">
                       Thao tác
-                    </TableHead>
+                    </TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -220,7 +220,7 @@ const ListStudentOfClass = () => {
                             {filterStudents(student.status).label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-center">
+                        {/* <TableCell className="text-center">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -229,7 +229,7 @@ const ListStudentOfClass = () => {
                             <span className="sr-only">Xóa</span>
                             <X className="h-4 w-4" />
                           </Button>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))
                   )}

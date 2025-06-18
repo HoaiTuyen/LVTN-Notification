@@ -131,12 +131,11 @@ function AppRoutes() {
             }
           >
             <Route path="profile" element={<StudentProfilePage />} />
-            <Route path="notification" element={<NotificationsPage />}>
-              <Route
-                path="notification/:notificationId"
-                element={<StudentNotificationDetail />}
-              />
-            </Route>
+            <Route path="notification" element={<NotificationsPage />} />
+            <Route
+              path="notification/:notificationId"
+              element={<StudentNotificationDetail />}
+            />
             <Route path="groupStudy" element={<GroupStudyStudent />} />
           </Route>
         </Routes>

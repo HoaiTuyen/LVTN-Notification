@@ -216,7 +216,7 @@ const Student = () => {
           onClose={() => setDrawerVisible(false)}
           open={drawerVisible}
           bodyStyle={{ padding: 0 }}
-          style={{ height: "100vh" }}
+          style={{ height: "100vh", backgroundColor: "#fff" }}
         >
           {SidebarMenu}
         </Drawer>
@@ -225,8 +225,9 @@ const Student = () => {
         <Content
           style={{
             padding: 0,
-            height: "100%",
+
             overflow: "auto",
+            backgroundColor: "#fff",
           }}
         >
           <Outlet />
