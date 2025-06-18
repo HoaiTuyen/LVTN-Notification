@@ -18,19 +18,23 @@ import LecturerAdmin from "../components/Admin/Lecturer/Lecturer";
 import Subject from "../components/Admin/Subject/Subject";
 import Semester from "../components/Admin/Semester/Semester";
 import NotificationType from "../components/Admin/NotificationType/NotificationType";
+import ListClassOfDepartment from "../components/Admin/Department/ListClassByDepartment/ListClassByDepartment";
 
 import AdminProfilePage from "../components/Admin/Account/AccountSetting";
 //student
 import NotificationsPage from "../components/Student/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
+import GroupStudyStudent from "../components/Student/Group/GroupStudy";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/creatNotification";
 import SentNotifications from "../components/Lecturer/Notification/sentNotification";
+import GroupClassTeacher from "../components/Lecturer/GroupClass/GroupClass";
 //Employee
 import EmployeeCreateNotification from "../components/Employee/Notification/createNotification";
 import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
 import EmployeeNotificationDetail from "../components/Employee/Notification/detailNotification";
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -54,7 +58,13 @@ function AppRoutes() {
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<HomeAdmin />} />
           <Route path="account" element={<Account />} />
-          <Route path="department" element={<Department />} />
+          <Route path="department">
+            <Route index element={<Department />} />
+            <Route
+              path=":departmentId/class"
+              element={<ListClassOfDepartment />}
+            ></Route>
+          </Route>
           <Route path="subject" element={<Subject />} />
           <Route path="semester" element={<Semester />} />
           <Route path="group" element={<Group />} />
@@ -77,6 +87,7 @@ function AppRoutes() {
         >
           <Route path="profile" element={<TeacherProfile />} />
           <Route path="notification" element={<LecturerCreateNotification />} />
+          <Route path="groupClass" element={<GroupClassTeacher />} />
           <Route path="sentNotification" element={<SentNotifications />} />
         </Route>
         <Route
@@ -107,6 +118,7 @@ function AppRoutes() {
         >
           <Route path="profile" element={<StudentProfilePage />} />
           <Route path="notification" element={<NotificationsPage />} />
+          <Route path="groupStudy" element={<GroupStudyStudent />} />
         </Route>
       </Routes>
     </BrowserRouter>

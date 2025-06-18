@@ -136,7 +136,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="name">Tên</Label>
+                <Label htmlFor="name">Họ</Label>
                 <Input
                   id="name"
                   type="text"
@@ -148,7 +148,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="name">Họ</Label>
+                <Label htmlFor="name">Tên</Label>
                 <Input
                   id="name"
                   type="text"
@@ -159,6 +159,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   required
                 />
               </div>
+
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

@@ -136,9 +136,9 @@ export const handleCreateClassExcel = async (data) => {
   }
 };
 
-export const handleListStudentByClass = async (data) => {
+export const handleListStudentByClass = async (id, page, pageSize) => {
   try {
-    const response = await listStudentByClass(data);
+    const response = await listStudentByClass(id, page, pageSize);
 
     return {
       status: response.status,

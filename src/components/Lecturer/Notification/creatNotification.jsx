@@ -55,7 +55,7 @@ const LecturerCreateNotification = () => {
 
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+
   const [fileDisplayNames, setFileDisplayNames] = useState([""]);
   const [files, setFiles] = useState([]);
 
@@ -105,7 +105,6 @@ const LecturerCreateNotification = () => {
         setFormData({ title: "", content: "" });
         setFileDisplayNames([""]);
         setFiles([]);
-        setSuccess(true);
       } else {
         toast.error(res.message || "Lỗi khi gửi thông báo");
       }
@@ -138,8 +137,6 @@ const LecturerCreateNotification = () => {
         [field]: "",
       }));
     }
-
-    setSuccess(false);
   };
 
   const validateForm = () => {
@@ -171,7 +168,7 @@ const LecturerCreateNotification = () => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      setSuccess(true);
+
       // Reset form
       setFormData({
         title: "",
@@ -194,15 +191,6 @@ const LecturerCreateNotification = () => {
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="space-y-6">
-          {success && (
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                Thông báo đã được gửi thành công!
-              </AlertDescription>
-            </Alert>
-          )}
-
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="max-h-[calc(100vh-100px)] overflow-y-auto">

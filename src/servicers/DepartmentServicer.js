@@ -32,3 +32,23 @@ export const searchDepartment = async (keyword, page = 0, pageSize = 10) => {
   });
   return response;
 };
+export const listClassByDepartment = async (id, page, pageSize = 10) => {
+  return await api.get("/department/class_by_department", {
+    params: {
+      departmentId: id,
+      page: page,
+      pageSize: pageSize,
+    },
+  });
+};
+
+export const getListClassByDepartmentExcel = (formData) => {
+  return api.post("/department/preview_departments_class", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+export const createClassByDepartmentExcel = async (data) => {
+  return await api.post("/department/add_classs_department", data);
+};

@@ -10,7 +10,7 @@ import {
   HomeOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { Bell, User, LogOut } from "lucide-react";
+import { Bell, User, LogOut, Group } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -92,11 +92,11 @@ const Student = () => {
       icon: <Bell size={16} />,
       label: "Thông báo",
     },
-    // {
-    //   key: "setting",
-    //   icon: <SettingOutlined />,
-    //   label: "Cài đặt",
-    // },
+    {
+      key: "groupStudy",
+      icon: <Group size={16} />,
+      label: "Nhóm học tập",
+    },
     {
       key: "logout",
       label: "Đăng xuất",

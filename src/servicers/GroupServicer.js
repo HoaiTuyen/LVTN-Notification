@@ -27,3 +27,18 @@ export const searchGroup = (keyword, page, pageSize = 10) => {
     },
   });
 };
+
+export const listGroupByIdUser = async (userId, page, pageSize = 10) => {
+  return await api.get(
+    `/studygroup/list_study_group_by_user?userId=${userId}`,
+    {
+      params: {
+        page: page,
+        pageSize: pageSize,
+      },
+    }
+  );
+};
+export const joinStudentInClass = async (data) => {
+  return await api.post("studygroup/add_student_studygroup", data);
+};

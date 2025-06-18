@@ -4,6 +4,8 @@ import {
   updateGroup,
   deleteGroup,
   searchGroup,
+  listGroupByIdUser,
+  joinStudentInClass,
 } from "../servicers/GroupServicer";
 
 export const handleListGroup = async (page, pageSize) => {
@@ -93,6 +95,43 @@ export const handleSearchGroup = async (keyword, page, pageSize) => {
         message: response.message,
       };
     }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      data: [],
+    };
+  }
+};
+export const handleListGroupByUserId = async (userId, page, pageSize) => {
+  try {
+    const response = await listGroupByIdUser(userId, page, pageSize);
+
+    if (response?.data) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      data: [],
+    };
+  }
+};
+
+export const handleJoinStudentInGroup = async (data) => {
+  try {
+    const response = await joinStudentInClass(data);
+
+    return response;
   } catch (error) {
     console.error("Error fetching departments:", error);
     return {

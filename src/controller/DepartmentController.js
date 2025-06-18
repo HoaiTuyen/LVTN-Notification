@@ -4,6 +4,9 @@ import {
   updateDepartment,
   deleteDepartment,
   searchDepartment,
+  listClassByDepartment,
+  getListClassByDepartmentExcel,
+  createClassByDepartmentExcel,
 } from "../servicers/DepartmentServicer";
 
 export const handleListDepartment = async (page = 0, pageSize = 0) => {
@@ -108,6 +111,60 @@ export const handleSearchDepartment = async (
       status: error.response?.status || 500,
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi tìm kiếm khoa",
+      data: [],
+    };
+  }
+};
+export const handleListClassByDepartment = async (id, page, pageSize) => {
+  try {
+    const response = await listClassByDepartment(id, page, pageSize);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+export const handleGetListClassByDepartmentExcel = async (file) => {
+  try {
+    const response = await getListClassByDepartmentExcel(file);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
+      data: [],
+    };
+  }
+};
+export const handleCreateClassByDepartmentExcel = async (data) => {
+  try {
+    const response = await createClassByDepartmentExcel(data);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi xử lý file Excel",
       data: [],
     };
   }

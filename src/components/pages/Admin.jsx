@@ -30,7 +30,21 @@ const AdminDashboard = () => {
   const location = useLocation();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
-  const isStudentListPage = location.pathname.includes("/students");
+  // const isStudentListPage = location.pathname.includes("/students");
+  // const isClassListPage = location.pathname.includes("/class");
+  const hiddenSidebarPaths = [
+    /^\/admin\/department\/[^/]+\/class$/,
+    /^\/admin\/class\/[^/]+\/students$/,
+  ];
+
+  const shouldHideSidebar = hiddenSidebarPaths.some((pattern) =>
+    new RegExp(pattern).test(location.pathname)
+  );
+
+  // const hiddenSidebarPaths = [
+  //   /^\/admin\/students\/id\/[^/]+$/,          // VD: /admin/students/id/123
+  //   /^\/admin\/department\/[^/]+\/class$/,     // VD: /admin/department/CNTT1/class
+  // ];
   const items = [
     { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
     {
@@ -224,13 +238,13 @@ const AdminDashboard = () => {
         </Header>
 
         <Layout>
-          {!isStudentListPage && !isMobile && (
+          {!shouldHideSidebar && !isMobile && (
             <Sider width={250} theme="light" style={{ height: "100vh" }}>
               {SidebarMenu}
             </Sider>
           )}
 
-          {!isStudentListPage && (
+          {!shouldHideSidebar && (
             <Drawer
               title="Menu"
               placement="left"
@@ -249,7 +263,7 @@ const AdminDashboard = () => {
               padding: 0,
               height: "100%",
               overflow: "auto",
-              width: isStudentListPage ? "100%" : "auto",
+              width: shouldHideSidebar ? "100%" : "auto",
             }}
           >
             <Outlet />

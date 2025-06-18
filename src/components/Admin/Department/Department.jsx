@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -54,6 +55,8 @@ import useDebounce from "../../../hooks/useDebounce";
 import { Pagination } from "antd";
 
 const Department = () => {
+  const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
@@ -238,11 +241,14 @@ const Department = () => {
                               >
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Link to="" className="flex items-center">
-                                  <Users className="mr-2 h-4 w-4" /> Danh sách
-                                  lớp
-                                </Link>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  navigate(
+                                    `/admin/department/${department.id}/class`
+                                  )
+                                }
+                              >
+                                <Users className="mr-2 h-4 w-4" /> Danh sách lớp
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem

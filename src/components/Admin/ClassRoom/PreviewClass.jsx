@@ -12,6 +12,8 @@ const PreviewModalClass = ({ open, onClose, data = [] }) => {
   const classesList = Array.isArray(data) ? data : [];
   console.log(classesList);
   const hasErrors = classesList.some((classroom) => !!classroom.error);
+  console.log(hasErrors);
+
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="!max-w-7xl  w-screen h-[90vh] rounded-lg p-6">
@@ -25,9 +27,9 @@ const PreviewModalClass = ({ open, onClose, data = [] }) => {
               <thead className="bg-gray-100 sticky top-0 z-10 shadow">
                 <tr>
                   <th className="border p-2">STT</th>
+                  <th className="border p-2">Mã lớp</th>
                   <th className="border p-2">Tên lớp</th>
                   <th className="border p-2">Mô tả</th>
-
                   {hasErrors && (
                     <th className="border p-2 text-red-600">Lỗi</th>
                   )}
@@ -41,6 +43,9 @@ const PreviewModalClass = ({ open, onClose, data = [] }) => {
                   >
                     <td className="border p-2 text-center align-middle">
                       {classroom.stt}
+                    </td>
+                    <td className="border p-2 text-center align-middle">
+                      {classroom.id}
                     </td>
                     <td className="border p-2 text-center align-middle">
                       {classroom.name}

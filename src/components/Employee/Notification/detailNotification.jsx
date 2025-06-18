@@ -23,10 +23,8 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
-// import { format } from "date-fns";
-// import { vi } from "date-fns/locale";
-// import { toast } from "sonner";
-
+import dayjs from "dayjs";
+import { handleDetailNotification } from "../../../controller/NotificationController";
 // Type definitions based on API response
 
 export default function EmployeeNotificationDetail() {
@@ -36,6 +34,13 @@ export default function EmployeeNotificationDetail() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
 
+  const fetchDetailNotification = async () => {
+    const detailNotify = await handleDetailNotification(notificationId);
+    console.log(detailNotify);
+    if (detailNotify?.data) {
+      setNotification(detailNotify.data);
+    }
+  };
   useEffect(() => {
     const fetchNotificationDetail = async () => {
       try {
@@ -118,6 +123,7 @@ Phòng Đào tạo`,
     if (notificationId) {
       fetchNotificationDetail();
     }
+    fetchDetailNotification();
   }, [notificationId]);
 
   const handleDownloadFile = async (file) => {
@@ -132,61 +138,12 @@ Phòng Đào tạo`,
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
-      toast.success(`Đang tải xuống: ${file.displayName}`);
     } catch (error) {
       console.error("Download error:", error);
       toast.error("Không thể tải xuống file");
     } finally {
       setDownloading(null);
     }
-  };
-
-  const formatDateTime = (dateTimeString) => {
-    // try {
-    //   return format(new Date(dateTimeString), "dd/MM/yyyy 'lúc' HH:mm", {
-    //     locale: vi,
-    //   });
-    // } catch (error) {
-    //   return "Không hợp lệ";
-    // }
-  };
-
-  const getPriorityBadgeVariant = (priority) => {
-    switch (priority) {
-      case "Cao":
-        return "destructive";
-      case "Trung bình":
-        return "outline";
-      case "Thấp":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
-
-  const getTypeBadgeVariant = (type) => {
-    switch (type) {
-      case "Thông báo":
-        return "default";
-      case "Sự kiện":
-        return "success";
-      case "Nhiệm vụ":
-        return "outline";
-      case "Nhắc nhở":
-        return "secondary";
-      default:
-        return "default";
-    }
-  };
-
-  const isUrgent = () => {
-    if (!notification?.deadline) return false;
-    const deadline = new Date(notification.deadline);
-    const now = new Date();
-    const timeDiff = deadline.getTime() - now.getTime();
-    const daysDiff = timeDiff / (1000 * 3600 * 24);
-    return daysDiff <= 3 && daysDiff > 0;
   };
 
   if (loading) {
@@ -232,7 +189,7 @@ Phòng Đào tạo`,
         </div>
 
         {/* Notification Header Card */}
-        <Card className={`${isUrgent() ? "border-red-200 bg-red-50/50" : ""}`}>
+        <Card className="">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -242,53 +199,28 @@ Phòng Đào tạo`,
                 <CardDescription className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-1" />
-                    {notification.sender}
+                    {notification.sender || "Ai gửi"}
                   </div>
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
-                    {formatDateTime(notification.createdAt)}
+                    {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
                   </div>
-                  {notification.course && (
+                  {/* {notification.course && (
                     <div className="flex items-center">
                       <FileText className="h-4 w-4 mr-1" />
                       {notification.course}
                     </div>
-                  )}
+                  )} */}
                 </CardDescription>
               </div>
               <div className="flex items-center space-x-2">
-                {isUrgent() && <AlertCircle className="h-5 w-5 text-red-500" />}
-                {notification.priority && (
-                  <Badge
-                    variant={getPriorityBadgeVariant(notification.priority)}
-                  >
-                    {notification.priority}
-                  </Badge>
-                )}
                 {notification.notificationType && (
-                  <Badge
-                    variant={getTypeBadgeVariant(notification.notificationType)}
-                  >
+                  <Badge className="bg-blue-100 text-blue-800">
                     {notification.notificationType}
                   </Badge>
                 )}
               </div>
             </div>
-
-            {notification.deadline && (
-              <div
-                className={`flex items-center mt-3 p-3 rounded-lg ${
-                  isUrgent()
-                    ? "bg-red-100 text-red-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }`}
-              >
-                <Clock className="h-4 w-4 mr-2" />
-                <span className="font-medium">
-                  Hạn chót: {formatDateTime(notification.deadline)}
-                </span>
-              </div>
-            )}
           </CardHeader>
         </Card>
 
@@ -324,7 +256,7 @@ Phòng Đào tạo`,
               </CardHeader>
               <CardContent className="max-h-[300px] overflow-y-auto">
                 <div className="space-y-3">
-                  {notification.fileNotifications.map((file, index) => (
+                  {/* {notification.fileNotifications.map((file, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors "
@@ -359,35 +291,57 @@ Phòng Đào tạo`,
                         )}
                       </Button>
                     </div>
+                  ))} */}
+                  {notification.fileNotifications.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <a
+                            href={file.fileName}
+                            download={file.displayName}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-blue-600 hover:underline"
+                          >
+                            {file.displayName}
+                          </a>
+                          <p className="text-sm text-gray-500 break-all">
+                            PDF Document
+                          </p>
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadFile(file)}
+                        disabled={downloading === file.publicId}
+                      >
+                        {downloading === file.publicId ? (
+                          <>
+                            <div className="animate-spin h-4 w-4 mr-2 border-2 border-gray-300 border-t-gray-600 rounded-full" />
+                            Đang tải...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-4 w-4 mr-2" />
+                            Tải xuống
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
           )}
 
-        {/* Action Buttons */}
-        {/* <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                {notification.isRead ? (
-                  <div className="flex items-center text-green-600">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Đã đọc</span>
-                  </div>
-                ) : (
-                  <Button variant="outline" size="sm">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Đánh dấu đã đọc
-                  </Button>
-                )}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Cập nhật lần cuối: {formatDateTime(notification.updatedAt)}
-              </div>
-            </div>
-          </CardContent>
-        </Card> */}
         <Outlet />
       </div>
     </div>

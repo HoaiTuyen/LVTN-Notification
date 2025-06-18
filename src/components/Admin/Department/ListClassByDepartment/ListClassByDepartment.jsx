@@ -33,67 +33,40 @@ import { ArrowLeft, Download, Plus, Search, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { handleListStudentByClass } from "../../../../controller/ClassController";
+import { handleListClassByDepartment } from "../../../../controller/DepartmentController";
 import { useEffect } from "react";
 import { Pagination } from "antd";
-import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
-const ListStudentOfClass = () => {
-  const [studentByClass, setStudentByClass] = useState([]);
-
+import ImportClassOfDepartmentModal from "./ImportClassByDepartment";
+const ListClassOfDepartment = () => {
+  const [classByDepartment, setClassByDepartment] = useState([]);
+  const [totalClass, setTotalClass] = useState(0);
   const [openUpload, setOpenUpload] = useState(false);
-  const [dataClass, setDataClass] = useState([]);
+  const [dataDepartment, setDataDepartment] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
     totalPages: 0,
   });
-  const { classId } = useParams();
+  const { departmentId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const backUrl = location.state?.from || "/admin/class";
+  const backUrl = location.state?.from || "/admin/department";
 
-  const renderGender = (gender) => {
-    switch (gender) {
-      case "NAM":
-        return "Nam";
-      case "NỮ":
-        return "Nữ";
-      case "KHÁC":
-        return "Khác";
-      default:
-        return "Không rõ";
-    }
-  };
-  function filterStudents(status) {
-    switch (status) {
-      case "ĐANG_HỌC":
-        return { label: "Đang học", className: "bg-green-100 text-green-800" };
-      case "BẢO_LƯU":
-        return { label: "Bảo lưu", className: "bg-yellow-100 text-yellow-800" };
-      case "ĐÃ_TỐT_NGHIỆP":
-        return {
-          label: "Đã tốt nghiệp",
-          className: "bg-blue-100 text-blue-800",
-        };
-      case "THÔI_HỌC":
-        return { label: "Thôi học", className: "bg-red-100 text-red-800" };
-
-      default:
-        break;
-    }
-  }
-  const fetchListStudentByClass = async (page = 1) => {
-    const res = await handleListStudentByClass(
-      classId,
+  const fetchListClassByDepartment = async (page = 1) => {
+    const res = await handleListClassByDepartment(
+      departmentId,
       page - 1,
       pagination.pageSize
     );
     console.log(res);
 
     if (res?.data && res?.status === 200) {
-      setStudentByClass(res.data.students);
-      setDataClass(res.data);
+      if (page === 1 && res?.data?.classes) {
+        setTotalClass(res.data.totalElements);
+      }
+      setClassByDepartment(res.data.classes);
+      setDataDepartment(res.data);
       setPagination({
         current: page,
         pageSize: res.data.pageSize,
@@ -103,7 +76,7 @@ const ListStudentOfClass = () => {
     }
   };
   useEffect(() => {
-    fetchListStudentByClass(pagination.current);
+    fetchListClassByDepartment(pagination.current);
   }, [pagination.current]);
   return (
     <div className="min-h-screen w-full bg-white p-10 ">
@@ -119,26 +92,27 @@ const ListStudentOfClass = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
               </div>
             </Button>
-            <h2 className="text-2xl font-bold">Danh sách sinh viên</h2>
+            <h2 className="text-2xl font-bold">Danh sách lớp</h2>
           </div>
           <div>
-            {[...new Set(studentByClass.map((item) => item.className))].map(
-              (className) => (
-                <span key={className} className="font-medium mr-2">
-                  Lớp: {className}
-                </span>
-              )
-            )}
-            <Badge>{dataClass.totalElements}</Badge>
+            {[
+              ...new Set(classByDepartment.map((item) => item.departmentName)),
+            ].map((departmentName) => (
+              <span key={departmentName} className="font-medium mr-2">
+                Khoa: {departmentName}
+              </span>
+            ))}
+
+            <Badge>{dataDepartment.totalElements}</Badge>
           </div>
         </div>
 
-        <Card className="overflow-y-auto max-h-[550px]">
+        <Card className="overflow-x-auto max-h-[550px]">
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <CardTitle>Danh sách sinh viên đăng ký</CardTitle>
-                <CardDescription>Tổng số: sinh viên</CardDescription>
+                <CardTitle>Danh sách lớp</CardTitle>
+                <CardDescription>Tổng số: {totalClass} lớp</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
@@ -149,14 +123,14 @@ const ListStudentOfClass = () => {
                   <Upload className="mr-2 h-4 w-4" /> Nhập danh sách
                 </Button>
                 {openUpload && (
-                  <ImportStudentOfClassModal
+                  <ImportClassOfDepartmentModal
                     open={openUpload}
                     onClose={() => setOpenUpload(false)}
-                    onSuccess={fetchListStudentByClass}
+                    onSuccess={fetchListClassByDepartment}
                   />
                 )}
                 <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="mr-2 h-4 w-4" /> Thêm sinh viên
+                  <Plus className="mr-2 h-4 w-4" /> Thêm lớp
                 </Button>
               </div>
             </div>
@@ -176,22 +150,20 @@ const ListStudentOfClass = () => {
               <Table className="table-fixed w-full">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-1/6">Mã SV</TableHead>
-                    <TableHead className="w-1/6">Họ và tên</TableHead>
-                    <TableHead className="w-1/6">Email</TableHead>
+                    <TableHead className="w-1/6">STT</TableHead>
+                    <TableHead className="w-1/6">Tên lớp</TableHead>
+                    <TableHead className="w-1/6">Mô tả</TableHead>
                     <TableHead className="w-1/6 text-center">
-                      Giới tính
+                      Giáo viên phụ trách
                     </TableHead>
-                    <TableHead className="w-1/6  text-center">
-                      Trạng thái
-                    </TableHead>
+                    <TableHead className="w-1/6  text-center">Khoa</TableHead>
                     <TableHead className="w-1/6 text-center">
                       Thao tác
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {studentByClass.length === 0 ? (
+                  {classByDepartment.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
@@ -201,25 +173,22 @@ const ListStudentOfClass = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    studentByClass.map((student) => (
-                      <TableRow key={student.id}>
+                    classByDepartment.map((classes, index) => (
+                      <TableRow key={index}>
                         <TableCell className="font-medium">
-                          {student.id}
+                          {(pagination.current - 1) * pagination.pageSize +
+                            index +
+                            1}
                         </TableCell>
-                        <TableCell>
-                          {student.firstName} {student.lastName}
-                        </TableCell>
-                        <TableCell>{student.email}</TableCell>
+                        <TableCell>{classes.name}</TableCell>
+                        <TableCell>{classes.description}</TableCell>
                         <TableCell className="text-center">
-                          {renderGender(student.gender)}
+                          {classes.teacherName || "Trống"}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge
-                            className={filterStudents(student.status).className}
-                          >
-                            {filterStudents(student.status).label}
-                          </Badge>
+                          {classes.departmentName}
                         </TableCell>
+
                         <TableCell className="text-center">
                           <Button
                             variant="ghost"
@@ -256,4 +225,4 @@ const ListStudentOfClass = () => {
     </div>
   );
 };
-export default ListStudentOfClass;
+export default ListClassOfDepartment;
