@@ -99,13 +99,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     e.preventDefault();
     try {
       // Validate required fields
-      if (
-        !form.id ||
-        !form.firstName ||
-        !form.lastName ||
-        !form.email ||
-        !form.classId
-      ) {
+      if (!form.id || !form.firstName || !form.lastName || !form.email) {
         toast.error("Vui lòng điền đầy đủ thông tin bắt buộc");
         return;
       }

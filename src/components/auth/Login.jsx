@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { handleLogin } from "../../controller/AuthController";
 
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
-
+import registerPush from "@/config/RegisterPush";
 import { toast } from "react-toastify";
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -16,6 +16,7 @@ const Login = () => {
     const res = await handleLogin(username, password, navigate);
 
     if (res.status === 200) {
+      await registerPush();
       toast.success(res.message);
     } else {
       toast.error(res.message);

@@ -71,12 +71,21 @@ const LecturerAddGroup = ({
         onSuccess();
         toast.success(res.message || "Tạo nhóm thành công");
         if (onCreateWithColor) {
-          onCreateWithColor(res.data.id, form.color || DEFAULT_COLOR);
-          const existingColors = JSON.parse(
+          // onCreateWithColor(res.data.id, form.color || DEFAULT_COLOR);
+          // const existingColors = JSON.parse(
+          //   localStorage.getItem("groupColors") || "{}"
+          // );
+          // existingColors[res.data.id] = form.color || DEFAULT_COLOR;
+          // localStorage.setItem("groupColors", JSON.stringify(existingColors));
+          const colorToUse = form.color || DEFAULT_COLOR;
+
+          const stored = JSON.parse(
             localStorage.getItem("groupColors") || "{}"
           );
-          existingColors[res.data.id] = form.color || DEFAULT_COLOR;
-          localStorage.setItem("groupColors", JSON.stringify(existingColors));
+          stored[res.data.id] = colorToUse;
+          localStorage.setItem("groupColors", JSON.stringify(stored));
+
+          onCreateWithColor(res.data.id, colorToUse); // callback sau khi lưu xong
         }
         onClose();
       } else {
@@ -103,6 +112,10 @@ const LecturerAddGroup = ({
       });
     }
   }, [group, open]);
+  const stored = localStorage.getItem("groupColors");
+  if (stored) {
+    setGroupColors(JSON.parse(stored));
+  }
   useEffect(() => {}, []);
   return (
     <>

@@ -33,6 +33,7 @@ import {
 import useWebSocket from "@/config/Websorket";
 import { handleCreateNotification } from "../../../controller/NotificationController";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
+import { handleListDepartment } from "../../../controller/DepartmentController";
 import { toast } from "react-toastify";
 const EmployeeCreateNotification = () => {
   const { connected } = useWebSocket();
@@ -47,6 +48,7 @@ const EmployeeCreateNotification = () => {
     title: "",
     content: "",
     notificationType: "",
+    // departmentId: "",
     // priority: "medium",
     // targetAudience: [],
     // scheduleDate: "",
@@ -59,6 +61,7 @@ const EmployeeCreateNotification = () => {
 
   const [fileDisplayNames, setFileDisplayNames] = useState([""]);
   const [notificationTypes, setNotificationTypes] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [files, setFiles] = useState([]);
 
   const hanndleSubmit = async (e) => {
@@ -67,6 +70,10 @@ const EmployeeCreateNotification = () => {
       toast.error("Vui lòng nhập tiêu đề và nội dung");
       return;
     }
+    // if (!formData.title) {
+    //   toast.error("Vui lòng nhập tiêu đề và nội dung");
+    //   return;
+    // }
     if (!validateForm) return;
 
     // Kiểm tra file + tên hiển thị
@@ -81,11 +88,12 @@ const EmployeeCreateNotification = () => {
     form.append("title", formData.title);
     form.append("content", formData.content);
     form.append("notificationType", formData.notificationType);
-    console.log("Submit với type ID:", formData.notificationType);
+    // form.append("departmentId", formData.departmentId);
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);
       form.append(`files[${index}]`, files[index]);
     });
+    console.log(form);
 
     try {
       setIsLoading(true);
@@ -94,7 +102,19 @@ const EmployeeCreateNotification = () => {
 
       if (res.status === 201) {
         toast.success("Gửi thông báo thành công!");
-        setFormData({ title: "", content: "", notificationType: "" });
+        await fetch("http://localhost:4000/api/send-notification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: formData.title || "Bạn có thông báo mới",
+          }),
+        });
+        setFormData({
+          title: "",
+          content: "",
+          notificationType: "",
+          // departmentId: "",
+        });
         setFileDisplayNames([""]);
         setFiles([]);
       } else {
@@ -109,23 +129,12 @@ const EmployeeCreateNotification = () => {
   };
   const fetchNotifyType = async () => {
     const req = await handleListNotificationType();
-    console.log(req);
     if (req?.data) {
       setNotificationTypes(req.data.notificationTypes);
     }
   };
-  //   const notificationTypes = [
-  //     { value: "announcement", label: "Thông báo chung", icon: "" },
-  //     { value: "assignment", label: "Bài tập", icon: "" },
-  //     { value: "exam", label: "Kiểm tra/Thi", icon: "" },
-  //     { value: "event", label: "Sự kiện", icon: "" },
-  //     { value: "reminder", label: "Nhắc nhở", icon: "" },
-  //     { value: "urgent", label: "Khẩn cấp", icon: "" },
-  //   ];
 
   const handleInputChange = (field, value) => {
-    console.log(field, value);
-
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -157,50 +166,31 @@ const EmployeeCreateNotification = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const fetchListDepartment = async () => {
+    const listDepartment = await handleListDepartment();
+    console.log(listDepartment);
 
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
+    if (listDepartment?.data) {
+      setDepartments(listDepartment.data.departments);
+    }
+  };
 
-  //     if (!validateForm()) return;
-
-  //     setIsLoading(true);
-
-  //     // Simulate API call
-  //     setTimeout(() => {
-  //       setIsLoading(false);
-
-  //       // Reset form
-  //       setFormData({
-  //         title: "",
-  //         content: "",
-  //         type: "",
-  //         // priority: "medium",
-  //         // targetAudience: [],
-  //         // scheduleDate: "",
-  //         // scheduleTime: "",
-  //         // attachments: [],
-  //       });
-  //     }, 2000);
-  //   };
-
-  //   const selectedType = notificationTypes.find(
-  //     (type) => type.value === formData.type
-  //   );
   useEffect(() => {
     fetchNotifyType();
+    fetchListDepartment();
   }, []);
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="space-y-6">
           {/* {success && (
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                Thông báo đã được gửi thành công!
-              </AlertDescription>
-            </Alert>
-          )} */}
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  Thông báo đã được gửi thành công!
+                </AlertDescription>
+              </Alert>
+            )} */}
 
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
@@ -261,6 +251,38 @@ const EmployeeCreateNotification = () => {
                           </p>
                         )}
                       </div>
+                      {/* <div className="space-y-2">
+                        <Label htmlFor="type">Khoa *</Label>
+                        <Select
+                          value={formData.departmentId}
+                          onValueChange={(value) =>
+                            handleInputChange("departmentId", value)
+                          }
+                        >
+                          <SelectTrigger
+                            className={errors.type ? "border-red-500" : ""}
+                          >
+                            <SelectValue placeholder="Chọn khoa" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {departments.map((department) => (
+                              <SelectItem
+                                key={department.id}
+                                value={String(department.id)}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span>{department.name}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.departmentId && (
+                          <p className="text-sm text-red-600">
+                            {errors.departmentId}
+                          </p>
+                        )}
+                      </div> */}
                     </div>
 
                     <div className="space-y-2">
@@ -379,8 +401,8 @@ const EmployeeCreateNotification = () => {
                     </div>
                   )}
                   {/* {notificationTypes && (
-                    <Badge className="">{notificationTypes.label}</Badge>
-                  )} */}
+                      <Badge className="">{notificationTypes.label}</Badge>
+                    )} */}
                   <div className="rounded-md border p-3 text-sm text-muted-foreground bg-gray-50 whitespace-pre-wrap max-h-40 overflow-y-auto">
                     {formData.content.length > 100
                       ? `${formData.content.substring(0, 100)}...`
@@ -423,9 +445,9 @@ const EmployeeCreateNotification = () => {
                     <span className="text-sm">Tổng người nhận:</span>
                     <Badge variant="secondary">
                       {/* {formData.targetAudience.includes("all-students")
-                        ? "245"
-                        : formData.targetAudience.length * 35}{" "}
-                      sinh viên */}
+                          ? "245"
+                          : formData.targetAudience.length * 35}{" "}
+                        sinh viên */}
                     </Badge>
                   </div>
 

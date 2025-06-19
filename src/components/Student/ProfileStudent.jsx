@@ -300,7 +300,7 @@ const StudentProfilePage = () => {
                               firstName: e.target.value,
                             })
                           }
-                          disabled={!isEditing}
+                          disabled
                         />
                       </div>
                       <div className="space-y-2">
@@ -314,7 +314,7 @@ const StudentProfilePage = () => {
                               lastName: e.target.value,
                             })
                           }
-                          disabled={!isEditing}
+                          disabled
                         />
                       </div>
                     </div>
@@ -334,7 +334,7 @@ const StudentProfilePage = () => {
                                 dateOfBirth: e.target.value,
                               })
                             }
-                            disabled={!isEditing}
+                            disabled
                             className="pl-8"
                           />
                         </div>
@@ -346,7 +346,7 @@ const StudentProfilePage = () => {
                           onValueChange={(value) =>
                             setProfileData({ ...profileData, gender: value })
                           }
-                          disabled={!isEditing}
+                          disabled
                         >
                           <SelectTrigger>
                             <SelectValue />

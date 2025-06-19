@@ -208,7 +208,7 @@ const TeacherProfile = () => {
                       onChange={(e) =>
                         handleInputChange("firstName", e.target.value)
                       }
-                      disabled={!isEditing}
+                      disabled
                     />
                   </div>
                   <div className="space-y-2">
@@ -219,7 +219,7 @@ const TeacherProfile = () => {
                       onChange={(e) =>
                         handleInputChange("lastName", e.target.value)
                       }
-                      disabled={!isEditing}
+                      disabled
                     />
                   </div>
 
@@ -250,7 +250,7 @@ const TeacherProfile = () => {
                         onChange={(e) =>
                           handleInputChange("dateOfBirth", e.target.value)
                         }
-                        disabled={!isEditing}
+                        disabled
                         className="pl-10"
                       />
                     </div>
@@ -277,7 +277,7 @@ const TeacherProfile = () => {
                       onValueChange={(value) =>
                         handleInputChange("gender", value)
                       }
-                      disabled={!isEditing}
+                      disabled
                     >
                       <SelectTrigger>
                         <SelectValue />

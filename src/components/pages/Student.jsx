@@ -19,6 +19,7 @@ import { handleGetDetailUser } from "../../controller/AccountController";
 const Student = () => {
   const { stompClient, connected, error } = useWebSocket();
   const [notificationCount, setNotificationCount] = useState(0);
+  const [userInfo, setUserInfo] = useState([]);
   useEffect(() => {
     if (connected && stompClient.current) {
       console.log("✅ WebSocket is connected in Student component");
@@ -27,21 +28,23 @@ const Student = () => {
       stompClient.current.subscribe("/notification", (message) => {
         const parsedMessage = JSON.parse(message.body);
         console.log(parsedMessage);
-
         setNotificationCount((prev) => prev + 1);
-
         console.log("Received message:", JSON.parse(message.body));
       });
+      // const departmentTopic = `/notification/department/${departmentId}`
+      // const departmentTopic = `/notification/department/${userInfo.departmentId}`;
+      // stompClient.current.subscribe(departmentTopic, (message) => {
+      //   const parsedMessage = JSON.parse(message.body);
+      //   console.log("Received department notification:", parsedMessage);
+      //   setNotificationCount((prev) => prev + 1);
+      // });
     }
   }, [connected, stompClient]);
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
 
-  // const [userInfo, setUserInfo] = useState({
-  //   name: "Nguyễn Văn A",
-  //   email: "nguyenvana@example.com",
-  // });
-  const [userInfo, setUserInfo] = useState([]);
+  console.log(userInfo);
+
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
@@ -64,6 +67,8 @@ const Student = () => {
       }
 
       const req = await handleGetDetailUser(data.userId);
+      console.log(req);
+
       if (req?.data) {
         const userData = req.data;
         if (userData.student) {
