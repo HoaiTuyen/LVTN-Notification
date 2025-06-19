@@ -16,10 +16,14 @@ const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
 
 import { handleGetDetailUser } from "../../controller/AccountController";
+import { handleTeacherDetail } from "../../controller/TeacherController";
+import { handleStudentDetail } from "../../controller/StudentController";
 const Student = () => {
   const { stompClient, connected, error } = useWebSocket();
   const [notificationCount, setNotificationCount] = useState(0);
   const [userInfo, setUserInfo] = useState([]);
+  console.log(userInfo);
+
   useEffect(() => {
     if (connected && stompClient.current) {
       console.log("✅ WebSocket is connected in Student component");
@@ -32,18 +36,17 @@ const Student = () => {
         console.log("Received message:", JSON.parse(message.body));
       });
       // const departmentTopic = `/notification/department/${departmentId}`
-      // const departmentTopic = `/notification/department/${userInfo.departmentId}`;
-      // stompClient.current.subscribe(departmentTopic, (message) => {
-      //   const parsedMessage = JSON.parse(message.body);
-      //   console.log("Received department notification:", parsedMessage);
-      //   setNotificationCount((prev) => prev + 1);
-      // });
+      const departmentTopic = `/notification/department/${userInfo.departmentId}`;
+      console.log(departmentTopic);
+      stompClient.current.subscribe(departmentTopic, (message) => {
+        const parsedMessage = JSON.parse(message.body);
+        console.log("Received department notification:", parsedMessage);
+        setNotificationCount((prev) => prev + 1);
+      });
     }
   }, [connected, stompClient]);
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
-
-  console.log(userInfo);
 
   const navigate = useNavigate();
   const screens = useBreakpoint();
@@ -65,16 +68,14 @@ const Student = () => {
         console.error("Invalid token or missing userId");
         return;
       }
-
       const req = await handleGetDetailUser(data.userId);
-      console.log(req);
-
       if (req?.data) {
-        const userData = req.data;
-        if (userData.student) {
-          setUserInfo(userData.student);
-        } else if (userData.teacher) {
-          setUserInfo(userData.teacher);
+        if (req.data.studentId) {
+          const detailStudent = await handleStudentDetail(req.data.studentId);
+          setUserInfo(detailStudent.data);
+        } else if (req.data.teacherId) {
+          const detailTeacher = await handleStudentDetail(req.data.teacherId);
+          setUserInfo(detailTeacher.data);
         } else {
           console.error("No user data found in response");
         }

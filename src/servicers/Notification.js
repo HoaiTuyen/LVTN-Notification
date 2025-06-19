@@ -7,9 +7,10 @@ export const createNotification = (formData) => {
     },
   });
 };
-export const listNotification = (page, pageSize = 10) => {
+export const listNotification = (sort, page, pageSize = 10) => {
   return api.get("/notification/list_notifications", {
     params: {
+      sort: sort,
       page: page,
       pageSize: pageSize,
     },

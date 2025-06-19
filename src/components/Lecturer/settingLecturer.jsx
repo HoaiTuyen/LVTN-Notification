@@ -37,7 +37,10 @@ import {
   handleUploadImage,
   handleGetDetailUser,
 } from "../../controller/AccountController";
-import { handleUpdateTeacher } from "../../controller/TeacherController";
+import {
+  handleUpdateTeacher,
+  handleTeacherDetail,
+} from "../../controller/TeacherController";
 
 const TeacherProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -112,12 +115,13 @@ const TeacherProfile = () => {
 
     const req = await handleGetDetailUser(data.userId);
     if (req?.data) {
-      const userData = req.data;
+      const teacherDetail = await handleTeacherDetail(req.data.teacherId);
+      // const userData = req.data;
       setUserId(req.data.id);
       setUserImage(req.data.image);
       setInitialUserImage(req.data.image); // Lưu ảnh ban đầu
-      setProfileData(userData.teacher || userData.student);
-      setInitialProfileData(userData.teacher || userData.student);
+      setProfileData(teacherDetail.data);
+      setInitialProfileData(teacherDetail.data);
     }
   };
 

@@ -43,10 +43,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { handleListGroupByStudent } from "../../../controller/AccountController";
 import JoinGroup from "./JoinGroup";
-
+import {
+  gradientBackgroundFromString,
+  hashColorFromString,
+} from "../../../config/color";
 const GroupStudyStudent = () => {
   const [groups, setGroups] = useState([]);
-  const [groupColors, setGroupColors] = useState({});
+
   const [openModal, setOpenModal] = useState(false);
 
   const [pagination, setPagination] = useState({
@@ -69,21 +72,8 @@ const GroupStudyStudent = () => {
     console.log(listGroup);
 
     if (listGroup?.data || listGroup?.status === 200) {
-      const colorsFromStorage = JSON.parse(
-        localStorage.getItem("groupColors") || "{}"
-      );
-      console.log(colorsFromStorage);
-
       setGroups(listGroup.data);
-      setGroupColors(() => {
-        const newColors = {};
-        listGroup.data.forEach((group) => {
-          newColors[group.groupId] = colorsFromStorage[group.groupId] || "#ccc";
-        });
-        console.log(newColors);
 
-        return newColors;
-      });
       setPagination({
         current: page,
         pageSize: listGroup.data.pageSize,
@@ -222,14 +212,21 @@ const GroupStudyStudent = () => {
                   <div
                     className="relative h-28 px-4 py-3 text-white"
                     style={{
-                      backgroundColor: groupColors[group.groupId] || "#2d3748", // fallback dark color
-                      backgroundImage: groupColors[group.groupId] || "#2d3748",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
+                      backgroundImage: gradientBackgroundFromString(
+                        group.groupId
+                      ),
+                      color: "white",
+                      // backgroundColor: hashColorFromString(group.groupId), // fallback dark color
+                      // backgroundImage: hashColorFromString(group.groupId),
+                      // backgroundSize: "cover",
+                      // backgroundPosition: "center",
                     }}
                   >
                     <div className="relative z-10">
-                      <h2 className="text-lg font-semibold truncate">
+                      <h2
+                        className="text-lg font-semibold truncate"
+                        title={group.groupName}
+                      >
                         {group.groupName}
                       </h2>
                       <p className="text-sm mt-1">

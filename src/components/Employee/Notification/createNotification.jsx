@@ -48,7 +48,7 @@ const EmployeeCreateNotification = () => {
     title: "",
     content: "",
     notificationType: "",
-    // departmentId: "",
+    departmentId: "",
     // priority: "medium",
     // targetAudience: [],
     // scheduleDate: "",
@@ -102,18 +102,18 @@ const EmployeeCreateNotification = () => {
 
       if (res.status === 201) {
         toast.success("Gửi thông báo thành công!");
-        await fetch("http://localhost:4000/api/send-notification", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: formData.title || "Bạn có thông báo mới",
-          }),
-        });
+        // await fetch("http://localhost:4000/api/send-notification", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({
+        //     message: formData.title || "Bạn có thông báo mới",
+        //   }),
+        // });
         setFormData({
           title: "",
           content: "",
           notificationType: "",
-          // departmentId: "",
+          departmentId: "",
         });
         setFileDisplayNames([""]);
         setFiles([]);
@@ -251,7 +251,7 @@ const EmployeeCreateNotification = () => {
                           </p>
                         )}
                       </div>
-                      {/* <div className="space-y-2">
+                      <div className="space-y-2">
                         <Label htmlFor="type">Khoa *</Label>
                         <Select
                           value={formData.departmentId}
@@ -282,7 +282,7 @@ const EmployeeCreateNotification = () => {
                             {errors.departmentId}
                           </p>
                         )}
-                      </div> */}
+                      </div>
                     </div>
 
                     <div className="space-y-2">

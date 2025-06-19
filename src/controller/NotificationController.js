@@ -27,9 +27,9 @@ export const handleCreateNotification = async (formData) => {
     };
   }
 };
-export const handleListNotification = async (page, pageSize) => {
+export const handleListNotification = async (sort, page, pageSize) => {
   try {
-    const response = await listNotification(page, pageSize);
+    const response = await listNotification(sort, page, pageSize);
 
     if (response?.data) {
       return {

@@ -5,7 +5,8 @@ import {
   deleteStudent,
   searchStudent,
   getListStudentExcel,
-  createStudentExcel
+  createStudentExcel,
+  studentDetail,
 } from "../servicers/StudentServicer";
 export const handleListStudent = async (page = 0, pageSize = 10) => {
   try {
@@ -92,7 +93,6 @@ export const handleSearchStudent = async (
 ) => {
   try {
     const response = await searchStudent(status, keyword, page, pageSize);
-    
 
     return {
       status: response.status,
@@ -144,4 +144,25 @@ export const handleCreateStudentExcel = async (data) => {
       data: [],
     };
   }
-}
+};
+
+export const handleStudentDetail = async (id) => {
+  try {
+    const response = await studentDetail(id);
+
+    if (response?.data) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message ||
+        "Đã xảy ra lỗi khi lấy danh sách sinh viên",
+    };
+  }
+};

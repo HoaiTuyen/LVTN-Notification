@@ -67,7 +67,11 @@ const NotificationsPage = () => {
     navigate(`/sinh-vien/notification/${id}`);
   };
   const fetchListNotify = async (page = 1) => {
-    const req = await handleListNotification(page - 1, pagination.pageSize);
+    const req = await handleListNotification(
+      "desc",
+      page - 1,
+      pagination.pageSize
+    );
     console.log(req);
 
     if (req?.data) {

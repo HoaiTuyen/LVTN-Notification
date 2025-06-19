@@ -28,13 +28,8 @@ import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import { AwardIcon } from "lucide-react";
 const DEFAULT_COLOR = "#4CAF50";
-const LecturerAddGroup = ({
-  open,
-  onClose,
-  onSuccess,
-  group,
-  onCreateWithColor,
-}) => {
+import { hashColorFromString } from "../../../config/color";
+const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
   const checkEdit = !!group?.id;
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
@@ -70,22 +65,17 @@ const LecturerAddGroup = ({
       if (res?.data && res?.status === 201) {
         onSuccess();
         toast.success(res.message || "Tạo nhóm thành công");
+        //if (onCreateWithColor) {
+        // onCreateWithColor(res.data.id, form.color || DEFAULT_COLOR);
+        // const existingColors = JSON.parse(
+        //   localStorage.getItem("groupColors") || "{}"
+        // );
+        // existingColors[res.data.id] = form.color || DEFAULT_COLOR;
+        // localStorage.setItem("groupColors", JSON.stringify(existingColors));
+        //}
         if (onCreateWithColor) {
-          // onCreateWithColor(res.data.id, form.color || DEFAULT_COLOR);
-          // const existingColors = JSON.parse(
-          //   localStorage.getItem("groupColors") || "{}"
-          // );
-          // existingColors[res.data.id] = form.color || DEFAULT_COLOR;
-          // localStorage.setItem("groupColors", JSON.stringify(existingColors));
-          const colorToUse = form.color || DEFAULT_COLOR;
-
-          const stored = JSON.parse(
-            localStorage.getItem("groupColors") || "{}"
-          );
-          stored[res.data.id] = colorToUse;
-          localStorage.setItem("groupColors", JSON.stringify(stored));
-
-          onCreateWithColor(res.data.id, colorToUse); // callback sau khi lưu xong
+          const generatedColor = hashColorFromString(res.data.id);
+          onCreateWithColor(res.data.id, generatedColor); // chỉ callback, không lưu
         }
         onClose();
       } else {
@@ -112,10 +102,7 @@ const LecturerAddGroup = ({
       });
     }
   }, [group, open]);
-  const stored = localStorage.getItem("groupColors");
-  if (stored) {
-    setGroupColors(JSON.parse(stored));
-  }
+
   useEffect(() => {}, []);
   return (
     <>

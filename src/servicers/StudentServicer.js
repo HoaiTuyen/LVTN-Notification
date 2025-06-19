@@ -44,3 +44,7 @@ export const createStudentExcel = (data) => {
   return api.post("/student/student_excel", data);
 };
 
+// student/student-detail?id
+export const studentDetail = (id) => {
+  return api.post(`/student/student-detail?id=${id}`);
+};

@@ -197,6 +197,7 @@ const SentNotifications = () => {
   };
   const fetchListNotification = async (page = 1) => {
     const response = await handleListNotification(
+      "desc",
       page - 1,
       pagination.pageSize
     );

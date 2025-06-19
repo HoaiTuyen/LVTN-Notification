@@ -65,6 +65,8 @@ const EmployeeSentNotifications = () => {
 
     if (isKeywordEmpty && isTypeAll) {
       response = await handleListNotification(page - 1, pagination.pageSize);
+      console.log(response);
+
       if (page === 1 && response?.data?.totalElements) {
         setTotalSent(response.data.totalElements);
       }

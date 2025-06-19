@@ -10,6 +10,8 @@ import {
   Users,
   Pencil,
   FileText,
+  User,
+  Folder,
 } from "lucide-react";
 import {
   Card,
@@ -42,10 +44,14 @@ import LecturerAddGroup from "./createGroup";
 import LecturerDeleteGroup from "./DeleteGroup";
 import { Pagination } from "antd";
 import { jwtDecode } from "jwt-decode";
-
+import {
+  gradientBackgroundFromString,
+  hashColorFromString,
+} from "../../../config/color";
 const GroupClassTeacher = () => {
   const [groups, setGroups] = useState([]);
-  const [groupColors, setGroupColors] = useState({});
+  console.log(groups);
+
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectGroup, setSelectGroup] = useState(null);
@@ -55,10 +61,7 @@ const GroupClassTeacher = () => {
     total: 0,
     totalPages: 0,
   });
-  const handleGroupCreated = (groupId, color) => {
-    setGroupColors((prev) => ({ ...prev, [groupId]: color }));
-    fetchListGroup(); // reload lại list group sau khi tạo
-  };
+
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
@@ -71,17 +74,8 @@ const GroupClassTeacher = () => {
     );
 
     if (listGroup?.data || listGroup?.status === 200) {
-      const colorsFromStorage = JSON.parse(
-        localStorage.getItem("groupColors") || "{}"
-      );
       setGroups(listGroup.data.studyGroups);
-      setGroupColors(() => {
-        const newColors = {};
-        listGroup.data.studyGroups.forEach((group) => {
-          newColors[group.id] = colorsFromStorage[group.id] || "#ccc";
-        });
-        return newColors;
-      });
+
       setPagination({
         current: page,
         pageSize: listGroup.data.pageSize,
@@ -95,6 +89,12 @@ const GroupClassTeacher = () => {
   useEffect(() => {
     fetchListGroup();
   }, []);
+  // const getInitials = (name) => {
+  //   if (!name) return "";
+  //   const parts = name.trim().split(" ");
+  //   if (parts.length === 1) return parts[0][0].toUpperCase();
+  //   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  // };
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className=" p-6 overflow-y-auto max-h-[600px]">
@@ -114,13 +114,12 @@ const GroupClassTeacher = () => {
                   open={openModal}
                   onClose={() => setOpenModal(false)}
                   onSuccess={fetchListGroup}
-                  onCreateWithColor={handleGroupCreated}
                 />
               )}
             </Dialog>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
             {groups.length === 0 ? (
               <div className="col-span-full flex flex-col items-center justify-center text-gray-500 py-16">
                 <Users className="w-16 h-16 mb-4" />
@@ -130,78 +129,78 @@ const GroupClassTeacher = () => {
               </div>
             ) : (
               groups.map((group) => (
-                <Card
-                  key={group.id}
-                  className="relative rounded-xl shadow hover:shadow-lg overflow-hidden transition-all bg-white p-0 pb-5 h-[240px]"
-                >
-                  {/* BG 1/3 + tên nhóm */}
+                <Card className="relative p-0 rounded-xl overflow-hidden shadow border w-full h-[300px] flex flex-col justify-between">
+                  {/* Header - ảnh nền + tên + giảng viên */}
                   <div
-                    className="relative w-full h-24 flex items-start justify-between p-3 text-white"
+                    className="relative h-28 px-4 py-3 text-white"
                     style={{
-                      backgroundColor: groupColors[group.id] || "#ccc",
+                      // backgroundColor: hashColorFromString(group.id), // fallback dark color
+                      backgroundImage: gradientBackgroundFromString(group.id),
+                      color: "white",
                     }}
                   >
-                    <h2 className="text-lg font-semibold">{group.name}</h2>
-
-                    {/* Dropdown trên nền */}
-                    {/* <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
+                    <div className="relative z-10 flex justify-between">
+                      <h2 className="text-lg font-semibold truncate">
+                        {group.name}
+                      </h2>
+                      <DropdownMenu asChild>
+                        <DropdownMenuTrigger>
+                          <Button
                             variant="ghost"
-                            className="absolute top-2 right-2 text-white bg-black/30 hover:bg-black/50 rounded-full p-1"
-                            >
-                            <MoreVertical size={18} />
-                            </Button>
+                            className="h-8 w-8 p-0 cursor-pointer"
+                          >
+                            <Ellipsis className="h-4 w-4" />
+                          </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="z-50" align="end">
-                            <DropdownMenuItem
-                            onClick={() => handleDelete(group.id)}
-                            className="text-red-600"
-                            >
-                            Xoá nhóm
-                            </DropdownMenuItem>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem asChild className="cursor-pointer">
+                            <Link to="">
+                              <FileText className="h-4 w-4" />
+                              Xem chi tiết
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-red-600 cursor-pointer "
+                            onClick={() => {
+                              setSelectGroup(group);
+                              setOpenModalDelete(true);
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Xóa
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
-                        </DropdownMenu> */}
-                    <DropdownMenu asChild>
-                      <DropdownMenuTrigger>
-                        <Button
-                          variant="ghost"
-                          className="h-8 w-8 p-0 cursor-pointer"
-                        >
-                          <Ellipsis className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link to="">
-                            <FileText className="h-4 w-4" />
-                            Xem chi tiết
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-red-600 cursor-pointer "
-                          onClick={() => {
-                            setSelectGroup(group);
-                            setOpenModalDelete(true);
-                          }}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" /> Xóa
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </DropdownMenu>
+                    </div>
+
+                    {/* Avatar chữ viết tắt */}
+                    {/* <div className="absolute -bottom-9 right-4 z-20">
+                      <div className="w-18 h-18 rounded-full  bg-gray-500  text-white flex items-center justify-center font-bold text-lg border-4 border-white shadow">
+                        {getInitials(group.teacherName || "GV")}
+                      </div>
+                    </div> */}
                   </div>
 
-                  {/* Nội dung dưới 2/3 */}
-                  <CardContent className="text-sm text-muted-foreground space-y-2 px-4 mt-auto pb-4">
+                  {/* Body trống hoặc nội dung khác nếu có */}
+                  <div className="flex-grow px-4 pt-6 bottom-0"></div>
+
+                  {/* Footer: Icon điều hướng */}
+                  {/* Footer: Code + Icon điều hướng */}
+                  <div className="border-t flex justify-between items-center py-2 px-4 text-gray-700">
                     <div>
-                      <span className="font-medium text-gray-700">
-                        Mã nhóm:
-                      </span>
-                      <code className="bg-gray-100 px-4 py-1 rounded ml-2 inline-block min-w-[120px] text-center">
+                      <span className="font-medium text-gray-700">Code:</span>
+                      <code className="bg-gray-100 px-3 py-1 rounded ml-2 text-sm">
                         {group.code}
                       </code>
                     </div>
-                  </CardContent>
+                    <div className="flex gap-4">
+                      <button className="hover:text-blue-600">
+                        <User className="w-5 h-5" />
+                      </button>
+                      <button className="hover:text-blue-600">
+                        <Folder className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
                 </Card>
               ))
             )}
@@ -215,19 +214,75 @@ const GroupClassTeacher = () => {
             group={selectGroup}
           />
         )}
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) => {
-              fetchListGroup(page);
-            }}
-          />
-        </div>
+        {pagination.total > pagination.pageSize && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) => {
+                fetchListGroup(page);
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default GroupClassTeacher;
+// <Card
+//   key={group.id}
+//   className="relative rounded-xl shadow hover:shadow-lg overflow-hidden transition-all bg-white p-0 pb-5 h-[240px]"
+// >
+//   {/* BG 1/3 + tên nhóm */}
+//   <div
+//     className="relative w-full h-24 flex items-start justify-between p-3 text-white"
+//     style={{
+//       backgroundColor: hashColorFromString(group.id),
+//     }}
+//   >
+//     <h2 className="text-lg font-semibold">{group.name}</h2>
+
+// <DropdownMenu asChild>
+//   <DropdownMenuTrigger>
+//     <Button
+//       variant="ghost"
+//       className="h-8 w-8 p-0 cursor-pointer"
+//     >
+//       <Ellipsis className="h-4 w-4" />
+//     </Button>
+//   </DropdownMenuTrigger>
+//   <DropdownMenuContent>
+//     <DropdownMenuItem asChild className="cursor-pointer">
+//       <Link to="">
+//         <FileText className="h-4 w-4" />
+//         Xem chi tiết
+//       </Link>
+//     </DropdownMenuItem>
+//     <DropdownMenuItem
+//       className="text-red-600 cursor-pointer "
+//       onClick={() => {
+//         setSelectGroup(group);
+//         setOpenModalDelete(true);
+//       }}
+//     >
+//       <Trash2 className="mr-2 h-4 w-4" /> Xóa
+//     </DropdownMenuItem>
+//   </DropdownMenuContent>
+// </DropdownMenu>
+//   </div>
+
+//   {/* Nội dung dưới 2/3 */}
+//   <CardContent className="text-sm text-muted-foreground space-y-2 px-4 mt-auto pb-4">
+//     <div>
+//       <span className="font-medium text-gray-700">
+//         Mã nhóm:
+//       </span>
+//       <code className="bg-gray-100 px-4 py-1 rounded ml-2 inline-block min-w-[120px] text-center">
+//         {group.code}
+//       </code>
+//     </div>
+//   </CardContent>
+// </Card>

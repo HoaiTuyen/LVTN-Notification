@@ -9,7 +9,7 @@ import {
   createClassByDepartmentExcel,
 } from "../servicers/DepartmentServicer";
 
-export const handleListDepartment = async (page = 0, pageSize = 0) => {
+export const handleListDepartment = async (page = 0, pageSize = 10) => {
   try {
     const response = await listDepartment(page, pageSize);
 

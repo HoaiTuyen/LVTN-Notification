@@ -41,7 +41,10 @@ import {
   handleGetDetailUser,
   handleUploadImage,
 } from "../../controller/AccountController";
-import { handleUpdateStudent } from "../../controller/StudentController";
+import {
+  handleUpdateStudent,
+  handleStudentDetail,
+} from "../../controller/StudentController";
 const StudentProfilePage = () => {
   const [loading, setLoading] = useState(true);
 
@@ -57,18 +60,12 @@ const StudentProfilePage = () => {
     const data = jwtDecode(token);
     const userId = data.userId;
     const req = await handleGetDetailUser(userId);
-    console.log(req);
 
     if (req?.data) {
-      const userData = req.data;
       setUserImage(req.data.image);
-      if (userData.student) {
-        setProfileData(userData.student);
-      } else if (userData.teacher) {
-        setProfileData(userData.teacher);
-      } else {
-        console.log("Lỗi");
-      }
+      const studentDetail = await handleStudentDetail(req.data.studentId);
+      console.log(studentDetail);
+      setProfileData(studentDetail.data);
     }
   };
 
@@ -142,7 +139,30 @@ const StudentProfilePage = () => {
       </div>
     );
   }
+  function filterStudents(status) {
+    switch (status) {
+      case "ĐANG_HỌC":
+        return {
+          label: "Đang học",
+          className: "bg-green-100 text-green-800 mt-2",
+        };
+      case "BẢO_LƯU":
+        return {
+          label: "Bảo lưu",
+          className: "bg-yellow-100 text-yellow-800 mt-2",
+        };
+      case "ĐÃ_TỐT_NGHIỆP":
+        return {
+          label: "Đã tốt nghiệp",
+          className: "bg-blue-100 text-blue-800 mt-2",
+        };
+      case "THÔI_HỌC":
+        return { label: "Thôi học", className: "bg-red-100 text-red-800 mt-2" };
 
+      default:
+        break;
+    }
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -246,10 +266,13 @@ const StudentProfilePage = () => {
                         {profileData.firstName} {profileData.lastName}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Mã: {profileData.id}
+                        Khoa: {profileData.departmentName}
                       </p>
-                      <Badge variant="success" className="mt-2">
-                        {profileData.status}
+                      <Badge
+                        variant="success"
+                        className={filterStudents(profileData.status).className}
+                      >
+                        {filterStudents(profileData.status).label}
                       </Badge>
                     </div>
                   </CardContent>
