@@ -46,20 +46,23 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import {
-  handleFilterUser,
+  handleListUser,
   handleLockUser,
   handleSearchUser,
+  handleFilterUser,
 } from "../../../../controller/AccountController";
 import useDebounce from "../../../../hooks/useDebounce";
-import AddAccountEmployee from "./AddAccountEmployee";
+import AddAccountStudent from "./AddAcountStudent";
 import DetailAccount from "../DetailAccount";
 import { toast } from "react-toastify";
-const EmployeeAccount = () => {
+import ImportStudentModal from "./ImportStudent";
+
+const StudentAccount = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [users, setUsers] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [allTeachers, setAllTeachers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [openDetailModal, setOpenDetailModal] = useState(false);
@@ -97,7 +100,7 @@ const EmployeeAccount = () => {
         // Filter the results to only show teacher accounts
         if (response?.status === 200 && response?.data) {
           const teacherUsers = response.data.users.filter(
-            (user) => user.role?.toUpperCase() === "EMPLOYEE"
+            (user) => user.role?.toUpperCase() === "STUDENT"
           );
           console.log(teacherUsers);
 
@@ -109,7 +112,7 @@ const EmployeeAccount = () => {
         }
       } else {
         response = await handleFilterUser(
-          "employee",
+          "student",
           page - 1,
           pagination.pageSize
         );
@@ -155,13 +158,14 @@ const EmployeeAccount = () => {
   };
 
   useEffect(() => {
-    fetchListUser(1);
+    setAllTeachers([]);
+    fetchListUser(pagination.current);
   }, [debouncedSearchTerm, selectedRole]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4 ">
-          {/* <Button
+          <Button
             variant="outline"
             className="flex items-center cursor-pointer"
             onClick={() => setOpenUpload(true)}
@@ -169,12 +173,12 @@ const EmployeeAccount = () => {
             <Upload className="mr-2 h-4 w-4" /> Nhập danh sách tài khoản
           </Button>
           {openUpload && (
-            <ImportAccountModal
+            <ImportStudentModal
               open={openUpload}
               onClose={() => setOpenUpload(false)}
               onSuccess={fetchListUser}
             />
-          )} */}
+          )}
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
@@ -185,7 +189,7 @@ const EmployeeAccount = () => {
             <Plus className="h-4 w-4" /> Tạo tài khoản
           </Button>
           {openModal && (
-            <AddAccountEmployee
+            <AddAccountStudent
               open={openModal}
               onClose={() => {
                 setOpenModal(false);
@@ -200,7 +204,7 @@ const EmployeeAccount = () => {
         {/* Card */}
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
-            <CardTitle>Danh sách tài khoản nhân viên</CardTitle>
+            <CardTitle>Danh sách tài khoản sinh viên</CardTitle>
             <CardDescription>
               Tổng số: {pagination.totalElements} tài khoản
             </CardDescription>
@@ -344,4 +348,4 @@ const EmployeeAccount = () => {
   );
 };
 
-export default EmployeeAccount;
+export default StudentAccount;

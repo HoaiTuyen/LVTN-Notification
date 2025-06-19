@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import Login from "../components/auth/Login";
-import Admin from "../components/pages/Admin";
+import Login from "../components/Auth/Login";
+import Admin from "../components/Pages/Admin";
 // import NotFound from "../pages/NotFound";
-import Lecturer from "../components/pages/Lecturer";
-import Student from "../components/pages/Student";
-import EmployeeDashboard from "../components/pages/Employee";
+import Lecturer from "../components/Pages/Lecturer";
+import Student from "../components/Pages/Student";
+import EmployeeDashboard from "../components/Pages/Employee";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import ClassRoom from "../components/Admin/ClassRoom/ClassRoom";
@@ -23,6 +23,7 @@ import ListClassOfDepartment from "../components/Admin/Department/ListClassByDep
 import AdminProfilePage from "../components/Admin/Account/AccountSetting";
 import EmployeeAccount from "../components/Admin/Account/Employee/AccountEmployee";
 import LecturerAccount from "../components/Admin/Account/Lecturer/LecturerAccount";
+import StudentAccount from "../components/Admin/Account/Student/StudentAccount";
 //student
 import NotificationsPage from "../components/Student/Notification/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
@@ -64,6 +65,7 @@ function AppRoutes() {
             <Route path="account-admin" element={<Account />} />
             <Route path="account-employee" element={<EmployeeAccount />} />
             <Route path="account-teacher" element={<LecturerAccount />} />
+            <Route path="account-student" element={<StudentAccount />} />
             <Route path="department">
               <Route index element={<Department />} />
               <Route

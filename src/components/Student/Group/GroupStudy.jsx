@@ -232,7 +232,9 @@ const GroupStudyStudent = () => {
                       <h2 className="text-lg font-semibold truncate">
                         {group.groupName}
                       </h2>
-                      <p className="text-sm mt-1">{group.teacherName}</p>
+                      <p className="text-sm mt-1">
+                        {group.teacherName || "GV.Tam"}
+                      </p>
                     </div>
 
                     {/* Avatar chữ viết tắt */}

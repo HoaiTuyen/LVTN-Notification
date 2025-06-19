@@ -12,11 +12,11 @@ import { Spin } from "antd";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import {
-  handleCreateLecturerAccountExcel,
-  handleGetListLecturerAccountExcel,
+  handleCreateStudentAccountExcel,
+  handleGetListStudentAccountExcel,
 } from "../../../../controller/AccountController";
 import { toast } from "react-toastify";
-import PreviewLecturer from "./PreviewLecturer";
+import PreviewStudentAccount from "./PreviewStudent";
 
 import * as XLSX from "xlsx";
 
@@ -42,7 +42,7 @@ const generateSampleExcel = () => {
       "exemple@gamil.com",
       "Nam",
       "13/01/200",
-      "ĐANG_CÔNG_TÁC",
+      "ĐANG_HỌC",
       "DH52112031",
       "DH52112031",
     ],
@@ -54,7 +54,7 @@ const generateSampleExcel = () => {
       "exemple@gamil.com",
       "Nữ",
       "13/01/200",
-      "CHUYỂN_CÔNG_TÁC",
+      "ĐANG_HỌC",
       "DH52113550",
       "DH52113550",
     ],
@@ -65,7 +65,7 @@ const generateSampleExcel = () => {
   XLSX.utils.book_append_sheet(wb, ws, "Danh sách tài khoản");
   XLSX.writeFile(wb, "file_mau.xlsx");
 };
-const ImportLecturerModal = ({ open, onClose, onSuccess }) => {
+const ImportStudentModal = ({ open, onClose, onSuccess }) => {
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -89,10 +89,10 @@ const ImportLecturerModal = ({ open, onClose, onSuccess }) => {
     formData.append("file", file);
     setLoading(true);
     try {
-      const res = await handleGetListLecturerAccountExcel(formData);
+      const res = await handleGetListStudentAccountExcel(formData);
       console.log(res);
 
-      const accounts = res.data.teachers || [];
+      const accounts = res.data.students || [];
       const errs = res.data.rowErrors || [];
 
       const accountsWithErrors = accounts.map((account) => {
@@ -118,7 +118,7 @@ const ImportLecturerModal = ({ open, onClose, onSuccess }) => {
   };
   const handleCreateLecturer = async (data) => {
     try {
-      const res = await handleCreateLecturerAccountExcel(data);
+      const res = await handleCreateStudentAccountExcel(data);
       console.log(res);
 
       if (res?.data || res?.status === 201) {
@@ -192,7 +192,7 @@ const ImportLecturerModal = ({ open, onClose, onSuccess }) => {
               </Button>
             </div>
             {showPreviewModal && (
-              <PreviewLecturer
+              <PreviewStudentAccount
                 open={showPreviewModal}
                 onClose={() => setShowPreviewModal(false)}
                 data={previewData}
@@ -217,4 +217,4 @@ const ImportLecturerModal = ({ open, onClose, onSuccess }) => {
   );
 };
 
-export default ImportLecturerModal;
+export default ImportStudentModal;

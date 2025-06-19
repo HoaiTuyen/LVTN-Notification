@@ -58,7 +58,7 @@ export const createLecturerAccountExcel = (data) => {
   return api.post("/user/account_teacher", data);
 };
 
-export const filterUser = (keyword = "teacher", page = 0, pageSize = 10) => {
+export const filterUser = (keyword, page = 0, pageSize = 10) => {
   return api.get("/user/list_users", {
     params: {
       keyword: keyword,

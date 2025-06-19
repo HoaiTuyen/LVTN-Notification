@@ -269,7 +269,7 @@ const Lecturer = () => {
                                         .slice(0, 2)}
                                     </AvatarFallback>
                                 </Avatar> */}
-                            {teacher.lastName} {teacher.firstName}
+                            {teacher.firstName} {teacher.lastName}
                           </div>
                         </TableCell>
                         <TableCell>{teacher.email}</TableCell>
