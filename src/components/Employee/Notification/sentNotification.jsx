@@ -38,6 +38,7 @@ import { Pagination } from "antd";
 import dayjs from "dayjs";
 import DeleteNotification from "./deleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
+import UpdateNotification from "./updateNotification";
 const EmployeeSentNotifications = () => {
   const navigate = useNavigate();
 
@@ -47,6 +48,7 @@ const EmployeeSentNotifications = () => {
   const [selectType, setSelectType] = useState("all");
   const [dataNotify, setDataNotify] = useState([]);
   const [openModalDelete, setModalDelete] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [selectNotify, setSelectNotify] = useState([]);
   const [totalSent, setTotalSent] = useState(0);
   const [pagination, setPagination] = useState({
@@ -64,7 +66,11 @@ const EmployeeSentNotifications = () => {
     let response;
 
     if (isKeywordEmpty && isTypeAll) {
-      response = await handleListNotification(page - 1, pagination.pageSize);
+      response = await handleListNotification(
+        "desc",
+        page - 1,
+        pagination.pageSize
+      );
       console.log(response);
 
       if (page === 1 && response?.data?.totalElements) {
@@ -239,12 +245,21 @@ const EmployeeSentNotifications = () => {
                             size="sm"
                             variant="outline"
                             onClick={(e) => {
+                              e.stopPropagation();
                               handleViewDetail(notification.id, e);
                             }}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectNotify(notification);
+                              setOpenModalUpdate(true);
+                            }}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
@@ -274,6 +289,14 @@ const EmployeeSentNotifications = () => {
               </div>
             </CardContent>
           </Card>
+          {openModalUpdate && (
+            <UpdateNotification
+              open={openModalUpdate}
+              onClose={() => setOpenModalUpdate(false)}
+              onSuccess={fetchListNotification}
+              notify={selectNotify}
+            />
+          )}
           <div className="flex justify-center mt-4">
             <Pagination
               current={pagination.current}

@@ -6,6 +6,7 @@ import {
   searchGroup,
   listGroupByIdUser,
   joinStudentInClass,
+  detailGroup,
 } from "../servicers/GroupServicer";
 
 export const handleListGroup = async (page, pageSize) => {
@@ -140,5 +141,20 @@ export const handleJoinStudentInGroup = async (data) => {
         error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
       data: [],
     };
+  }
+};
+export const handleDetailGroup = async (id) => {
+  try {
+    const response = await detailGroup(id);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg = error.response?.data?.message || "Xoá khoa thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
   }
 };

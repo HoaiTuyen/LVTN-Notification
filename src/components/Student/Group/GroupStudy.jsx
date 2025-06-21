@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "antd";
@@ -224,7 +224,7 @@ const GroupStudyStudent = () => {
                   >
                     <div className="relative z-10">
                       <h2
-                        className="text-lg font-semibold truncate"
+                        className="text-lg font-semibold truncate cursor-pointer"
                         title={group.groupName}
                       >
                         {group.groupName}

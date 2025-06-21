@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import { handleLogout } from "@/controller/AuthController";
 import { handleGetDetailUser } from "../../controller/AccountController";
-
+import { handleTeacherDetail } from "../../controller/TeacherController";
 import { jwtDecode } from "jwt-decode";
 const EmployeeDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
@@ -114,10 +114,9 @@ const EmployeeDashboard = () => {
       if (req?.data) {
         const userData = req.data;
         setUserImage(userData.image);
-        if (userData.student) {
-          setUserInfo(userData.student);
-        } else if (userData.teacher) {
-          setUserInfo(userData.teacher);
+        if (userData.teacherId) {
+          const employeeDetail = await handleTeacherDetail(userData.teacherId);
+          setUserInfo(employeeDetail.data);
         } else {
           console.error("No user data found in response");
         }

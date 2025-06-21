@@ -39,3 +39,10 @@ export const searchNotification = async (
   console.log(req);
   return req;
 };
+export const updateNotification = (formData) => {
+  return api.put("/notification/update", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

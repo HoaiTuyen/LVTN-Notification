@@ -159,10 +159,6 @@ const EmployeeCreateNotification = () => {
       newErrors.notificationType = "Vui lòng chọn loại thông báo";
     }
 
-    // if (formData.targetAudience.length === 0) {
-    //   newErrors.targetAudience = "Vui lòng chọn đối tượng nhận thông báo";
-    // }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -183,15 +179,6 @@ const EmployeeCreateNotification = () => {
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         <div className="space-y-6">
-          {/* {success && (
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
-                  Thông báo đã được gửi thành công!
-                </AlertDescription>
-              </Alert>
-            )} */}
-
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card className="max-h-[calc(100vh-100px)] overflow-y-auto">
@@ -375,9 +362,7 @@ const EmployeeCreateNotification = () => {
                 </CardContent>
               </Card>
             </div>
-
             <div className="space-y-6 overflow-x-auto max-h-[700px]">
-              {/* Preview */}
               <Card className="h-[500px] overflow-y-auto">
                 <CardHeader className="sticky top-0 bg-white z-10">
                   <CardTitle className="text-lg">Xem trước</CardTitle>

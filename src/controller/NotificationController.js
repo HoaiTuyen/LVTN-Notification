@@ -4,6 +4,7 @@ import {
   detailNotification,
   deleteNotification,
   searchNotification,
+  updateNotification,
 } from "../servicers/Notification";
 
 export const handleCreateNotification = async (formData) => {
@@ -110,6 +111,29 @@ export const handleSearchNotification = async (
       status: error.response?.status || 500,
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi tìm kiếm khoa",
+      data: [],
+    };
+  }
+};
+
+export const handleUpdateNotification = async (formData) => {
+  try {
+    const response = await updateNotification(formData);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message:
+        response.data?.message ||
+        response.statusText ||
+        "Cập nhật thông báo thành công!",
+    };
+  } catch (error) {
+    console.error("Error updating notification:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi cập nhật thông báo",
       data: [],
     };
   }

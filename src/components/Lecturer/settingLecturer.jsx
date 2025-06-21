@@ -116,6 +116,7 @@ const TeacherProfile = () => {
     const req = await handleGetDetailUser(data.userId);
     if (req?.data) {
       const teacherDetail = await handleTeacherDetail(req.data.teacherId);
+
       // const userData = req.data;
       setUserId(req.data.id);
       setUserImage(req.data.image);

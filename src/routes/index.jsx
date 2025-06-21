@@ -34,10 +34,12 @@ import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/creatNotification";
 import SentNotifications from "../components/Lecturer/Notification/sentNotification";
 import GroupClassTeacher from "../components/Lecturer/GroupClass/GroupClass";
+import DetailGroupLecturer from "../components/Lecturer/GroupClass/DetailGroup";
 //Employee
 import EmployeeCreateNotification from "../components/Employee/Notification/createNotification";
 import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
 import EmployeeNotificationDetail from "../components/Employee/Notification/detailNotification";
+import EmployeeProfilePage from "../components/Employee/ProfileEmployee";
 
 function AppRoutes() {
   return (
@@ -102,6 +104,10 @@ function AppRoutes() {
               element={<LecturerCreateNotification />}
             />
             <Route path="groupClass" element={<GroupClassTeacher />} />
+            <Route
+              path="groupClass/:groupId"
+              element={<DetailGroupLecturer />}
+            />
             <Route path="sentNotification" element={<SentNotifications />} />
           </Route>
 
@@ -113,6 +119,7 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
+            <Route path="profile" element={<EmployeeProfilePage />} />
             <Route
               path="notification"
               element={<EmployeeCreateNotification />}

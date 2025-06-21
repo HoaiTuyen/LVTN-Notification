@@ -31,7 +31,9 @@ import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import { handleLogout } from "@/controller/AuthController";
 import { handleGetDetailUser } from "../../controller/AccountController";
-import CreateNotification from "../Lecturer/Notification/creatNotification";
+
+import { handleTeacherDetail } from "../../controller/TeacherController";
+import { handleStudentDetail } from "../../controller/StudentController";
 import { jwtDecode } from "jwt-decode";
 const LecturerDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
@@ -125,15 +127,15 @@ const LecturerDashboard = () => {
       }
 
       const req = await handleGetDetailUser(data.userId);
-      console.log(req);
-
-      if (req?.data) {
+      if (req?.data && req?.status === 200) {
         const userData = req.data;
         setUserImage(userData.image);
-        if (userData.student) {
-          setUserInfo(userData.student);
-        } else if (userData.teacher) {
-          setUserInfo(userData.teacher);
+        if (userData.studentId) {
+          const studentDetail = await handleStudentDetail(userData.studentId);
+          setUserInfo(studentDetail.data);
+        } else if (userData.teacherId) {
+          const teacherDetail = await handleTeacherDetail(userData.teacherId);
+          setUserInfo(teacherDetail.data);
         } else {
           console.error("No user data found in response");
         }

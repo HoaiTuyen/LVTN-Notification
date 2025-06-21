@@ -69,14 +69,6 @@ const StudentProfilePage = () => {
     }
   };
 
-  //   const academicHistory = [
-  //     { semester: "HK1 2022-2023", gpa: 3.5, credits: 18, status: "Đạt" },
-  //     { semester: "HK2 2022-2023", gpa: 3.7, credits: 20, status: "Đạt" },
-  //     { semester: "HK3 2022-2023", gpa: 3.6, credits: 16, status: "Đạt" },
-  //     { semester: "HK1 2023-2024", gpa: 3.8, credits: 18, status: "Đang học" },
-  //   ];
-
-  //   const progressPercentage = Math.round((profileData.credits / 150) * 100);
   useEffect(() => {
     const fetchData = async () => {
       await fetchUserDetail();
