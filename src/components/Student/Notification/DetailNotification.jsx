@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Spin } from "antd";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,14 @@ import { handleDetailNotification } from "../../../controller/NotificationContro
 
 const StudentNotificationDetail = () => {
   const { notificationId } = useParams();
+
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const page = searchParams.get("page") || "1";
+  const search = searchParams.get("search") || "";
+  const type = searchParams.get("type") || "all";
+
   const [notification, setNotification] = useState(null);
 
   const [loading, setLoading] = useState(true);
@@ -50,7 +57,14 @@ const StudentNotificationDetail = () => {
       transition={{ duration: 0.2 }}
     >
       <div className="h-full max-h-[750px] overflow-y-auto p-10 bg-white space-y-6">
-        <Button variant="ghost" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          onClick={() =>
+            navigate(
+              `/sinh-vien/notification?search=${search}&type=${type}&page=${page}`
+            )
+          }
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại
         </Button>

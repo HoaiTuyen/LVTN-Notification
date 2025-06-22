@@ -40,7 +40,12 @@ import EmployeeCreateNotification from "../components/Employee/Notification/crea
 import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
 import EmployeeNotificationDetail from "../components/Employee/Notification/detailNotification";
 import EmployeeProfilePage from "../components/Employee/ProfileEmployee";
-
+import EmployeeStudentAccount from "../components/Employee/Account/Student/EmployeeStudentAccount";
+import EmployeeLecturerAccount from "../components/Employee/Account/Lecturer/EmployeeLecturerAccount";
+import EmployeeClassName from "../components/Employee/ClassRoom/EmployeeClassRoom";
+import EmployeeListStudentOfClass from "../components/Employee/ClassRoom/ListStudentByClass/ListStudentOfClass";
+import EmployeeSemester from "../components/Employee/Semester/EmployeeSemester";
+import EmployeeSubject from "../components/Employee/Subject/EmployeeSubject";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -132,6 +137,23 @@ function AppRoutes() {
               path="sentNotification/:notificationId"
               element={<EmployeeNotificationDetail />}
             />
+            <Route
+              path="employee-account-student"
+              element={<EmployeeStudentAccount />}
+            />
+            <Route
+              path="employee-account-teacher"
+              element={<EmployeeLecturerAccount />}
+            />
+            <Route path="class">
+              <Route index element={<EmployeeClassName />} />
+              <Route
+                path=":classId/students"
+                element={<EmployeeListStudentOfClass />}
+              />
+            </Route>
+            <Route path="semester" element={<EmployeeSemester />} />
+            <Route path="subject" element={<EmployeeSubject />} />
           </Route>
 
           <Route

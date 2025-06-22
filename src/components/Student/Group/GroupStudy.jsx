@@ -47,6 +47,7 @@ import {
   gradientBackgroundFromString,
   hashColorFromString,
 } from "../../../config/color";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const GroupStudyStudent = () => {
   const [groups, setGroups] = useState([]);
 
@@ -236,8 +237,12 @@ const GroupStudyStudent = () => {
 
                     {/* Avatar chữ viết tắt */}
                     <div className="absolute -bottom-9 right-4 z-20">
-                      <div className="w-18 h-18 rounded-full  bg-gray-500  text-white flex items-center justify-center font-bold text-lg border-4 border-white shadow">
-                        {getInitials(group.teacherName || "GV")}
+                      <div className="w-20 h-20 rounded-full text-white flex items-center justify-center font-bold text-xl border-4 border-white shadow">
+                        <Avatar className="h-19 w-19">
+                          <AvatarFallback className="bg-blue-500 text-white text-xl">
+                            {getInitials(group.teacherName || "GV")}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
                     </div>
                   </div>

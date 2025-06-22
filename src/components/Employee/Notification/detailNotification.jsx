@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,13 @@ import { handleDetailNotification } from "../../../controller/NotificationContro
 
 export default function EmployeeNotificationDetail() {
   const { notificationId } = useParams();
+
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const page = searchParams.get("page") || "1";
+  const search = searchParams.get("search") || "";
+  const type = searchParams.get("type") || "all";
   const [notification, setNotification] = useState(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(null);
@@ -46,73 +52,6 @@ export default function EmployeeNotificationDetail() {
     const fetchNotificationDetail = async () => {
       try {
         setLoading(true);
-        // TODO: Replace with actual API call
-        // const response = await handleGetNotificationDetail(notificationId);
-        // setNotification(response.data);
-
-        // Mock data for now
-        const mockResponse = {
-          status: 200,
-          message: "Lấy thông báo thành công!",
-          data: {
-            id: notificationId,
-            title: "Thông báo lịch thi cuối kỳ môn Cấu trúc dữ liệu",
-            content: `Kính gửi các sinh viên,
-
-Nhà trường thông báo lịch thi cuối kỳ môn Cấu trúc dữ liệu và Giải thuật như sau:
-
-📅 **Thời gian thi:** Thứ 2, ngày 15/01/2024 lúc 08:00 - 10:00
-📍 **Địa điểm:** Phòng A101, Tòa nhà A
-📋 **Hình thức:** Thi viết trên giấy
-⏰ **Thời gian làm bài:** 120 phút
-
-**Lưu ý quan trọng:**
-- Sinh viên cần có mặt trước 15 phút
-- Mang theo thẻ sinh viên và CCCD
-- Không được sử dụng tài liệu, điện thoại
-- Chuẩn bị bút viết màu xanh hoặc đen
-
-Các tài liệu ôn tập và đề thi mẫu đã được đính kèm bên dưới.
-
-Chúc các bạn ôn tập tốt và đạt kết quả cao!
-
-Trân trọng,
-Phòng Đào tạo`,
-            notificationType: "Thông báo",
-            createdAt: "2024-01-10T10:00:00.000Z",
-            updatedAt: "2024-01-10T10:00:00.000Z",
-            fileNotifications: [
-              {
-                displayName: "Kế hoạch học tập",
-                fileName:
-                  "https://res.cloudinary.com/dydjh2c7y/raw/upload/v1749972235/file_notifications/3d19fb11-3d0a-4eea-9a2a-30ab2aa54ceb.pdf",
-                publicId:
-                  "file_notifications/3d19fb11-3d0a-4eea-9a2a-30ab2aa54ceb.pdf",
-              },
-              {
-                displayName: "Danh sách học phần",
-                fileName:
-                  "https://res.cloudinary.com/dydjh2c7y/raw/upload/v1749972235/file_notifications/9fd98ba8-2de6-4bfe-98d5-3a272b7bd435.pdf",
-                publicId:
-                  "file_notifications/9fd98ba8-2de6-4bfe-98d5-3a272b7bd435.pdf",
-              },
-              {
-                displayName: "Đề thi mẫu môn Cấu trúc dữ liệu",
-                fileName:
-                  "https://res.cloudinary.com/dydjh2c7y/raw/upload/v1749972235/file_notifications/sample-exam.pdf",
-                publicId: "file_notifications/sample-exam.pdf",
-              },
-            ],
-            // Additional display fields
-            sender: "TS. Nguyễn Văn A",
-            course: "Cấu trúc dữ liệu và giải thuật",
-            priority: "Cao",
-            isRead: false,
-            deadline: "2024-01-15T08:00:00.000Z",
-          },
-        };
-
-        setNotification(mockResponse.data);
       } catch (error) {
         console.error("Error fetching notification:", error);
         toast.error("Không thể tải thông báo");
@@ -169,7 +108,14 @@ Phòng Đào tạo`,
         <p className="text-muted-foreground text-center mb-4">
           Thông báo này có thể đã bị xóa hoặc bạn không có quyền truy cập.
         </p>
-        <Button variant="ghost" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          onClick={() =>
+            navigate(
+              `/nhan-vien/sentNotification?search=${search}&type=${type}&page=${page}`
+            )
+          }
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại danh sách
         </Button>
@@ -188,7 +134,14 @@ Phòng Đào tạo`,
         <div className="space-y-6 ">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={() => navigate(-1)}>
+            <Button
+              variant="ghost"
+              onClick={() =>
+                navigate(
+                  `/nhan-vien/sentNotification?search=${search}&type=${type}&page=${page}`
+                )
+              }
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Quay lại danh sách
             </Button>

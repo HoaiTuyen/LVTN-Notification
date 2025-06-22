@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,7 +34,7 @@ import { handleListNotification } from "../../../controller/NotificationControll
 import useWebSocket from "../../../config/Websorket";
 import { Pagination } from "antd";
 import dayjs from "dayjs";
-
+import useDebounce from "../../../hooks/useDebounce";
 // Add styles for scrollbar handling
 
 const NotificationsPage = () => {
@@ -50,9 +50,13 @@ const NotificationsPage = () => {
       });
     }
   }, [connected, stompClient]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState("all");
-  const [selectedPriority, setSelectedPriority] = useState("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const typeFromUrl = searchParams.get("type") || "all";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
+  const [selectedType, setSelectedType] = useState(typeFromUrl);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [notifications, setNotifications] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -64,7 +68,9 @@ const NotificationsPage = () => {
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
 
-    navigate(`/sinh-vien/notification/${id}`);
+    navigate(
+      `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
+    );
   };
   const fetchListNotify = async (page = 1) => {
     const req = await handleListNotification(
@@ -72,7 +78,6 @@ const NotificationsPage = () => {
       page - 1,
       pagination.pageSize
     );
-    console.log(req);
 
     if (req?.data) {
       setNotifications(req.data.notifications);
@@ -86,36 +91,16 @@ const NotificationsPage = () => {
   };
 
   useEffect(() => {
-    fetchListNotify(pagination.current);
-  }, []);
-
-  const getPriorityBadgeVariant = (priority) => {
-    switch (priority) {
-      case "Cao":
-        return "destructive";
-      case "Trung bình":
-        return "outline";
-      case "Thấp":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
-
-  const getTypeBadgeVariant = (type) => {
-    switch (type) {
-      case "Thông báo":
-        return "default";
-      case "Sự kiện":
-        return "success";
-      case "Nhiệm vụ":
-        return "outline";
-      case "Nhắc nhở":
-        return "secondary";
-      default:
-        return "default";
-    }
-  };
+    const currentPage = searchParams.get("page") || "1";
+    setSearchParams({
+      search: debouncedSearchTerm,
+      type: selectedType,
+      page: currentPage,
+    });
+  }, [debouncedSearchTerm, selectedType]);
+  useEffect(() => {
+    fetchListNotify(pageFromUrl);
+  }, [searchFromUrl, typeFromUrl, pageFromUrl]);
 
   const NotificationCard = ({ notification }) => (
     <Card className="p-0">
@@ -269,7 +254,11 @@ const NotificationsPage = () => {
               pageSize={pagination.pageSize}
               total={pagination.total}
               onChange={(page) => {
-                fetchListNotify(page);
+                setSearchParams({
+                  search: debouncedSearchTerm,
+                  type: selectedType,
+                  page: page.toString(),
+                });
               }}
             />
           </div>

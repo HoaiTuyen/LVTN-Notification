@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,16 +46,20 @@ import useDebounce from "../../../hooks/useDebounce";
 import UpdateNotification from "./updateNotification";
 const EmployeeSentNotifications = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const searchFromUrl = searchParams.get("search") || "";
+  const typeFromUrl = searchParams.get("type") || "all";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [type, setType] = useState([]);
-  const [selectType, setSelectType] = useState("all");
+  const [selectType, setSelectType] = useState(typeFromUrl);
   const [dataNotify, setDataNotify] = useState([]);
   const [openModalDelete, setModalDelete] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [selectNotify, setSelectNotify] = useState([]);
   const [totalSent, setTotalSent] = useState(0);
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -107,19 +116,33 @@ const EmployeeSentNotifications = () => {
     }
   };
   useEffect(() => {
-    fetchListNotification(pagination.current);
-    fetchNotifyType();
+    const currentPage = searchParams.get("page") || "1"; //
+
+    setSearchParams({
+      search: debouncedSearchTerm,
+      type: selectType,
+      page: currentPage,
+    });
   }, [debouncedSearchTerm, selectType]);
+
+  useEffect(() => {
+    fetchListNotification(pageFromUrl);
+    fetchNotifyType();
+  }, [pageFromUrl, searchFromUrl, typeFromUrl]);
 
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
 
-    navigate(`/nhan-vien/sentNotification/${id}`);
+    navigate(
+      `/nhan-vien/sentNotification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+    );
   };
   const handleWapper = (id, e) => {
     e.stopPropagation();
 
-    navigate(`/nhan-vien/sentNotification/${id}`);
+    navigate(
+      `/nhan-vien/sentNotification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+    );
   };
 
   return (
@@ -293,7 +316,7 @@ const EmployeeSentNotifications = () => {
             <UpdateNotification
               open={openModalUpdate}
               onClose={() => setOpenModalUpdate(false)}
-              onSuccess={fetchListNotification}
+              onSuccess={() => fetchListNotification(pageFromUrl)}
               notify={selectNotify}
             />
           )}
@@ -303,7 +326,12 @@ const EmployeeSentNotifications = () => {
               pageSize={pagination.pageSize}
               total={pagination.total}
               onChange={(page) => {
-                fetchListNotification(page);
+                const params = new URLSearchParams({
+                  search: debouncedSearchTerm,
+                  type: selectType,
+                  page: page.toString(),
+                });
+                setSearchParams(params);
               }}
             />
           </div>

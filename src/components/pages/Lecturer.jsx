@@ -82,11 +82,7 @@ const LecturerDashboard = () => {
       icon: <Bell size={16} />,
       label: "Thông báo đã gửi",
     },
-    // {
-    //   key: "setting",
-    //   icon: <SettingOutlined />,
-    //   label: "Cài đặt",
-    // },
+
     {
       key: "logout",
       label: "Đăng xuất",

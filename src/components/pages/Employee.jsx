@@ -24,6 +24,7 @@ import {
   GraduationCap,
   Calendar,
   FileText,
+  Sheet,
 } from "lucide-react";
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -65,11 +66,36 @@ const EmployeeDashboard = () => {
       icon: <Bell size={16} />,
       label: "Thông báo đã gửi",
     },
-    // {
-    //   key: "setting",
-    //   icon: <SettingOutlined />,
-    //   label: "Cài đặt",
-    // },
+    {
+      key: "employee-account",
+      icon: <UserOutlined />,
+      label: "Quản lý tài khoản",
+      children: [
+        {
+          key: "employee-account-student",
+          label: "Tài khoản sinh viên",
+        },
+        {
+          key: "employee-account-teacher",
+          label: "Tài khoản giảng viên",
+        },
+      ],
+    },
+    {
+      key: "class",
+      icon: <img src="/img/menu/class.png" alt="icon" width={16} />,
+      label: "Quản lý lớp",
+    },
+    {
+      key: "semester",
+      icon: <Sheet size={16} />,
+      label: "Quản lý học kỳ",
+    },
+    {
+      key: "subject",
+      icon: <BookOutlined />,
+      label: "Quản lý môn học",
+    },
     {
       key: "logout",
       label: "Đăng xuất",
