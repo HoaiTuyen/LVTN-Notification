@@ -3,10 +3,13 @@ import "./App.css";
 import AppRoutes from "./routes";
 // import { Toaster } from "@/components/ui/sonner";
 import { Toaster } from "react-hot-toast";
+import { LoadingProvider } from "./context/LoadingProvider";
 function App() {
   return (
     <>
-      <AppRoutes />
+      <LoadingProvider>
+        <AppRoutes />
+      </LoadingProvider>
       {/* <Toaster /> */}
       <Toaster position="top-center" reverseOrder={false} />
       <ToastContainer

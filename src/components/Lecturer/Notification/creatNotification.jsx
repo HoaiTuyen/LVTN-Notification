@@ -79,12 +79,12 @@ const LecturerCreateNotification = () => {
     }
 
     // Kiểm tra file + tên hiển thị
-    const hasEmptyName = fileDisplayNames.some((n) => !n.trim());
-    const hasEmptyFile = files.some((f) => !f);
-    if (hasEmptyName || hasEmptyFile) {
-      toast.error("Vui lòng nhập tên hiển thị và chọn đầy đủ file PDF");
-      return;
-    }
+    // const hasEmptyName = fileDisplayNames.some((n) => !n.trim());
+    // const hasEmptyFile = files.some((f) => !f);
+    // if (hasEmptyName || hasEmptyFile) {
+    //   toast.error("Vui lòng nhập tên hiển thị và chọn đầy đủ file PDF");
+    //   return;
+    // }
 
     const form = new FormData();
     form.append("title", formData.title);

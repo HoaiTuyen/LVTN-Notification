@@ -42,7 +42,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { handleListGroupByUserId } from "../../../controller/GroupController";
 import LecturerAddGroup from "./createGroup";
-import LecturerDeleteGroup from "./DeleteGroup";
+import LecturerDeleteGroup from "./deleteGroup";
 import { Pagination } from "antd";
 import { jwtDecode } from "jwt-decode";
 import {

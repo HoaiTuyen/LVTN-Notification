@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ const EmployeeCreateNotification = () => {
   const [notificationTypes, setNotificationTypes] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [files, setFiles] = useState([]);
-
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
   const hanndleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title) {
@@ -101,14 +101,6 @@ const EmployeeCreateNotification = () => {
       console.log(res);
 
       if (res.status === 201) {
-        toast.success("Gửi thông báo thành công!");
-        // await fetch("http://localhost:4000/api/send-notification", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({
-        //     message: formData.title || "Bạn có thông báo mới",
-        //   }),
-        // });
         setFormData({
           title: "",
           content: "",
@@ -117,6 +109,16 @@ const EmployeeCreateNotification = () => {
         });
         setFileDisplayNames([""]);
         setFiles([]);
+        setFileInputKey(Date.now());
+
+        toast.success("Gửi thông báo thành công!");
+        // await fetch("http://localhost:4000/api/send-notification", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({
+        //     message: formData.title || "Bạn có thông báo mới",
+        //   }),
+        // });
       } else {
         toast.error(res.message || "Lỗi khi gửi thông báo");
       }
@@ -289,11 +291,54 @@ const EmployeeCreateNotification = () => {
                       )}
                     </div>
 
-                    {fileDisplayNames.map((name, index) => (
+                    {/* {fileDisplayNames.map((name, index) => (
                       <div key={index} className="flex items-center gap-2 mb-2">
                         <Input
                           type="text"
                           placeholder="Tên hiển thị file (VD: Đề cương gì đó...)"
+                          value={name}
+                          onChange={(e) => {
+                            const newNames = [...fileDisplayNames];
+                            newNames[index] = e.target.value;
+                            setFileDisplayNames(newNames);
+                          }}
+                        />
+                        <Input
+                          type="file"
+                          accept="application/pdf"
+                          onChange={(e) => {
+                            const newFiles = [...files];
+                            newFiles[index] = e.target.files[0];
+                            setFiles(newFiles);
+                          }}
+                        />
+                        {fileDisplayNames.length > 1 && (
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              const newNames = [...fileDisplayNames];
+                              const newFiles = [...files];
+                              newNames.splice(index, 1);
+                              newFiles.splice(index, 1);
+                              setFileDisplayNames(newNames);
+                              setFiles(newFiles);
+                            }}
+                          >
+                            <X className="w-4 h-4 text-red-500" />
+                          </Button>
+                        )}
+                      </div>
+                    ))} */}
+                    {fileDisplayNames.map((name, index) => (
+                      <div
+                        key={`${fileInputKey}-${index}`}
+                        className="flex items-center gap-2 mb-2"
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Tên hiển thị file..."
                           value={name}
                           onChange={(e) => {
                             const newNames = [...fileDisplayNames];

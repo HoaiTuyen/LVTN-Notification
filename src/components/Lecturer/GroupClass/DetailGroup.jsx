@@ -6,18 +6,24 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MoreVertical } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
 import { handleDetailGroup } from "../../../controller/GroupController";
 import { gradientBackgroundFromString } from "../../../config/color";
 import { Copy } from "lucide-react";
+import LecturerCreateGroupNotification from "./NotificationGroup/CreateNotification";
+import { handleListNotificationGroup } from "../../../controller/NotificationGroupController";
+import dayjs from "dayjs";
 const DetailGroupLecturer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { groupId } = useParams();
   const [groupDetail, setGroupDetail] = useState({});
   const [members, setMembers] = useState([]);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [notificationGroups, setNotificationGroups] = useState([]);
+  console.log(notificationGroups);
 
   const backUrl = location.state?.from || "/giang-vien/groupClass";
   const fetchDetailGroup = async () => {
@@ -29,28 +35,27 @@ const DetailGroupLecturer = () => {
       setMembers(detailGroup.data.members);
     }
   };
+  const fetchListNotificationGroup = async () => {
+    const listNotificationGroup = await handleListNotificationGroup(groupId);
+    if (listNotificationGroup?.data || listNotificationGroup?.status === 200) {
+      const sorted = [...listNotificationGroup.data].sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+      setNotificationGroups(sorted);
+    } else {
+      setNotificationGroups([]);
+    }
+  };
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(" ");
     if (parts.length === 1) return parts[0][0].toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
-  const teachers = [
-    {
-      name: "Hoang Khue",
-      avatar: "https://example.com/avatar.jpg", // Thay bằng ảnh thực nếu có
-    },
-  ];
 
-  const classmates = [
-    { name: "Hao Chau Minh" },
-    { name: "I'm Duc" },
-    { name: "Ngo Trieu Phu" },
-    { name: "Nguyen Anh Phu 11A506" },
-    // ...thêm các học sinh khác
-  ];
   useEffect(() => {
     fetchDetailGroup();
+    fetchListNotificationGroup();
   }, []);
   return (
     <motion.div
@@ -153,6 +158,64 @@ const DetailGroupLecturer = () => {
                 </div>
               </div>
             </TabsContent>
+            <TabsContent value="notification">
+              <div className="p-6  min-h-screen">
+                {/* Nút Create */}
+                <div className="mb-6 ">
+                  <button
+                    className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-full shadow-md text-lg flex items-center gap-2"
+                    onClick={() => setOpenModalCreate(true)}
+                  >
+                    <span className="text-xl">＋</span>
+                    Create
+                  </button>
+                  {openModalCreate && (
+                    <LecturerCreateGroupNotification
+                      open={openModalCreate}
+                      onClose={() => setOpenModalCreate(false)}
+                      onSuccess={fetchListNotificationGroup}
+                    />
+                  )}
+                </div>
+
+                {/* Thẻ thông báo */}
+                {notificationGroups.length === 0 ? (
+                  <></>
+                ) : (
+                  notificationGroups.map((notificationGroup) => (
+                    <div className="bg-white shadow rounded-xl p-4 mb-4 flex items-center justify-between hover:border hover:border-gray-200 transition-all duration-100 cursor-pointer">
+                      <div className="flex items-center gap-4">
+                        {/* Icon */}
+                        <div className="bg-pink-500 text-white rounded-full w-12 h-12 flex items-center justify-center">
+                          <svg
+                            className="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                          </svg>
+                        </div>
+
+                        {/* Nội dung */}
+                        <div className="text-sm font-normal">
+                          {notificationGroup.title}
+                        </div>
+                      </div>
+
+                      {/* Ngày và menu */}
+                      <div className="text-sm text-gray-500 flex items-center gap-4">
+                        <span>
+                          {dayjs(notificationGroup.createdAt).format(
+                            "DD/MM/YYYY"
+                          )}
+                        </span>
+                        <MoreVertical className="cursor-pointer" />
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </TabsContent>
             <TabsContent value="member">
               <div className="max-w-3xl mx-auto py-8 px-4">
                 {/* Tab Header */}
@@ -182,7 +245,7 @@ const DetailGroupLecturer = () => {
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-3xl font-medium">Sinh viên</h3>
                     <span className="text-sm text-gray-500">
-                      {members.length} students
+                      {members.length} sinh viên
                     </span>
                   </div>
                   <div className="divide-y">

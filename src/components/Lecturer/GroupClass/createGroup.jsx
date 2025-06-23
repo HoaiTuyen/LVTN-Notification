@@ -63,8 +63,12 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
     } else {
       const res = await handleAddGroup(submitData);
       if (res?.data && res?.status === 201) {
-        onSuccess();
+        // if (onCreateWithColor) {
+        //   const generatedColor = hashColorFromString(res.data.id);
+        //   onCreateWithColor(res.data.id, generatedColor); // chỉ callback, không lưu
+        // }
         toast.success(res.message || "Tạo nhóm thành công");
+        onSuccess();
         //if (onCreateWithColor) {
         // onCreateWithColor(res.data.id, form.color || DEFAULT_COLOR);
         // const existingColors = JSON.parse(
@@ -73,10 +77,7 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
         // existingColors[res.data.id] = form.color || DEFAULT_COLOR;
         // localStorage.setItem("groupColors", JSON.stringify(existingColors));
         //}
-        if (onCreateWithColor) {
-          const generatedColor = hashColorFromString(res.data.id);
-          onCreateWithColor(res.data.id, generatedColor); // chỉ callback, không lưu
-        }
+
         onClose();
       } else {
         toast.error(res.message);
@@ -148,7 +149,7 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </div>
-              <div className="grid gap-2">
+              {/* <div className="grid gap-2">
                 <Label>Chọn màu nhóm</Label>
                 <BlockPicker
                   color={form.color}
@@ -168,7 +169,7 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
                     "#607D8B",
                   ]}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 

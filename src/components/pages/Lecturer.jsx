@@ -249,8 +249,9 @@ const LecturerDashboard = () => {
         <Content
           style={{
             padding: 0,
-            height: "100%",
+            // height: "100%",
             overflow: "auto",
+            backgroundColor: "#fff",
           }}
         >
           {/* {selectedTab === "notification" && <CreateNotification />} */}
