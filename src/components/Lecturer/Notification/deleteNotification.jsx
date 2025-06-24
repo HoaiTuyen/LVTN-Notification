@@ -13,8 +13,8 @@ const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
   const handleDelete = async () => {
     const response = await handleDeleteNotification(notify.id);
     if (response?.status === 204) {
-      toast.success(response.message || "Xóa lớp thành công");
       onSuccess();
+      toast.success(response.message || "Xóa lớp thành công");
       onClose();
     } else {
       toast.error(response?.message || "Xóa lớp thất bại");

@@ -103,6 +103,15 @@ const DetailGroupStudent = () => {
   useEffect(() => {
     fetchDetailGroup();
     fetchListNotificationGroup();
+    const handleRefresh = () => {
+      fetchListNotificationGroup();
+    };
+
+    window.addEventListener("notification-sent", handleRefresh);
+
+    return () => {
+      window.removeEventListener("notification-sent", handleRefresh);
+    };
   }, []);
 
   return (

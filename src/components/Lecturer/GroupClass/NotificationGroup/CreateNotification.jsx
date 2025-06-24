@@ -79,6 +79,7 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
       const res = await handleCreateNotificationGroup(form);
       if (res?.data && res?.status === 201) {
         onSuccess();
+        window.dispatchEvent(new Event("notification-sent"));
         toast.success(res.message || "Tạo thông báo thành công!");
         onClose();
       } else {

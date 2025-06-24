@@ -51,6 +51,15 @@ const Student = () => {
 
         setNotificationCount((prev) => prev + 1);
       });
+      // const groupTopic = `/notification/group/${userInfo.groupId}`;
+      // console.log(groupTopic);
+      // stompClient.current.subscribe(groupTopic, (message) => {
+      //   const parsedMessage = JSON.parse(message.body);
+      //   console.log("Received department notification:", parsedMessage);
+      //   setNotificationList((prev) => [parsedMessage, ...prev]);
+
+      //   setNotificationCount((prev) => prev + 1);
+      // });
     }
   }, [connected, stompClient, userInfo.departmentId]);
   const [selectedTab, setSelectedTab] = useState("home");
@@ -152,21 +161,23 @@ const Student = () => {
             />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600 }}>{item.title}</div>
-              <span
-                style={{
-                  display: "inline-block",
-                  padding: "2px 8px",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: "#3b82f6",
-                  backgroundColor: "#e0f2fe",
-                  borderRadius: 12,
-                  border: "1px solid #bfdbfe",
-                  marginBottom: 4,
-                }}
-              >
-                {item.notificationType}
-              </span>
+              {item.notificationType && (
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "2px 8px",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: "#3b82f6",
+                    backgroundColor: "#e0f2fe",
+                    borderRadius: 12,
+                    border: "1px solid #bfdbfe",
+                    marginBottom: 4,
+                  }}
+                >
+                  {item.notificationType}
+                </span>
+              )}
 
               <div style={{ fontSize: 12, color: "#888" }}>
                 {item.createdAt}
