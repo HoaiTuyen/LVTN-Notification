@@ -29,14 +29,15 @@ import NotificationsPage from "../components/Student/Notification/NotificationPa
 import StudentProfilePage from "../components/Student/ProfileStudent";
 import GroupStudyStudent from "../components/Student/Group/GroupStudy";
 import StudentNotificationDetail from "../components/Student/Notification/DetailNotification";
+import DetailGroupStudent from "../components/Student/Group/DetailGroup";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
-import LecturerCreateNotification from "../components/Lecturer/Notification/creatNotification";
+import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
 // import SentNotifications from "../components/Lecturer/Notification/TestsentNotification";
-import GroupClassTeacher from "../components/Lecturer/GroupClass/groupClass";
-import DetailGroupLecturer from "../components/Lecturer/GroupClass/detailGroup";
-import LecturerNotificationDetail from "../components/Lecturer/Notification/detailNotification";
-import LecturerSentNotifications from "../components/Lecturer/Notification/sentNotification";
+import GroupClassTeacher from "../components/Lecturer/GroupClass/GroupClass";
+import DetailGroupLecturer from "../components/Lecturer/GroupClass/DetailGroup";
+import LecturerNotificationDetail from "../components/Lecturer/Notification/DetailNotification";
+import LecturerSentNotifications from "../components/Lecturer/Notification/SentNotification";
 //Employee
 import EmployeeCreateNotification from "../components/Employee/Notification/createNotification";
 import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
@@ -180,6 +181,10 @@ function AppRoutes() {
               element={<StudentNotificationDetail />}
             />
             <Route path="groupStudy" element={<GroupStudyStudent />} />
+            <Route
+              path="groupStudy/:groupStudyId"
+              element={<DetailGroupStudent />}
+            />
           </Route>
         </Routes>
       </AnimatePresence>

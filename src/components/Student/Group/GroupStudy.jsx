@@ -37,10 +37,7 @@ import {
   DialogContent,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+
 import { handleListGroupByStudent } from "../../../controller/AccountController";
 import JoinGroup from "./JoinGroup";
 import {
@@ -49,6 +46,7 @@ import {
 } from "../../../config/color";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const GroupStudyStudent = () => {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
 
   const [openModal, setOpenModal] = useState(false);
@@ -227,6 +225,9 @@ const GroupStudyStudent = () => {
                       <h2
                         className="text-lg font-semibold truncate cursor-pointer"
                         title={group.groupName}
+                        onClick={() => {
+                          navigate(`/sinh-vien/groupStudy/${group.groupId}`);
+                        }}
                       >
                         {group.groupName}
                       </h2>

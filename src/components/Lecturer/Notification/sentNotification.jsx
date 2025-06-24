@@ -41,9 +41,9 @@ import {
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { Pagination } from "antd";
 import dayjs from "dayjs";
-import DeleteNotification from "./deleteNotification";
+import DeleteNotification from "./DeleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
-import UpdateNotification from "./updateNotification";
+import UpdateNotification from "./UpdateNotification";
 const LecturerSentNotifications = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();

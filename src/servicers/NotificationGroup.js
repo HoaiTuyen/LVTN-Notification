@@ -11,3 +11,6 @@ export const createNotificationGroup = (formData) => {
 export const listNotificationGroup = (id) => {
   return api.get(`/study_group_notification/list_notifications?groupId=${id}`);
 };
+export const detailNotificationGroup = (id) => {
+  return api.get(`/study_group_notification/detail_notification/${id}`);
+};

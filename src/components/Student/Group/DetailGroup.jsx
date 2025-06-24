@@ -21,35 +21,28 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
 import { handleDetailGroup } from "../../../controller/GroupController";
 import { gradientBackgroundFromString } from "../../../config/color";
-import LecturerCreateGroupNotification from "./NotificationGroup/CreateNotification";
+// import LecturerCreateGroupNotification from "./NotificationGroup/CreateNotification";
 import {
   handleListNotificationGroup,
   handleDetailNotificationGroup,
 } from "../../../controller/NotificationGroupController";
 import dayjs from "dayjs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-const DetailGroupLecturer = () => {
+
+const DetailGroupStudent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { groupId } = useParams();
+  const { groupStudyId } = useParams();
   const [groupDetail, setGroupDetail] = useState({});
   const [members, setMembers] = useState([]);
-  const [openModalCreate, setOpenModalCreate] = useState(false);
   const [notificationGroups, setNotificationGroups] = useState([]);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   const [expandedId, setExpandedId] = useState(null);
   const [detailNotify, setDetailNotify] = useState([]);
-  console.log(expandedId);
 
-  const backUrl = location.state?.from || "/giang-vien/groupClass";
+  const backUrl = location.state?.from || "/sinh-vien/groupStudy";
   const fetchDetailGroup = async () => {
-    const detailGroup = await handleDetailGroup(groupId);
+    const detailGroup = await handleDetailGroup(groupStudyId);
 
     if (detailGroup?.data && detailGroup.status === 200) {
       setGroupDetail(detailGroup.data);
@@ -57,7 +50,9 @@ const DetailGroupLecturer = () => {
     }
   };
   const fetchListNotificationGroup = async () => {
-    const listNotificationGroup = await handleListNotificationGroup(groupId);
+    const listNotificationGroup = await handleListNotificationGroup(
+      groupStudyId
+    );
     if (listNotificationGroup?.data || listNotificationGroup?.status === 200) {
       const sorted = [...listNotificationGroup.data].sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
@@ -67,43 +62,43 @@ const DetailGroupLecturer = () => {
       setNotificationGroups([]);
     }
   };
-  const fetchDetailNotificationGroup = async (id) => {
-    const detailNotificationGroup = await handleDetailNotificationGroup(id);
+  // const fetchDetailNotificationGroup = async (id) => {
+  //   const detailNotificationGroup = await handleDetailNotificationGroup(id);
 
-    if (detailNotificationGroup?.data) {
-      setDetailNotify(detailNotificationGroup.data);
-      setExpandedId(id);
-    } else {
-      setDetailNotify([]);
-    }
-  };
+  //   if (detailNotificationGroup?.data) {
+  //     setDetailNotify(detailNotificationGroup.data);
+  //     setExpandedId(id);
+  //   } else {
+  //     setDetailNotify([]);
+  //   }
+  // };
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(" ");
     if (parts.length === 1) return parts[0][0].toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
-  const handleToggleExpand = async (notificationGroup, e) => {
-    e.stopPropagation();
-    const isSame = expandedId === notificationGroup.id;
+  // const handleToggleExpand = async (notificationGroup, e) => {
+  //   e.stopPropagation();
+  //   const isSame = expandedId === notificationGroup.id;
 
-    if (isSame) {
-      setExpandedId(null);
-      setDetailNotify([]);
-    } else {
-      setIsLoadingDetail(true);
-      const detail = await handleDetailNotificationGroup(notificationGroup.id);
+  //   if (isSame) {
+  //     setExpandedId(null);
+  //     setDetailNotify([]);
+  //   } else {
+  //     setIsLoadingDetail(true);
+  //     const detail = await handleDetailNotificationGroup(notificationGroup.id);
 
-      if (detail?.data) {
-        setDetailNotify(detail.data);
-        setExpandedId(notificationGroup.id);
-      } else {
-        setDetailNotify([]);
-      }
+  //     if (detail?.data) {
+  //       setDetailNotify(detail.data);
+  //       setExpandedId(notificationGroup.id);
+  //     } else {
+  //       setDetailNotify([]);
+  //     }
 
-      setIsLoadingDetail(false);
-    }
-  };
+  //     setIsLoadingDetail(false);
+  //   }
+  // };
 
   useEffect(() => {
     fetchDetailGroup();
@@ -117,7 +112,7 @@ const DetailGroupLecturer = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="overflow-hidden bg-gray-50 border-t border-gray-200 rounded-b-xl px-6 py-4"
+      className="overflow-hidden bg-gray-50 border-t border-gray-200 rounded-b-xl "
     >
       <div className="min-h-screen w-full bg-white p-10 overflow-y-auto max-h-screen pb-24">
         <div className="space-y-6">
@@ -144,7 +139,7 @@ const DetailGroupLecturer = () => {
               >
                 Bảng tin
               </TabsTrigger>
-              <TabsTrigger value="notification">Thông báo</TabsTrigger>
+
               <TabsTrigger value="member">Mọi người</TabsTrigger>
             </TabsList>
             <TabsContent value="home">
@@ -294,152 +289,7 @@ const DetailGroupLecturer = () => {
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="notification">
-              <div className="p-6  min-h-screen">
-                {/* Nút Create */}
-                <div className="mb-6 ">
-                  <button
-                    className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-full shadow-md text-lg flex items-center gap-2"
-                    onClick={() => setOpenModalCreate(true)}
-                  >
-                    <span className="text-xl">＋</span>
-                    Create
-                  </button>
-                  {openModalCreate && (
-                    <LecturerCreateGroupNotification
-                      open={openModalCreate}
-                      onClose={() => setOpenModalCreate(false)}
-                      onSuccess={fetchListNotificationGroup}
-                    />
-                  )}
-                </div>
 
-                {/* Thẻ thông báo */}
-                {notificationGroups.length === 0 ? (
-                  <></>
-                ) : (
-                  notificationGroups.map((notificationGroup) => (
-                    <motion.div
-                      // layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      key={notificationGroup.id}
-                      className="mb-4"
-                    >
-                      <div
-                        key={notificationGroup.id}
-                        className="bg-white shadow rounded-xl p-4 mb-4 flex items-center justify-between hover:border hover:border-gray-200 transition-all duration-100 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleExpand(notificationGroup, e);
-                        }}
-                      >
-                        <div className="flex items-center gap-4">
-                          {/* Icon */}
-                          <div className="bg-pink-500 text-white rounded-full w-12 h-12 flex items-center justify-center">
-                            <NotepadText size={22} />
-                          </div>
-
-                          {/* Nội dung */}
-                          <div className="text-sm font-normal">
-                            {notificationGroup.title}
-                          </div>
-                        </div>
-
-                        {/* Ngày và menu */}
-                        <div className="text-sm text-gray-500 flex items-center gap-4">
-                          <span>
-                            {dayjs(notificationGroup.createdAt).format(
-                              "DD/MM/YYYY"
-                            )}
-                          </span>
-                          {/* <MoreVertical className="cursor-pointer" /> */}
-                          <DropdownMenu asChild>
-                            <DropdownMenuTrigger
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Button
-                                variant="ghost"
-                                className="h-8 w-8 p-0 cursor-pointer"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Pencil className="h-4 w-4" /> Chỉnh sửa
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem className="text-red-600 cursor-pointer">
-                                <Trash2 className="mr-2 h-4 w-4" /> Xóa
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                      <AnimatePresence>
-                        {expandedId === notificationGroup.id && (
-                          <motion.div
-                            layout
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="bg-gray-50 border-t border-gray-200 rounded-b-xl px-6 py-4"
-                          >
-                            {isLoadingDetail ? (
-                              <p className="text-sm text-gray-500">
-                                Đang tải chi tiết...
-                              </p>
-                            ) : (
-                              <>
-                                <p className="text-sm text-gray-800 mb-2">
-                                  Nội dung:
-                                  {detailNotify.content || "Không có nội dung"}
-                                </p>
-
-                                {detailNotify.fileNotifications?.length > 0 && (
-                                  <div className="space-y-2">
-                                    {detailNotify.fileNotifications.map(
-                                      (file, index) => (
-                                        <div
-                                          key={index}
-                                          className="border rounded-lg p-3 flex items-center space-x-4 hover:bg-gray-100 transition-colors"
-                                        >
-                                          <FileText className="text-blue-600" />
-                                          <div className="flex-1">
-                                            <p className="font-medium">
-                                              {file.displayName || "Không tên"}
-                                            </p>
-                                            <p className="text-sm text-gray-500">
-                                              Tệp đính kèm
-                                            </p>
-                                          </div>
-                                          <a
-                                            href={file.fileName}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 underline text-sm"
-                                          >
-                                            Tải xuống
-                                          </a>
-                                        </div>
-                                      )
-                                    )}
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </TabsContent>
             <TabsContent value="member">
               <div className="max-w-3xl  py-8 px-4">
                 {/* Tab Header */}
@@ -496,4 +346,4 @@ const DetailGroupLecturer = () => {
     </motion.div>
   );
 };
-export default DetailGroupLecturer;
+export default DetailGroupStudent;

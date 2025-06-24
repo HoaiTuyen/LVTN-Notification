@@ -1,6 +1,7 @@
 import {
   createNotificationGroup,
   listNotificationGroup,
+  detailNotificationGroup,
 } from "../servicers/NotificationGroup";
 export const handleCreateNotificationGroup = async (formData) => {
   try {
@@ -42,5 +43,21 @@ export const handleListNotificationGroup = async (id) => {
         error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
       data: [],
     };
+  }
+};
+
+export const handleDetailNotificationGroup = async (id) => {
+  try {
+    const response = await detailNotificationGroup(id);
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg = error.response?.data?.message || "Lỗi hệ thống";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
   }
 };

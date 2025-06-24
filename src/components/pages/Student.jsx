@@ -258,13 +258,15 @@ const Student = () => {
           </div> */}
           <Dropdown
             overlay={<NotificationDropdown />}
-            trigger={["hover"]}
+            // trigger={["hover"]}
+            trigger={["click"]}
             placement="bottomRight"
             overlayStyle={{
               borderRadius: 8,
               boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
               zIndex: 999,
             }}
+            onOpenChange={() => setNotificationCount(0)}
           >
             <div className="relative inline-block cursor-pointer">
               <Bell className="text-gray-800" size={25} />

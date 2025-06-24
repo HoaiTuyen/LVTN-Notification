@@ -11,16 +11,14 @@ import { handleDeleteGroup } from "../../../controller/GroupController";
 import { toast } from "react-toastify";
 
 const LecturerDeleteGroup = ({ onOpen, onClose, group, onSuccess }) => {
-  console.log(group);
-
   const handleDelete = async () => {
     const response = await handleDeleteGroup(group.id);
     if (response?.status === 204) {
-      toast.success(response.message || "Xóa khoa thành công");
+      toast.success(response.message || "Xóa nhóm thành công");
       onSuccess();
       onClose();
     } else {
-      toast.error(response?.message || "Xóa khoa thất bại");
+      toast.error(response?.message || "Xóa nhóm thất bại");
     }
   };
 
