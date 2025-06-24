@@ -27,8 +27,16 @@ import {
   handleDetailNotificationGroup,
 } from "../../../controller/NotificationGroupController";
 import dayjs from "dayjs";
+import useWebSocket from "@/config/Websorket";
 
 const DetailGroupStudent = () => {
+  const { connected } = useWebSocket();
+
+  useEffect(() => {
+    if (connected) {
+      console.log("Kết nối WebSocket thành công!");
+    }
+  }, [connected]);
   const location = useLocation();
   const navigate = useNavigate();
   const { groupStudyId } = useParams();

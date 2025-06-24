@@ -24,6 +24,7 @@ import AdminProfilePage from "../components/Admin/Account/AccountSetting";
 import EmployeeAccount from "../components/Admin/Account/Employee/AccountEmployee";
 import LecturerAccount from "../components/Admin/Account/Lecturer/LecturerAccount";
 import StudentAccount from "../components/Admin/Account/Student/StudentAccount";
+import RegistrationClass from "../components/Admin/RegisterClass/RegisterClass";
 //student
 import NotificationsPage from "../components/Student/Notification/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
@@ -49,6 +50,7 @@ import EmployeeClassName from "../components/Employee/ClassRoom/EmployeeClassRoo
 import EmployeeListStudentOfClass from "../components/Employee/ClassRoom/ListStudentByClass/ListStudentOfClass";
 import EmployeeSemester from "../components/Employee/Semester/EmployeeSemester";
 import EmployeeSubject from "../components/Employee/Subject/EmployeeSubject";
+import EmployeeCreateNotificationStudent from "../components/Employee/Notification/createNotificationStudent";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -96,6 +98,9 @@ function AppRoutes() {
                 element={<ListStudentOfClass />}
               />
             </Route>
+
+            <Route path="registerClass" element={<RegistrationClass />} />
+
             <Route path="setting" element={<AdminProfilePage />} />
           </Route>
           <Route
@@ -136,8 +141,12 @@ function AppRoutes() {
           >
             <Route path="profile" element={<EmployeeProfilePage />} />
             <Route
-              path="notification"
+              path="notification-all"
               element={<EmployeeCreateNotification />}
+            />
+            <Route
+              path="notification-student"
+              element={<EmployeeCreateNotificationStudent />}
             />
             <Route
               path="sentNotification"

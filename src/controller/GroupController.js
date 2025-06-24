@@ -100,8 +100,7 @@ export const handleSearchGroup = async (keyword, page, pageSize) => {
     console.error("Error fetching departments:", error);
     return {
       status: error.response?.status || 500,
-      message:
-        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      message: error.response?.data?.message || "Đã xảy ra lỗi",
       data: [],
     };
   }
@@ -121,8 +120,7 @@ export const handleListGroupByUserId = async (userId, page, pageSize) => {
     console.error("Error fetching departments:", error);
     return {
       status: error.response?.status || 500,
-      message:
-        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      message: error.response?.data?.message || "Đã xảy ra lỗi",
       data: [],
     };
   }

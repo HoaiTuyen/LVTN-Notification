@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "antd";
 import {
@@ -55,11 +55,14 @@ import AddAccountEmployee from "./AddAccountEmployee";
 import DetailAccount from "../DetailAccount";
 import { toast } from "react-toastify";
 const EmployeeAccount = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
+  // const [selectedRole, setSelectedRole] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [users, setUsers] = useState([]);
-  const [total, setTotal] = useState(0);
+  // const [total, setTotal] = useState(0);
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [openDetailModal, setOpenDetailModal] = useState(false);
@@ -89,11 +92,9 @@ const EmployeeAccount = () => {
 
       // Use handleFilterUser with teacher role and combine with search term if exists
       if (searchTerm) {
-        response = await handleSearchUser(
-          searchTerm,
-          page - 1,
-          pagination.pageSize
-        );
+        response = await handleSearchUser(searchTerm, page - 1, 50);
+        console.log(response);
+
         // Filter the results to only show teacher accounts
         if (response?.status === 200 && response?.data) {
           const teacherUsers = response.data.users.filter(
@@ -153,10 +154,17 @@ const EmployeeAccount = () => {
       console.error("Error locking user:", error);
     }
   };
-
   useEffect(() => {
-    fetchListUser(1);
-  }, [debouncedSearchTerm, selectedRole]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchListUser(pageFromUrl);
+  }, [debouncedSearchTerm, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -191,7 +199,7 @@ const EmployeeAccount = () => {
                 setOpenModal(false);
                 setSelectedUser(null);
               }}
-              onSuccess={fetchListUser}
+              onSuccess={() => fetchListUser(pageFromUrl)}
               users={selectedUser}
             />
           )}
@@ -217,7 +225,7 @@ const EmployeeAccount = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select
+              {/* <Select
                 value={selectedRole}
                 onValueChange={(value) => setSelectedRole(value)}
               >
@@ -230,7 +238,7 @@ const EmployeeAccount = () => {
                   <SelectItem value="STUDENT">Student</SelectItem>
                   <SelectItem value="TEACHER">Teacher</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
 
             {/* Table */}
@@ -335,7 +343,11 @@ const EmployeeAccount = () => {
             pageSize={pagination.pageSize}
             total={pagination.total}
             onChange={(page) => {
-              fetchListUser(page);
+              const params = new URLSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
+              setSearchParams(params);
             }}
           />
         </div>

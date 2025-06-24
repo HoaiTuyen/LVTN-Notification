@@ -60,6 +60,16 @@ const EmployeeDashboard = () => {
       icon: <MessageSquare size={16} />,
       label: "Tạo thông báo",
       title: "",
+      children: [
+        {
+          key: "notification-all",
+          label: "Gửi thông báo chung",
+        },
+        {
+          key: "notification-student",
+          label: "Gửi thông báo cho sinh viên",
+        },
+      ],
     },
     {
       key: "sentNotification",

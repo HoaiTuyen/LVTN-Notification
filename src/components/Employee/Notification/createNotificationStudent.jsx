@@ -31,11 +31,11 @@ import {
   X,
 } from "lucide-react";
 import useWebSocket from "@/config/Websorket";
-import { handleCreateNotification } from "../../../controller/NotificationController";
+import { handleCreateUserNotification } from "../../../controller/NotificationController";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { handleListDepartment } from "../../../controller/DepartmentController";
 import { toast } from "react-toastify";
-const EmployeeCreateNotification = () => {
+const EmployeeCreateNotificationStudent = () => {
   const { connected } = useWebSocket();
 
   useEffect(() => {
@@ -47,16 +47,10 @@ const EmployeeCreateNotification = () => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    notificationType: "",
-    departmentId: "",
     studentId: "",
-
-    // priority: "medium",
-    // targetAudience: [],
-    // scheduleDate: "",
-    // scheduleTime: "",
-    // attachments: [],
+    isMail: false,
   });
+  console.log(formData);
 
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -89,25 +83,22 @@ const EmployeeCreateNotification = () => {
     const form = new FormData();
     form.append("title", formData.title);
     form.append("content", formData.content);
-    form.append("notificationType", formData.notificationType);
-    form.append("departmentId", formData.departmentId);
     form.append("studentId", formData.studentId);
+    form.append("isMail", formData.isMail);
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);
       form.append(`files[${index}]`, files[index]);
     });
-    console.log(form);
 
     try {
       setIsLoading(true);
-      const res = await handleCreateNotification(form);
+      const res = await handleCreateUserNotification(form);
+      console.log(res);
 
       if (res.status === 201) {
         setFormData({
           title: "",
           content: "",
-          notificationType: "",
-          departmentId: "",
           studentId: "",
         });
         setFileDisplayNames([""]);
@@ -160,8 +151,8 @@ const EmployeeCreateNotification = () => {
       };
 
       // Nếu người dùng đang thay đổi mã sinh viên và nó không hợp lệ → reset gửi email
-      if (field === "studentCode" && !isValidStudentCode(value)) {
-        updated.sendEmail = false;
+      if (field === "studentId" && !isValidStudentCode(value)) {
+        updated.isMail = false;
       }
 
       return updated;
@@ -182,16 +173,11 @@ const EmployeeCreateNotification = () => {
       newErrors.title = "Vui lòng nhập tiêu đề thông báo";
     }
 
-    if (!formData.notificationType) {
-      newErrors.notificationType = "Vui lòng chọn loại thông báo";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
   const fetchListDepartment = async () => {
     const listDepartment = await handleListDepartment();
-    console.log(listDepartment);
 
     if (listDepartment?.data) {
       setDepartments(listDepartment.data.departments);
@@ -219,7 +205,7 @@ const EmployeeCreateNotification = () => {
                     Nội dung thông báo
                   </CardTitle>
                   <CardDescription className="text-red-400">
-                    (*) Lưu ý: Gửi thông báo chung, gửi thông báo cho từng khoa
+                    (*) Lưu ý: Gửi thông báo cho một sinh viên
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -241,67 +227,6 @@ const EmployeeCreateNotification = () => {
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="type">Loại thông báo *</Label>
-                        <Select
-                          value={formData.notificationType}
-                          onValueChange={(value) =>
-                            handleInputChange("notificationType", value)
-                          }
-                        >
-                          <SelectTrigger
-                            className={errors.type ? "border-red-500" : ""}
-                          >
-                            <SelectValue placeholder="Chọn loại thông báo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {notificationTypes.map((type) => (
-                              <SelectItem key={type.id} value={String(type.id)}>
-                                <div className="flex items-center gap-2">
-                                  <span>{type.name}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.notificationType && (
-                          <p className="text-sm text-red-600">
-                            {errors.notificationType}
-                          </p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="type">Khoa *</Label>
-                        <Select
-                          value={formData.departmentId}
-                          onValueChange={(value) =>
-                            handleInputChange("departmentId", value)
-                          }
-                        >
-                          <SelectTrigger
-                            className={errors.type ? "border-red-500" : ""}
-                          >
-                            <SelectValue placeholder="Chọn khoa" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {departments.map((department) => (
-                              <SelectItem
-                                key={department.id}
-                                value={String(department.id)}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span>{department.name}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.departmentId && (
-                          <p className="text-sm text-red-600">
-                            {errors.departmentId}
-                          </p>
-                        )}
-                      </div>
-                      {/* <div className="space-y-2">
                         <Label htmlFor="studentId">
                           Mã sinh viên (nếu gửi cho 1 sinh viên)
                         </Label>
@@ -316,15 +241,15 @@ const EmployeeCreateNotification = () => {
 
                         <div className="flex items-center space-x-2 pl-1">
                           <Checkbox
-                            id="sendEmail"
-                            checked={formData.sendEmail}
+                            id="isMail"
+                            checked={formData.isMail}
                             disabled={!isValidStudentCode(formData.studentId)}
                             onCheckedChange={(checked) =>
-                              handleInputChange("sendEmail", checked === true)
+                              handleInputChange("isMail", checked === true)
                             }
                           />
                           <label
-                            htmlFor="sendEmail"
+                            htmlFor="isMail"
                             className={`text-sm ${
                               !isValidStudentCode(formData.studentId)
                                 ? "text-gray-400"
@@ -340,7 +265,7 @@ const EmployeeCreateNotification = () => {
                               Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
                             </p>
                           )}
-                      </div> */}
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -584,7 +509,7 @@ const EmployeeCreateNotification = () => {
     </div>
   );
 };
-export default EmployeeCreateNotification;
+export default EmployeeCreateNotificationStudent;
 
 // import React, { useEffect } from "react";
 

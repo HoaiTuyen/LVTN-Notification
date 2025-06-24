@@ -14,9 +14,7 @@ import {
   listGroupByStudent,
 } from "../servicers/AccountServicer";
 
-export const handleListUser = async (page, pageSize) => {
-  console.log(page, pageSize);
-
+export const handleListUser = async (page = 0, pageSize = 1000) => {
   try {
     const response = await listUser(page, pageSize);
 

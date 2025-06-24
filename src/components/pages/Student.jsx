@@ -21,14 +21,27 @@ const { useBreakpoint } = Grid;
 import { handleGetDetailUser } from "../../controller/AccountController";
 import { handleTeacherDetail } from "../../controller/TeacherController";
 import { handleStudentDetail } from "../../controller/StudentController";
+import { handleListGroupByStudent } from "../../controller/AccountController";
 const Student = () => {
   const { stompClient, connected, error } = useWebSocket();
+  const token = localStorage.getItem("access_token");
+  const data = jwtDecode(token);
+  const userId = data.userId;
+
   const [notificationCount, setNotificationCount] = useState(0);
   const [notificationList, setNotificationList] = useState([]);
-  console.log(notificationList);
+  const [groupStudents, setGroupStudents] = useState([]);
 
   const [userInfo, setUserInfo] = useState([]);
+  console.log(groupStudents);
+  const fetchListGroupById = async () => {
+    const req = await handleListGroupByStudent(userId);
 
+    if (Array.isArray(req.data) && req.status === 200) {
+      const groupIds = req.data.map((group) => group.groupId);
+      setGroupStudents(groupIds); // mảng ID: [101, 102, 103, 104]
+    }
+  };
   useEffect(() => {
     if (connected && stompClient.current && userInfo && userInfo.departmentId) {
       console.log("✅ WebSocket is connected in Student component");
@@ -51,16 +64,30 @@ const Student = () => {
 
         setNotificationCount((prev) => prev + 1);
       });
-      // const groupTopic = `/notification/group/${userInfo.groupId}`;
-      // console.log(groupTopic);
-      // stompClient.current.subscribe(groupTopic, (message) => {
-      //   const parsedMessage = JSON.parse(message.body);
-      //   console.log("Received department notification:", parsedMessage);
-      //   setNotificationList((prev) => [parsedMessage, ...prev]);
+      //Gửi cho 1 sinh viên
+      const studentMail = `/user/${userInfo.id}/notification`;
+      console.log(studentMail);
+      stompClient.current.subscribe(studentMail, (message) => {
+        const parsedMessage = JSON.parse(message.body);
+        console.log("Received department notification:", parsedMessage);
+        setNotificationList((prev) => [parsedMessage, ...prev]);
 
-      //   setNotificationCount((prev) => prev + 1);
-      // });
+        setNotificationCount((prev) => prev + 1);
+      });
+      groupStudents.forEach((groupId) => {
+        const groupTopic = `/notification/group/${groupId}`;
+        console.log("Subscribing to:", groupTopic);
+
+        stompClient.current.subscribe(groupTopic, (message) => {
+          const parsedMessage = JSON.parse(message.body);
+          console.log("Received group notification:", parsedMessage);
+
+          setNotificationList((prev) => [parsedMessage, ...prev]);
+          setNotificationCount((prev) => prev + 1);
+        });
+      });
     }
+    fetchListGroupById();
   }, [connected, stompClient, userInfo.departmentId]);
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);

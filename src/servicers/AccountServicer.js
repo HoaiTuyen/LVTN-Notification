@@ -1,9 +1,9 @@
 import api from "@/axios/customAxios";
-export const listUser = (page = 0, pageSize) => {
+export const listUser = (page = 0, pageSize = 1000) => {
   return api.get("/user/list_users", {
     params: {
-      page,
-      pageSize,
+      page: page,
+      pageSize: pageSize,
     },
   });
 };

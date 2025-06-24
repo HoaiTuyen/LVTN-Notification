@@ -7,6 +7,13 @@ export const createNotification = (formData) => {
     },
   });
 };
+export const createUserNotification = (formData) => {
+  return api.post("/notification/create_user", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 export const listNotification = (sort, page, pageSize = 10) => {
   return api.get("/notification/list_notifications", {
     params: {
