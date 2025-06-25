@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -53,7 +53,10 @@ import {
 import AddSemester from "./AddSemester";
 import DeleteSemester from "./DeleteSemester";
 const Semester = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [semesters, setSemesters] = useState([]);
@@ -98,8 +101,16 @@ const Semester = () => {
     return formatted;
   };
   useEffect(() => {
-    fetchListSemester(pagination.current);
-  }, [debouncedSearchTerm, pagination.current]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchListSemester(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -121,7 +132,7 @@ const Semester = () => {
               onClose={() => {
                 setOpenModal(false), setSelectSemester(null);
               }}
-              onSuccess={fetchListSemester}
+              onSuccess={() => fetchListSemester(pageFromUrl)}
               semester={selectSemester}
             />
           )}
@@ -266,7 +277,7 @@ const Semester = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             semester={selectSemester}
-            onSuccess={() => fetchListSemester(pagination.current)}
+            onSuccess={() => fetchListSemester(pageFromUrl)}
           />
         )}
         <div className="flex justify-center mt-4">
@@ -274,12 +285,12 @@ const Semester = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
+            onChange={(page) => {
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
+            }}
           />
         </div>
       </div>

@@ -83,9 +83,9 @@ export const handleUpdateUser = async (data) => {
     }
   }
 };
-export const handleSearchUser = async (keyword) => {
+export const handleSearchUser = async (keyword, page = 0, pageSize = 50) => {
   try {
-    const response = await searchUser(keyword);
+    const response = await searchUser(keyword, page, pageSize);
 
     return response;
   } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -56,8 +56,10 @@ import { Pagination } from "antd";
 
 const Department = () => {
   const navigate = useNavigate();
-
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [departments, setDepartments] = useState([]);
@@ -105,8 +107,16 @@ const Department = () => {
     }
   };
   useEffect(() => {
-    fetchListDepartment(pagination.current);
-  }, [debouncedSearchTerm, pagination.current]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchListDepartment(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -134,13 +144,13 @@ const Department = () => {
                 setSelectDepartment(null);
               }}
               department={selectDepartment}
-              onSuccess={() => fetchListDepartment(pagination.current)}
+              onSuccess={() => fetchListDepartment(pageFromUrl)}
             />
           )}
         </div>
 
         {/* Card */}
-        <Card className="border border-gray-100">
+        <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
             <CardTitle>Danh sách khoa</CardTitle>
             <CardDescription>
@@ -244,7 +254,7 @@ const Department = () => {
                               <DropdownMenuItem
                                 onClick={() =>
                                   navigate(
-                                    `/admin/department/${department.id}/class`
+                                    `/admin/department/${department.id}/class?search=${debouncedSearchTerm}&page=${pagination.current}`
                                   )
                                 }
                               >
@@ -276,7 +286,7 @@ const Department = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             department={selectDepartment}
-            onSuccess={() => fetchListDepartment(pagination.current)}
+            onSuccess={() => fetchListDepartment(pageFromUrl)}
           />
         )}
         <div className="flex justify-center mt-4">
@@ -284,12 +294,12 @@ const Department = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
+            onChange={(page) => {
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
+            }}
           />
         </div>
       </div>

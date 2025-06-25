@@ -16,12 +16,12 @@ export const lockUser = (userId) => {
 export const updateUser = (data) => {
   return api.put("/user/update", data);
 };
-export const searchUser = (keyword, page = 0, pageSize = 10) => {
+export const searchUser = (keyword, page = 0, pageSize = 50) => {
   return api.get("/user/list_users", {
     params: {
       keyword: keyword,
-      page,
-      pageSize,
+      page: page,
+      pageSize: pageSize,
     },
   });
 };

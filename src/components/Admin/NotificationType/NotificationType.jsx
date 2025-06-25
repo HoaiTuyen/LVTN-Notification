@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -53,7 +53,10 @@ import {
 import AddNotificationType from "./AddNotificationType";
 import DeleteNotification from "./DeleteNotificationType";
 const NotificationType = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [notificationTypes, setNotificationTypes] = useState([]);
@@ -95,8 +98,16 @@ const NotificationType = () => {
     }
   };
   useEffect(() => {
-    fetchNotificationType(pagination.current);
-  }, [debouncedSearchTerm, pagination.current]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchNotificationType(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -118,7 +129,7 @@ const NotificationType = () => {
               onClose={() => {
                 setOpenModal(false), setSelectNotiType(null);
               }}
-              onSuccess={fetchNotificationType}
+              onSuccess={() => fetchNotificationType(pageFromUrl)}
               notification={selectNotiType}
             />
           )}
@@ -257,7 +268,7 @@ const NotificationType = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             notification={selectNotiType}
-            onSuccess={() => fetchNotificationType(pagination.current)}
+            onSuccess={() => fetchNotificationType(pageFromUrl)}
           />
         )}
         <div className="flex justify-center mt-4">
@@ -265,12 +276,12 @@ const NotificationType = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
+            onChange={(page) => {
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
+            }}
           />
         </div>
       </div>

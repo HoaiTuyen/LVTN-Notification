@@ -1,6 +1,6 @@
 import { useState } from "react";
 // import { useParams, useRouter } from "next/navigation";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,6 +38,10 @@ import { useEffect } from "react";
 import { Pagination } from "antd";
 import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
 const ListStudentOfClass = () => {
+  const [searchParams] = useSearchParams();
+
+  const page = searchParams.get("page") || "1";
+  const search = searchParams.get("search") || "";
   const [studentByClass, setStudentByClass] = useState([]);
 
   const [openUpload, setOpenUpload] = useState(false);
@@ -51,7 +55,8 @@ const ListStudentOfClass = () => {
   const { classId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const backUrl = location.state?.from || "/admin/class";
+  const backUrl =
+    location.state?.from || `/admin/class?search=${search}&page=${page}`;
 
   const renderGender = (gender) => {
     switch (gender) {

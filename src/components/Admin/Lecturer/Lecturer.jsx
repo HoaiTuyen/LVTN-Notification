@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 import {
@@ -47,7 +47,10 @@ import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportTeacherModal from "./ImportTeacherModal";
 const Lecturer = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [showModal, setShowModal] = useState(false);
   const [teachers, setTeachers] = useState([]);
   const [selectTeacher, setSelectTeacher] = useState(null);
@@ -117,8 +120,16 @@ const Lecturer = () => {
     }
   };
   useEffect(() => {
-    fetchListTeacher(1);
-  }, [debouncedSearchTerm, selectStatus]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchListTeacher(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -152,7 +163,7 @@ const Lecturer = () => {
                 setSelectTeacher(null);
               }}
               teacher={selectTeacher}
-              onSuccess={fetchListTeacher}
+              onSuccess={() => fetchListTeacher(pageFromUrl)}
             />
           )}
         </div>
@@ -326,7 +337,7 @@ const Lecturer = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             teacher={selectTeacher}
-            onSuccess={fetchListTeacher}
+            onSuccess={() => fetchListTeacher(pageFromUrl)}
           />
         )}
         <div className="flex justify-center mt-4">
@@ -335,7 +346,10 @@ const Lecturer = () => {
             pageSize={pagination.pageSize}
             total={pagination.total}
             onChange={(page) => {
-              fetchListTeacher(page);
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
             }}
           />
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -53,7 +53,10 @@ import {
 import AddGroup from "./AddGroup";
 import DeleteGroup from "./DeleteGroup";
 const Group = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [groups, setGroups] = useState([]);
@@ -94,10 +97,17 @@ const Group = () => {
       console.log(error);
     }
   };
-
   useEffect(() => {
-    fetchListGroup(pagination.current);
-  }, [debouncedSearchTerm, pagination.current]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchListGroup(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -119,7 +129,7 @@ const Group = () => {
               onClose={() => {
                 setOpenModal(false), setSelectGroup(null);
               }}
-              onSuccess={fetchListGroup}
+              onSuccess={() => fetchListGroup(pageFromUrl)}
               group={selectGroup}
             />
           )}
@@ -250,7 +260,7 @@ const Group = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             group={selectGroup}
-            onSuccess={() => fetchListGroup(pagination.current)}
+            onSuccess={() => fetchListGroup(pageFromUrl)}
           />
         )}
         <div className="flex justify-center mt-4">
@@ -258,12 +268,12 @@ const Group = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
+            onChange={(page) => {
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
+            }}
           />
         </div>
       </div>

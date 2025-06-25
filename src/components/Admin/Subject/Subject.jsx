@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -55,7 +55,10 @@ import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportSubjectModal from "./ImportSubjectModal";
 const Subject = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [openModal, setOpenModal] = useState(false);
   const [subjects, setSubjects] = useState([]);
   const [selectSubject, setSelectSubject] = useState(null);
@@ -97,8 +100,16 @@ const Subject = () => {
     }
   };
   useEffect(() => {
-    fetchListSubject(pagination.current);
-  }, [debouncedSearchTerm, pagination.current]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchListSubject(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -130,7 +141,7 @@ const Subject = () => {
               onClose={() => {
                 setOpenModal(false), setSelectSubject(null);
               }}
-              onSuccess={fetchListSubject}
+              onSuccess={() => fetchListSubject(pageFromUrl)}
               subject={selectSubject}
             />
           )}
@@ -262,7 +273,7 @@ const Subject = () => {
           <DeleteSubject
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
-            onSuccess={() => fetchListSubject(pagination.current)}
+            onSuccess={() => fetchListSubject(pageFromUrl)}
             subject={selectSubject}
           />
         )}
@@ -272,7 +283,10 @@ const Subject = () => {
             pageSize={pagination.pageSize}
             total={pagination.total}
             onChange={(page) => {
-              fetchListSubject(page);
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
             }}
           />
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Outlet } from "react-router-dom";
 import {
@@ -56,7 +56,10 @@ import ImportClassModal from "./ImportClassModal";
 import ListStudentOfClass from "./ListStudentByClass/ListStudentOfClass";
 const ClassName = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [openModal, setOpenModal] = useState(false);
   const [classRoom, setClasses] = useState([]);
   const [openModalDelete, setOpenModalDelete] = useState(false);
@@ -92,10 +95,17 @@ const ClassName = () => {
       });
     }
   };
-
   useEffect(() => {
-    fetchListClass(pagination.current);
-  }, [debouncedSearchTerm, pagination.current]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchListClass(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -127,7 +137,7 @@ const ClassName = () => {
               onClose={() => {
                 setOpenModal(false), setSelectClass(null);
               }}
-              onSuccess={fetchListClass}
+              onSuccess={() => fetchListClass(pageFromUrl)}
               classRoom={selectClass}
             />
           )}
@@ -242,7 +252,9 @@ const ClassName = () => {
                                 <DropdownMenuItem
                                   className="cursor-pointer"
                                   onClick={() =>
-                                    navigate(`/admin/class/${item.id}/students`)
+                                    navigate(
+                                      `/admin/class/${item.id}/students?search=${debouncedSearchTerm}&page=${pagination.current}`
+                                    )
                                   }
                                 >
                                   <Users className="h-4 w-4" />
@@ -282,7 +294,7 @@ const ClassName = () => {
             onOpen={openModalDelete}
             onClose={() => setOpenModalDelete(false)}
             classRoom={selectClass}
-            onSuccess={() => fetchListClass(pagination.current)}
+            onSuccess={() => fetchListClass(pageFromUrl)}
           />
         )}
         <div className="flex justify-center mt-4">
@@ -290,12 +302,12 @@ const ClassName = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
+            onChange={(page) => {
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
+            }}
           />
         </div>
       </div>

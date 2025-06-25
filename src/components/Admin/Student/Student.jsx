@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 import {
@@ -46,7 +46,10 @@ import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportStudentModal from "./ImportStudentModal";
 const Student = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -92,7 +95,6 @@ const Student = () => {
         current: page,
         pageSize: response.data.pageSize,
         total: response.data.totalElements,
-
         totalPages: response.data.totalPages,
       });
     } else {
@@ -100,8 +102,16 @@ const Student = () => {
     }
   };
   useEffect(() => {
-    fetchStudents(1);
-  }, [debouncedSearchTerm, selectStatus]);
+    if (debouncedSearchTerm !== searchFromUrl) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        page: "1",
+      });
+    }
+  }, [debouncedSearchTerm]);
+  useEffect(() => {
+    fetchStudents(pageFromUrl);
+  }, [searchFromUrl, pageFromUrl]);
 
   function filterStudents(status) {
     switch (status) {
@@ -168,7 +178,7 @@ const Student = () => {
               onClose={() => {
                 setShowModal(false), setSelectedStudent(null);
               }}
-              onSuccess={fetchStudents}
+              onSuccess={() => fetchStudents(pageFromUrl)}
               student={selectedStudent}
             />
           )}
@@ -342,7 +352,7 @@ const Student = () => {
             onClose={() => setOpenModalDelete(false)}
             student={selectedStudent}
             onSuccess={() => {
-              fetchStudents();
+              fetchStudents(pageFromUrl);
             }}
           />
         )}
@@ -352,7 +362,10 @@ const Student = () => {
             pageSize={pagination.pageSize}
             total={pagination.total}
             onChange={(page) => {
-              fetchStudents(page);
+              setSearchParams({
+                search: debouncedSearchTerm,
+                page: page.toString(),
+              });
             }}
           />
         </div>

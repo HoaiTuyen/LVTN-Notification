@@ -1,6 +1,6 @@
 import { useState } from "react";
 // import { useParams, useRouter } from "next/navigation";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,6 +38,10 @@ import { useEffect } from "react";
 import { Pagination } from "antd";
 import ImportClassOfDepartmentModal from "./ImportClassByDepartment";
 const ListClassOfDepartment = () => {
+  const [searchParams] = useSearchParams();
+
+  const page = searchParams.get("page") || "1";
+  const search = searchParams.get("search") || "";
   const [classByDepartment, setClassByDepartment] = useState([]);
   const [totalClass, setTotalClass] = useState(0);
   const [openUpload, setOpenUpload] = useState(false);
@@ -51,7 +55,8 @@ const ListClassOfDepartment = () => {
   const { departmentId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const backUrl = location.state?.from || "/admin/department";
+  const backUrl =
+    location.state?.from || `/admin/department?search=${search}&page=${page}`;
 
   const fetchListClassByDepartment = async (page = 1) => {
     const res = await handleListClassByDepartment(
