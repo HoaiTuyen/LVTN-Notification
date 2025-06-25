@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useWebSocket from "../../config/Websorket";
 import { handleLogout } from "@/controller/AuthController";
@@ -36,119 +36,148 @@ const Student = () => {
   const [groupStudents, setGroupStudents] = useState([]);
 
   const [userInfo, setUserInfo] = useState([]);
-  console.log(groupStudents);
+
   const fetchListGroupById = async () => {
     const req = await handleListGroupByStudent(userId);
-    console.log(req);
 
     if (Array.isArray(req.data) && req.status === 200) {
       const groupIds = req.data.map((group) => group.groupId);
       setGroupStudents(groupIds); // mảng ID: [101, 102, 103, 104]
     }
   };
-  // useEffect(() => {
-  //   if (connected && stompClient.current && userInfo && userInfo.departmentId) {
-  //     console.log("✅ WebSocket is connected in Student component");
+  useEffect(() => {
+    fetchListGroupById();
+  }, []);
 
+  // useEffect(() => {
+  //   let groupSubscriptions = [];
+  //   if (connected && stompClient.current && userInfo && userInfo.departmentId) {
   //     // Đăng ký nhận tin nhắn từ server
   //     stompClient.current.subscribe("/notification", (message) => {
-  //       console.log(message);
   //       const parsedMessage = JSON.parse(message.body);
   //       setNotificationList((prev) => [parsedMessage, ...prev]);
   //       setNotificationCount((prev) => prev + 1);
-  //       // console.log("Received message:", JSON.parse(message.body));
   //     });
   //     //Gửi thông báo cho khoa
-  //     // const departmentTopic = `/notification/department/${departmentId}`
   //     const departmentTopic = `/notification/department/${userInfo.departmentId}`;
-  //     console.log(departmentTopic);
   //     stompClient.current.subscribe(departmentTopic, (message) => {
   //       const parsedMessage = JSON.parse(message.body);
-  //       console.log("Received department notification:", parsedMessage);
   //       setNotificationList((prev) => [parsedMessage, ...prev]);
-
   //       setNotificationCount((prev) => prev + 1);
   //     });
   //     //Gửi cho 1 sinh viên
   //     const studentMail = `/user/${userInfo.id}/notification`;
-  //     console.log(studentMail);
+
   //     stompClient.current.subscribe(studentMail, (message) => {
   //       const parsedMessage = JSON.parse(message.body);
-  //       console.log("Received department notification:", parsedMessage);
-  //       setNotificationList((prev) => [parsedMessage, ...prev]);
+  //       console.log(parsedMessage);
 
+  //       setNotificationList((prev) => [parsedMessage, ...prev]);
   //       setNotificationCount((prev) => prev + 1);
   //     });
+  //     // Sub group:
   //     groupStudents.forEach((groupId) => {
   //       const groupTopic = `/notification/group/${groupId}`;
-  //       console.log("Subscribing to:", groupTopic);
-
-  //       stompClient.current.subscribe(groupTopic, (message) => {
+  //       const sub = stompClient.current.subscribe(groupTopic, (message) => {
   //         const parsedMessage = JSON.parse(message.body);
-  //         console.log("Received group notification:", parsedMessage);
-
   //         setNotificationList((prev) => [parsedMessage, ...prev]);
   //         setNotificationCount((prev) => prev + 1);
   //       });
+  //       groupSubscriptions.push(sub);
   //     });
   //   }
-  //   fetchListGroupById();
-  // }, [connected, stompClient, userInfo.departmentId]);
+  //   return () => {
+  //     // Unsubscribe group topics
+  //     groupSubscriptions.forEach((sub) => {
+  //       if (sub && typeof sub.unsubscribe === "function") sub.unsubscribe();
+  //     });
+  //   };
+  // }, [
+  //   connected,
+  //   stompClient,
+  //   userInfo.departmentId,
+  //   JSON.stringify(groupStudents),
+  // ]);
   useEffect(() => {
-    let groupSubscriptions = [];
-    if (connected && stompClient.current && userInfo && userInfo.departmentId) {
-      // ...Code subscribe cũ...
-      console.log("✅ WebSocket is connected in Student component");
+    let subscriptions = [];
+    if (
+      connected &&
+      stompClient.current &&
+      userInfo?.departmentId &&
+      userInfo?.id
+    ) {
+      // Đăng ký các subscription
+      const generalSub = stompClient.current.subscribe(
+        "/notification",
+        (message) => {
+          const parsedMessage = JSON.parse(message.body);
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+            return [{ ...parsedMessage, isRead: false }, ...prev];
+          });
+          setNotificationCount((prev) => prev + 1);
+        }
+      );
 
-      // Đăng ký nhận tin nhắn từ server
-      stompClient.current.subscribe("/notification", (message) => {
-        console.log(message);
-        const parsedMessage = JSON.parse(message.body);
-        setNotificationList((prev) => [parsedMessage, ...prev]);
-        setNotificationCount((prev) => prev + 1);
-        // console.log("Received message:", JSON.parse(message.body));
-      });
-      //Gửi thông báo cho khoa
-      // const departmentTopic = `/notification/department/${departmentId}`
-      const departmentTopic = `/notification/department/${userInfo.departmentId}`;
-      console.log(departmentTopic);
-      stompClient.current.subscribe(departmentTopic, (message) => {
-        const parsedMessage = JSON.parse(message.body);
-        console.log("Received department notification:", parsedMessage);
-        setNotificationList((prev) => [parsedMessage, ...prev]);
+      const departmentSub = stompClient.current.subscribe(
+        `/notification/department/${userInfo.departmentId}`,
+        (message) => {
+          const parsedMessage = JSON.parse(message.body);
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+            return [{ ...parsedMessage, isRead: false }, ...prev];
+          });
+          setNotificationCount((prev) => prev + 1);
+        }
+      );
 
-        setNotificationCount((prev) => prev + 1);
-      });
-      //Gửi cho 1 sinh viên
-      const studentMail = `/user/${userInfo.id}/notification`;
-      console.log(studentMail);
-      stompClient.current.subscribe(studentMail, (message) => {
-        const parsedMessage = JSON.parse(message.body);
-        console.log("Received department notification:", parsedMessage);
-        setNotificationList((prev) => [parsedMessage, ...prev]);
+      const studentSub = stompClient.current.subscribe(
+        `/user/${userInfo.id}/notification`,
+        (message) => {
+          const parsedMessage = JSON.parse(message.body);
+          console.log("Received student notification:", parsedMessage);
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+            return [{ ...parsedMessage, isRead: false }, ...prev];
+          });
+          setNotificationCount((prev) => prev + 1);
+        }
+      );
 
-        setNotificationCount((prev) => prev + 1);
-      });
-      // Sub group:
-      groupStudents.forEach((groupId) => {
+      const groupSubs = groupStudents.map((groupId) => {
         const groupTopic = `/notification/group/${groupId}`;
         const sub = stompClient.current.subscribe(groupTopic, (message) => {
           const parsedMessage = JSON.parse(message.body);
-          setNotificationList((prev) => [parsedMessage, ...prev]);
+          console.log(
+            `Received group notification for ${groupId}:`,
+            parsedMessage
+          );
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+            return [{ ...parsedMessage, isRead: false }, ...prev];
+          });
           setNotificationCount((prev) => prev + 1);
         });
-        groupSubscriptions.push(sub); // lưu lại sub instance
+        return sub;
       });
+
+      subscriptions = [generalSub, departmentSub, studentSub, ...groupSubs];
     }
-    fetchListGroupById(); // CLEANUP!
 
     return () => {
-      // Unsubscribe group topics
-      groupSubscriptions.forEach((sub) => {
-        if (sub && typeof sub.unsubscribe === "function") sub.unsubscribe();
+      subscriptions.forEach((sub) => {
+        if (sub && typeof sub.unsubscribe === "function") {
+          sub.unsubscribe();
+        }
       });
     };
-  }, [connected, stompClient, userInfo.departmentId, groupStudents]);
+  }, [
+    connected,
+    stompClient,
+    userInfo.departmentId,
+    userInfo.id,
+    groupStudents,
+  ]);
   const [selectedTab, setSelectedTab] = useState("home");
   const [drawerVisible, setDrawerVisible] = useState(false);
 
@@ -159,6 +188,10 @@ const Student = () => {
     handleLogout(navigate);
     toast.success("Đăng xuất thành công");
   };
+  useEffect(() => {
+    // Cập nhật notificationCount dựa trên số thông báo chưa đọc
+    setNotificationCount(notificationList.filter((n) => !n.isRead).length);
+  }, [notificationList]);
   const fetchUserDetail = async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -191,151 +224,173 @@ const Student = () => {
     }
   };
 
-  const NotificationDropdown = ({ notificationList }) => {
-    console.log(notificationList);
+  const NotificationDropdown = memo(
+    ({ notificationList, setNotificationList, setNotificationCount }) => {
+      const navigate = useNavigate();
+      const [groupTeacherMap, setGroupTeacherMap] = useState({});
 
-    const navigate = useNavigate();
+      useEffect(() => {
+        const fetchTeacherNames = async () => {
+          if (!notificationList?.length) return;
 
-    //const getRelativeTime = (dateStr) => {
-    //   const diff = (new Date() - new Date(dateStr)) / 1000;
-    //   if (diff < 60) return "Vừa xong";
-    //   if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-    //   if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-    //   return `${Math.floor(diff / 86400)} ngày trước`;
-    // };
-    useEffect(() => {
-      const fetchTeacherNames = async () => {
-        const studyGroupIds = notificationList
-          .filter((n) => n.studyGroupId)
-          .map((n) => n.studyGroupId);
+          const studyGroupIds = notificationList
+            .filter((n) => n.studyGroupId)
+            .map((n) => n.studyGroupId);
+          const uniqueIds = [...new Set(studyGroupIds)];
+          const newIds = uniqueIds.filter((id) => !groupTeacherMap[id]);
 
-        const uniqueIds = [...new Set(studyGroupIds)];
+          if (!newIds.length) return;
 
-        const results = await Promise.all(
-          uniqueIds.map(async (id) => {
-            try {
-              const res = await handleDetailGroup(id);
-              return { id, userName: res?.data?.userName || "GV" };
-            } catch (err) {
-              console.error("Lỗi lấy thông tin nhóm:", err);
-              return { id, userName: "GV" };
-            }
-          })
+          try {
+            const results = await Promise.all(
+              newIds.map(async (id) => {
+                const res = await handleDetailGroup(id);
+                console.log(res);
+                return { id, userName: res?.data?.userName || "GV" };
+              })
+            );
+
+            setGroupTeacherMap((prev) => ({
+              ...prev,
+              ...Object.fromEntries(
+                results.map(({ id, userName }) => [id, userName])
+              ),
+            }));
+          } catch (err) {
+            console.error("Lỗi lấy thông tin nhóm:", err);
+          }
+        };
+
+        fetchTeacherNames();
+      }, [notificationList]);
+
+      const handleNotificationClick = (item) => {
+        const isGroup = !!item.studyGroupId;
+        const link = isGroup
+          ? `/sinh-vien/groupStudy/${item.studyGroupId}`
+          : `/sinh-vien/notification/${item.id}`;
+        navigate(link);
+
+        // Đánh dấu thông báo là đã đọc
+        setNotificationList((prev) =>
+          prev.map((notification) =>
+            notification.id === item.id
+              ? { ...notification, isRead: true }
+              : notification
+          )
         );
-
-        const map = {};
-        results.forEach(({ id, userName }) => {
-          map[id] = userName;
-        });
-
-        setGroupTeacherMap(map);
+        setNotificationCount((prev) => Math.max(0, prev - 1)); // Giảm số đếm cho thông báo chưa đọc
       };
 
-      if (notificationList?.length) {
-        fetchTeacherNames();
+      if (!notificationList?.length) {
+        return (
+          <div className="p-6 w-80 text-center text-gray-400">
+            <p>Không có thông báo nào</p>
+          </div>
+        );
       }
-    }, [notificationList]);
-    if (!notificationList?.length) {
+
+      // Chỉ hiển thị các thông báo chưa đọc
+      const groupNotifications = notificationList
+        .filter((n) => n.studyGroupId && !n.isRead)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
+
+      const generalNotifications = notificationList
+        .filter((n) => !n.studyGroupId && !n.isRead)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
+
+      const renderNotificationItem = (item) => {
+        const isGroup = !!item.studyGroupId;
+        const typeIcon = isGroup ? <Users size={15} /> : <Bell size={15} />;
+        const getInitials = (name) => {
+          if (!name) return "";
+          const parts = name.trim().split(" ");
+          if (parts.length === 1) return parts[0][0].toUpperCase();
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        };
+
+        return (
+          <div
+            key={item.id}
+            onClick={() => handleNotificationClick(item)}
+            className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group"
+          >
+            {isGroup ? (
+              <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
+                {/* <AvatarImage
+                  src="/img/logo.png"
+                  alt="Logo"
+                  className="object-contain w-full h-full scale-90"
+                /> */}
+                <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
+                  {getInitials(groupTeacherMap[item.studyGroupId])}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
+                <AvatarImage
+                  src="/img/logo.png"
+                  alt="Logo"
+                  className="object-contain w-full h-full scale-90"
+                />
+                <AvatarFallback className="bg-blue-100 text-blue-800 text-base font-semibold flex items-center justify-center">
+                  LOGO
+                </AvatarFallback>
+              </Avatar>
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold line-clamp-1 flex items-center gap-1">
+                  {item.title}
+                  <span className="text-xl">{typeIcon}</span>
+                </span>
+              </div>
+              {isGroup ? (
+                <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
+                  {item.studyGroupName}
+                </span>
+              ) : (
+                item.notificationType && (
+                  <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                    {item.notificationType}
+                  </span>
+                )
+              )}
+            </div>
+          </div>
+        );
+      };
+
       return (
-        <div className="p-6 w-80 text-center text-gray-400">
-          <p>Không có thông báo nào </p>
+        <div className="max-h-96 w-92 bg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
+          {groupNotifications.length > 0 && (
+            <>
+              <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
+                Nhóm học tập
+              </div>
+              <div>{groupNotifications.map(renderNotificationItem)}</div>
+            </>
+          )}
+          {generalNotifications.length > 0 && (
+            <>
+              <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
+                Thông báo chung
+              </div>
+              <div>{generalNotifications.map(renderNotificationItem)}</div>
+            </>
+          )}
+          {groupNotifications.length === 0 &&
+            generalNotifications.length === 0 && (
+              <div className="p-6 w-80 text-center text-gray-400">
+                <p>Không có thông báo chưa đọc</p>
+              </div>
+            )}
         </div>
       );
     }
-
-    const groupNotifications = notificationList
-      .filter((n) => n.studyGroupId)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 5);
-
-    const generalNotifications = notificationList
-      .filter((n) => !n.studyGroupId)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 5);
-
-    const renderNotificationItem = (item) => {
-      const isGroup = !!item.studyGroupId;
-      const link = isGroup
-        ? `/sinh-vien/groupStudy/${item.studyGroupId}`
-        : `/sinh-vien/notification/${item.id}`;
-      const typeIcon = isGroup ? <Users size={15} /> : <Bell size={15} />;
-      const getInitials = (name) => {
-        if (!name) return "";
-        const parts = name.trim().split(" ");
-        if (parts.length === 1) return parts[0][0].toUpperCase();
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-      };
-
-      return (
-        <div
-          key={item.id}
-          onClick={() => navigate(link)}
-          className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group"
-        >
-          {isGroup ? (
-            <Avatar className="w-12 h-12 rounded-full shadow-sm ring-1 ring-gray-200 bg-green-100">
-              <AvatarFallback className="text-green-800 font-bold">
-                {getInitials(item.teacherName)}
-              </AvatarFallback>
-            </Avatar>
-          ) : (
-            <Avatar className="w-12 h-12 rounded-full shadow-sm ring-1 ring-gray-200 bg-blue-100">
-              <AvatarImage src="/img/logo.png" alt="Logo" />
-              <AvatarFallback className="text-blue-800 font-bold">
-                LOGO
-              </AvatarFallback>
-            </Avatar>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold line-clamp-1 flex items-center gap-1">
-                {item.title}
-                <span className="text-xl">{typeIcon}</span>
-              </span>
-            </div>
-
-            {/* Badge dưới title */}
-            {isGroup ? (
-              <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
-                {groupTeacherMap[item.studyGroupId] || item.studyGroupName}
-              </span>
-            ) : (
-              item.notificationType && (
-                <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                  {item.notificationType}
-                </span>
-              )
-            )}
-
-            {/* <div className="text-xs text-gray-400 mt-1">
-              {getRelativeTime(item.createdAt)}
-            </div> */}
-          </div>
-        </div>
-      );
-    };
-
-    return (
-      <div className="max-h-96 w-92 bg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
-        {groupNotifications.length > 0 && (
-          <>
-            <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
-              Nhóm học tập
-            </div>
-            <div>{groupNotifications.map(renderNotificationItem)}</div>
-          </>
-        )}
-        {generalNotifications.length > 0 && (
-          <>
-            <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
-              Thông báo chung
-            </div>
-            <div>{generalNotifications.map(renderNotificationItem)}</div>
-          </>
-        )}
-      </div>
-    );
-  };
+  );
 
   const items = [
     { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
@@ -418,7 +473,11 @@ const Student = () => {
           </div> */}
           <Dropdown
             overlay={
-              <NotificationDropdown notificationList={notificationList} />
+              <NotificationDropdown
+                notificationList={notificationList}
+                setNotificationList={setNotificationList}
+                setNotificationCount={setNotificationCount}
+              />
             }
             // trigger={["hover"]}
             trigger={["click"]}
@@ -429,8 +488,15 @@ const Student = () => {
               zIndex: 999,
               backgroundColor: "#fff",
             }}
-            onOpenChange={() => {
-              setNotificationCount(0);
+            // onOpenChange={() => {
+            //   setNotificationCount(0);
+            // }}
+            onOpenChange={(open) => {
+              if (open) {
+                setNotificationCount(
+                  notificationList.filter((n) => !n.isRead).length
+                );
+              }
             }}
           >
             <div className="relative inline-block cursor-pointer">
@@ -481,7 +547,7 @@ const Student = () => {
           >
             <div style={{ cursor: "pointer", paddingRight: "25px" }}>
               {/* <Avatar icon={<UserOutlined />} /> */}
-              <Avatar className="w-12 h-12 rounded-lg shadow-sm ring-1 ring-gray-200">
+              <Avatar className="w-12 h-12  shadow-sm ring-1 ring-gray-200">
                 <AvatarImage src="" alt="Logo" />
                 <AvatarFallback></AvatarFallback>
               </Avatar>
