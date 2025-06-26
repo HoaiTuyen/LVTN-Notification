@@ -222,13 +222,13 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
               key={index}
               className="space-y-1 border p-4 rounded-md relative"
             >
-              <Label>Tên hiển thị file {index + 1}</Label>
-              <Input
+              <Label>file {index + 1}</Label>
+              {/* <Input
                 type="text"
                 value={name}
                 placeholder="VD: Tài liệu chương 1"
                 onChange={(e) => handleDisplayNameChange(e.target.value, index)}
-              />
+              /> */}
               <Input
                 type="file"
                 accept=".pdf,.docx,.xlsx"

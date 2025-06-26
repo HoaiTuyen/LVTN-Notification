@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { handleDeleteGroup } from "../../../controller/GroupController";
 import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 
 const LecturerDeleteGroup = ({ onOpen, onClose, group, onSuccess }) => {
   const handleDelete = async () => {

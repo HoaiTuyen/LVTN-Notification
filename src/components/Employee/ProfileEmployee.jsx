@@ -256,9 +256,7 @@ const EmployeeProfilePage = () => {
                     <h3 className="font-semibold">
                       {profileData.firstName} {profileData.lastName}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Khoa: {profileData.departmentName}
-                    </p>
+
                     <Badge
                       variant="success"
                       className={filterStudents(profileData.status).className}

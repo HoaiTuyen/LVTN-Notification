@@ -33,6 +33,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import DeleteNotificationGroup from "./NotificationGroup/DeleteNotificationGroup";
+import UpdateNotificationGroup from "./NotificationGroup/UpdateNotificationGroup";
 const DetailGroupLecturer = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -40,12 +43,14 @@ const DetailGroupLecturer = () => {
   const [groupDetail, setGroupDetail] = useState({});
   const [members, setMembers] = useState([]);
   const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [selectNotificationGroup, setSelectNotificationGroup] = useState(null);
   const [notificationGroups, setNotificationGroups] = useState([]);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   const [expandedId, setExpandedId] = useState(null);
   const [detailNotify, setDetailNotify] = useState([]);
-  console.log(expandedId);
 
   const backUrl = location.state?.from || "/giang-vien/groupClass";
   const fetchDetailGroup = async () => {
@@ -67,16 +72,7 @@ const DetailGroupLecturer = () => {
       setNotificationGroups([]);
     }
   };
-  const fetchDetailNotificationGroup = async (id) => {
-    const detailNotificationGroup = await handleDetailNotificationGroup(id);
 
-    if (detailNotificationGroup?.data) {
-      setDetailNotify(detailNotificationGroup.data);
-      setExpandedId(id);
-    } else {
-      setDetailNotify([]);
-    }
-  };
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(" ");
@@ -299,10 +295,10 @@ const DetailGroupLecturer = () => {
                 {/* Nút Create */}
                 <div className="mb-6 ">
                   <button
-                    className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-full shadow-md text-lg flex items-center gap-2"
+                    className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white  py-3 px-6 rounded-full shadow-md text-lg flex items-center gap-2"
                     onClick={() => setOpenModalCreate(true)}
                   >
-                    <span className="text-xl">＋</span>
+                    <span className="font-light">＋</span>
                     Create
                   </button>
                   {openModalCreate && (
@@ -368,11 +364,25 @@ const DetailGroupLecturer = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                              <DropdownMenuItem className="cursor-pointer">
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectNotificationGroup(notificationGroup);
+                                  setOpenModalUpdate(true);
+                                }}
+                              >
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
 
-                              <DropdownMenuItem className="text-red-600 cursor-pointer">
+                              <DropdownMenuItem
+                                className="text-red-600 cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectNotificationGroup(notificationGroup);
+                                  setOpenModalDelete(true);
+                                }}
+                              >
                                 <Trash2 className="mr-2 h-4 w-4" /> Xóa
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -410,9 +420,9 @@ const DetailGroupLecturer = () => {
                                         >
                                           <FileText className="text-blue-600" />
                                           <div className="flex-1">
-                                            <p className="font-medium">
+                                            {/* <p className="font-medium">
                                               {file.displayName || "Không tên"}
-                                            </p>
+                                            </p> */}
                                             <p className="text-sm text-gray-500">
                                               Tệp đính kèm
                                             </p>
@@ -492,6 +502,22 @@ const DetailGroupLecturer = () => {
             </TabsContent>
           </Tabs>
         </div>
+        {openModalDelete && (
+          <DeleteNotificationGroup
+            onOpen={openModalDelete}
+            onClose={() => setOpenModalDelete(false)}
+            onSuccess={() => fetchListNotificationGroup()}
+            notify={selectNotificationGroup}
+          />
+        )}
+        {openModalUpdate && (
+          <UpdateNotificationGroup
+            open={openModalUpdate}
+            onClose={() => setOpenModalUpdate(false)}
+            onSuccess={() => fetchListNotificationGroup()}
+            notify={selectNotificationGroup}
+          />
+        )}
       </div>
     </motion.div>
   );

@@ -31,11 +31,11 @@ import {
 // import { format } from "date-fns";
 // import { vi } from "date-fns/locale";
 import { handleListNotification } from "../../../controller/NotificationController";
+import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import useWebSocket from "../../../config/Websorket";
 import { Pagination } from "antd";
 import dayjs from "dayjs";
 import useDebounce from "../../../hooks/useDebounce";
-// Add styles for scrollbar handling
 
 const NotificationsPage = () => {
   const { stompClient, connected, error } = useWebSocket();
@@ -58,6 +58,7 @@ const NotificationsPage = () => {
   const [selectedType, setSelectedType] = useState(typeFromUrl);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [notifications, setNotifications] = useState([]);
+  const [notificationTypes, setNotificationTypes] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -89,7 +90,14 @@ const NotificationsPage = () => {
       });
     }
   };
-
+  const fetchNotificationType = async () => {
+    const req = await handleListNotificationType();
+    if (req?.data) {
+      setNotificationTypes(req.data.notificationTypes);
+    } else {
+      setNotificationTypes([]);
+    }
+  };
   useEffect(() => {
     const currentPage = searchParams.get("page") || "1";
     setSearchParams({
@@ -100,6 +108,7 @@ const NotificationsPage = () => {
   }, [debouncedSearchTerm, selectedType]);
   useEffect(() => {
     fetchListNotify(pageFromUrl);
+    fetchNotificationType();
   }, [searchFromUrl, typeFromUrl, pageFromUrl]);
 
   const NotificationCard = ({ notification }) => (
@@ -189,16 +198,22 @@ const NotificationsPage = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Chọn loại thông báo" />
+                <Select
+                  value={selectedType}
+                  onValueChange={(value) => setSelectedType(value)}
+                >
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="Loại thông báo" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả loại</SelectItem>
-                    <SelectItem value="Thông báo">Thông báo</SelectItem>
-                    <SelectItem value="Sự kiện">Sự kiện</SelectItem>
-                    <SelectItem value="Nhiệm vụ">Công tác xã hội</SelectItem>
-                    <SelectItem value="Nhắc nhở">Nhắc nhở</SelectItem>
+                    {notificationTypes.length === 0 ? (
+                      <SelectItem>Trống</SelectItem>
+                    ) : (
+                      notificationTypes.map((item) => (
+                        <SelectItem value={item.name}>{item.name}</SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -248,20 +263,22 @@ const NotificationsPage = () => {
               )}
             </TabsContent>
           </Tabs>
-          <div className="flex justify-center mt-4">
-            <Pagination
-              current={pagination.current}
-              pageSize={pagination.pageSize}
-              total={pagination.total}
-              onChange={(page) => {
-                setSearchParams({
-                  search: debouncedSearchTerm,
-                  type: selectedType,
-                  page: page.toString(),
-                });
-              }}
-            />
-          </div>
+          {pagination.total > 10 && (
+            <div className="flex justify-center mt-4">
+              <Pagination
+                current={pagination.current}
+                pageSize={pagination.pageSize}
+                total={pagination.total}
+                onChange={(page) => {
+                  setSearchParams({
+                    search: debouncedSearchTerm,
+                    type: selectedType,
+                    page: page.toString(),
+                  });
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
       <Outlet />

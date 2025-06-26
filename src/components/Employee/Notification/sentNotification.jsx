@@ -60,6 +60,7 @@ const EmployeeSentNotifications = () => {
   const [selectNotify, setSelectNotify] = useState([]);
   const [totalSent, setTotalSent] = useState(0);
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const [forceReload, setForceReload] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -67,6 +68,48 @@ const EmployeeSentNotifications = () => {
     totalPages: 0,
     totalElements: 0,
   });
+  // const fetchListNotification = async (page = 1) => {
+  //   const keyword = debouncedSearchTerm.trim();
+  //   const isKeywordEmpty = keyword === "";
+  //   const isTypeAll = selectType === "all";
+
+  //   let response;
+
+  //   if (isKeywordEmpty && isTypeAll) {
+  //     response = await handleListNotification(
+  //       "desc",
+  //       page - 1,
+  //       pagination.pageSize
+  //     );
+  //     console.log(response);
+
+  //     if (page === 1 && response?.data?.totalElements) {
+  //       setTotalSent(response.data.totalElements);
+  //     }
+  //   } else {
+  //     const keywordParam = keyword;
+  //     const typeParam = isTypeAll ? "" : selectType;
+
+  //     response = await handleSearchNotification(
+  //       keywordParam,
+  //       typeParam,
+  //       page - 1,
+  //       pagination.pageSize
+  //     );
+  //   }
+
+  //   if (response?.data) {
+  //     setDataNotify(response.data.notifications);
+  //     setPagination({
+  //       current: page,
+  //       pageSize: response.data.pageSize,
+  //       total: response.data.totalElements,
+  //       totalPages: response.data.totalPages,
+  //       totalElements: response.data.totalElements,
+  //     });
+  //   }
+  // };
+  // employeeSentNotifications.jsx
   const fetchListNotification = async (page = 1) => {
     const keyword = debouncedSearchTerm.trim();
     const isKeywordEmpty = keyword === "";
@@ -80,11 +123,6 @@ const EmployeeSentNotifications = () => {
         page - 1,
         pagination.pageSize
       );
-      console.log(response);
-
-      if (page === 1 && response?.data?.totalElements) {
-        setTotalSent(response.data.totalElements);
-      }
     } else {
       const keywordParam = keyword;
       const typeParam = isTypeAll ? "" : selectType;
@@ -106,9 +144,20 @@ const EmployeeSentNotifications = () => {
         totalPages: response.data.totalPages,
         totalElements: response.data.totalElements,
       });
+
+      setTotalSent(response.data.totalElements);
+    } else {
+      setDataNotify([]);
+      setPagination({
+        current: 1,
+        pageSize: 10,
+        total: 0,
+        totalPages: 0,
+        totalElements: 0,
+      });
+      setTotalSent(0);
     }
   };
-
   const fetchNotifyType = async () => {
     const listNotifyType = await handleListNotificationType();
     if (listNotifyType?.data) {
@@ -116,19 +165,17 @@ const EmployeeSentNotifications = () => {
     }
   };
   useEffect(() => {
-    const currentPage = searchParams.get("page") || "1"; //
-
     setSearchParams({
       search: debouncedSearchTerm,
       type: selectType,
-      page: currentPage,
+      page: pageFromUrl.toString(), // Sử dụng pageFromUrl đảm bảo đồng bộ với useEffect dưới
     });
-  }, [debouncedSearchTerm, selectType]);
+  }, [debouncedSearchTerm, selectType, pageFromUrl]);
 
   useEffect(() => {
     fetchListNotification(pageFromUrl);
     fetchNotifyType();
-  }, [pageFromUrl, searchFromUrl, typeFromUrl]);
+  }, [pageFromUrl, debouncedSearchTerm, selectType, forceReload]);
 
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
@@ -339,7 +386,37 @@ const EmployeeSentNotifications = () => {
         {openModalDelete && (
           <DeleteNotification
             onOpen={openModalDelete}
-            onSuccess={fetchListNotification}
+            onSuccess={async () => {
+              let targetPage = pagination.current;
+
+              // Logic tính toán trang đích sau khi xóa
+              // Nếu chỉ còn 1 phần tử trên trang hiện tại và không phải là trang 1,
+              // hoặc nếu tổng số phần tử là 1 (trước khi xóa)
+              if (
+                pagination.totalElements === 1 || // Nếu chỉ còn 1 phần tử tổng thể và bạn xóa nó
+                (pagination.totalElements > 1 && // Hoặc nếu có nhiều hơn 1 phần tử
+                  dataNotify.length === 1 && // và chỉ còn 1 phần tử trên trang hiện tại
+                  pagination.current > 1) // và bạn không ở trang đầu tiên
+              ) {
+                targetPage = pagination.current - 1;
+              }
+
+              // Đảm bảo targetPage không nhỏ hơn 1
+              if (targetPage < 1) {
+                targetPage = 1;
+              }
+
+              // Cập nhật URL.
+              // Điều này sẽ kích hoạt useEffect lắng nghe pageFromUrl
+              // và sau đó gọi fetchListNotification với trang mới.
+              setSearchParams({
+                search: searchTerm.trim(),
+                type: selectType,
+                page: targetPage.toString(),
+              });
+
+              setForceReload((prev) => !prev);
+            }}
             onClose={() => setModalDelete(false)}
             notify={selectNotify}
           />

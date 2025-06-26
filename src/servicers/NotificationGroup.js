@@ -14,3 +14,14 @@ export const listNotificationGroup = (id) => {
 export const detailNotificationGroup = (id) => {
   return api.get(`/study_group_notification/detail_notification/${id}`);
 };
+
+export const deleteNotificationGroup = (id) => {
+  return api.delete(`/study_group_notification/delete/${id}`);
+};
+export const updateNotificationGroup = (formData) => {
+  return api.put("/study_group_notification/update", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

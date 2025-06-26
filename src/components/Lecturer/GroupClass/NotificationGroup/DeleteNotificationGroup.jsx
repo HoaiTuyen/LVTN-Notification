@@ -8,16 +8,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "react-toastify";
-import { handleDeleteNotification } from "../../../controller/NotificationController";
-const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
+import { handleDeleteNotificationGroup } from "../../../../controller/NotificationGroupController";
+import { useLoading } from "../../../../context/LoadingProvider";
+const DeleteNotificationGroup = ({ onOpen, onClose, notify, onSuccess }) => {
+  const { setLoading } = useLoading();
   const handleDelete = async () => {
-    const response = await handleDeleteNotification(notify.id);
+    setLoading(true);
+    const response = await handleDeleteNotificationGroup(notify.id);
+    setLoading(false);
     if (response?.status === 204) {
-      toast.success(response.message || "Xóa lớp thành công");
-      await onSuccess();
+      toast.success(response.message || "Xóa thông báo nhóm thành công");
+      onSuccess();
       onClose();
     } else {
-      toast.error(response?.message || "Xóa lớp thất bại");
+      toast.error(response?.message || "Xóa thông náo nhóm thất bại");
     }
   };
 
@@ -27,7 +31,7 @@ const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
         <DialogHeader>
           <DialogTitle>Xác nhận xóa</DialogTitle>
           <DialogDescription>
-            Bạn có chắc chắn muốn xóa thông báo này?
+            Bạn có chắc chắn muốn xóa thông báo nhóm này?
           </DialogDescription>
         </DialogHeader>
         {notify && (
@@ -41,15 +45,15 @@ const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
         <DialogFooter>
           <Button
             variant="outline"
-            className="cursor-pointer"
             onClick={onClose}
+            className="cursor-pointer"
           >
             Hủy
           </Button>
           <Button
             variant="destructive"
-            className="cursor-pointer"
             onClick={handleDelete}
+            className="cursor-pointer"
           >
             Xóa thông báo
           </Button>
@@ -58,4 +62,4 @@ const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
     </Dialog>
   );
 };
-export default DeleteNotification;
+export default DeleteNotificationGroup;

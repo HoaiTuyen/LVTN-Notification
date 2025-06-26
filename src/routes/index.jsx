@@ -31,6 +31,7 @@ import StudentProfilePage from "../components/Student/ProfileStudent";
 import GroupStudyStudent from "../components/Student/Group/GroupStudy";
 import StudentNotificationDetail from "../components/Student/Notification/DetailNotification";
 import DetailGroupStudent from "../components/Student/Group/DetailGroup";
+import HomePageStudent from "../components/Student/Home/HomePageStudent";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
@@ -183,6 +184,8 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
+            <Route path="home" element={<HomePageStudent />} />
+
             <Route path="profile" element={<StudentProfilePage />} />
             <Route path="notification" element={<NotificationsPage />} />
             <Route

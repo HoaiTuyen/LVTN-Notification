@@ -9,9 +9,14 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "react-toastify";
 import { handleDeleteNotification } from "../../../controller/NotificationController";
+
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
+  const { setLoading } = useLoading();
   const handleDelete = async () => {
+    setLoading(true);
     const response = await handleDeleteNotification(notify.id);
+    setLoading(false);
     if (response?.status === 204) {
       onSuccess();
       toast.success(response.message || "Xóa lớp thành công");

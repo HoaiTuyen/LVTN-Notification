@@ -36,6 +36,7 @@ const Student = () => {
   const [groupStudents, setGroupStudents] = useState([]);
 
   const [userInfo, setUserInfo] = useState([]);
+  console.log(userInfo);
 
   const fetchListGroupById = async () => {
     const req = await handleListGroupByStudent(userId);
@@ -132,7 +133,7 @@ const Student = () => {
       );
 
       const studentSub = stompClient.current.subscribe(
-        `/user/${userInfo.id}/notification`,
+        `/notification/student/${userInfo.id}`,
         (message) => {
           const parsedMessage = JSON.parse(message.body);
           console.log("Received student notification:", parsedMessage);
@@ -547,7 +548,7 @@ const Student = () => {
           >
             <div style={{ cursor: "pointer", paddingRight: "25px" }}>
               {/* <Avatar icon={<UserOutlined />} /> */}
-              <Avatar className="w-12 h-12  shadow-sm ring-1 ring-gray-200">
+              <Avatar className="w-10 h-10  shadow-sm ring-1 ring-gray-200">
                 <AvatarImage src="" alt="Logo" />
                 <AvatarFallback></AvatarFallback>
               </Avatar>
