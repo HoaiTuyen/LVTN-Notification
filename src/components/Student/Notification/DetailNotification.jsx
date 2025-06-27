@@ -25,7 +25,7 @@ const StudentNotificationDetail = () => {
   const page = searchParams.get("page") || "1";
   const search = searchParams.get("search") || "";
   const type = searchParams.get("type") || "all";
-
+  console.log(type, search, page);
   const [notification, setNotification] = useState(null);
 
   const [loading, setLoading] = useState(true);

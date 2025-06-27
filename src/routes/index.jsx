@@ -32,6 +32,7 @@ import GroupStudyStudent from "../components/Student/Group/GroupStudy";
 import StudentNotificationDetail from "../components/Student/Notification/DetailNotification";
 import DetailGroupStudent from "../components/Student/Group/DetailGroup";
 import HomePageStudent from "../components/Student/Home/HomePageStudent";
+import StudentSubject from "../components/Student/Subject/StudentSubject";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
@@ -184,9 +185,12 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
+            {/* <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<HomeAdmin />} /> */}
+            <Route index element={<Navigate to="home" />}></Route>
             <Route path="home" element={<HomePageStudent />} />
-
             <Route path="profile" element={<StudentProfilePage />} />
+            <Route path="subject" element={<StudentSubject />} />
             <Route path="notification" element={<NotificationsPage />} />
             <Route
               path="notification/:notificationId"

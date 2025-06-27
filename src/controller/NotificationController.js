@@ -50,9 +50,9 @@ export const handleCreateUserNotification = async (formData) => {
     };
   }
 };
-export const handleListNotification = async (sort, page, pageSize) => {
+export const handleListNotification = async (sort, page, pageSize, type) => {
   try {
-    const response = await listNotification(sort, page, pageSize);
+    const response = await listNotification(sort, page, pageSize, type);
 
     if (response?.data) {
       return {
@@ -111,17 +111,12 @@ export const handleDeleteNotification = async (id) => {
 };
 export const handleSearchNotification = async (
   keyword,
-  notificationType,
   page,
-  pageSize = 10
+  pageSize = 10,
+  type
 ) => {
   try {
-    const response = await searchNotification(
-      keyword,
-      notificationType,
-      page,
-      pageSize
-    );
+    const response = await searchNotification(keyword, page, pageSize, type);
 
     return {
       status: response.status,

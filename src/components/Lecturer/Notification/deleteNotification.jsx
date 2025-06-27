@@ -44,10 +44,18 @@ const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={onClose}
+          >
             Hủy
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            variant="destructive"
+            className="cursor-pointer"
+            onClick={handleDelete}
+          >
             Xóa thông báo
           </Button>
         </DialogFooter>

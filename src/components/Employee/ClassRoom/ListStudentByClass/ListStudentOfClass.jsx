@@ -1,6 +1,6 @@
 import { useState } from "react";
 // import { useParams, useRouter } from "next/navigation";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,24 +34,32 @@ import { Link } from "react-router-dom";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { handleListStudentByClass } from "../../../../controller/ClassController";
+import { handleSearchStudent } from "../../../../controller/StudentController";
 import { useEffect } from "react";
 import { Pagination } from "antd";
+import useDebounce from "../../../../hooks/useDebounce";
 import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
 const ListStudentOfClass = () => {
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || "1";
+  const search = searchParams.get("search") || "";
   const [studentByClass, setStudentByClass] = useState([]);
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [openUpload, setOpenUpload] = useState(false);
   const [dataClass, setDataClass] = useState([]);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
     totalPages: 0,
+    totalElements: 0,
   });
   const { classId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const backUrl = location.state?.from || "/nhan-vien/class";
+  const backUrl =
+    location.state?.from || `/nhan-vien/class?search=${search}&page=${page}`;
 
   const renderGender = (gender) => {
     switch (gender) {
@@ -84,12 +92,18 @@ const ListStudentOfClass = () => {
     }
   }
   const fetchListStudentByClass = async (page = 1) => {
-    const res = await handleListStudentByClass(
-      classId,
-      page - 1,
-      pagination.pageSize
-    );
-    console.log(res);
+    let res;
+    const keyword = debouncedSearchTerm.trim();
+    if (keyword) {
+      res = await handleSearchStudent(keyword, page - 1, pagination.pageSize);
+      console.log(res);
+    } else {
+      res = await handleListStudentByClass(
+        classId,
+        page - 1,
+        pagination.pageSize
+      );
+    }
 
     if (res?.data && res?.status === 200) {
       setStudentByClass(res.data.students);
@@ -99,12 +113,13 @@ const ListStudentOfClass = () => {
         pageSize: res.data.pageSize,
         total: res.data.totalElements,
         totalPages: res.data.totalPages,
+        totalElements: res.data.totalElements,
       });
     }
   };
   useEffect(() => {
     fetchListStudentByClass(pagination.current);
-  }, [pagination.current]);
+  }, [pagination.current, debouncedSearchTerm]);
   return (
     <div className="min-h-screen w-full bg-white p-10 ">
       <div className="space-y-6">
@@ -138,7 +153,9 @@ const ListStudentOfClass = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <CardTitle>Danh sách sinh viên đăng ký</CardTitle>
-                <CardDescription>Tổng số: sinh viên</CardDescription>
+                <CardDescription>
+                  Tổng số: {pagination.totalElements} sinh viên
+                </CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
@@ -167,8 +184,8 @@ const ListStudentOfClass = () => {
               <Input
                 placeholder="Tìm kiếm sinh viên..."
                 className="pl-8"
-                //   value={searchTerm}
-                //   onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 

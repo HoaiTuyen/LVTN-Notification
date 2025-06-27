@@ -47,7 +47,7 @@ import UpdateNotification from "./UpdateNotification";
 const LecturerSentNotifications = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
   const typeFromUrl = searchParams.get("type") || "all";
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
@@ -59,7 +59,7 @@ const LecturerSentNotifications = () => {
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [selectNotify, setSelectNotify] = useState([]);
   const [totalSent, setTotalSent] = useState(0);
-  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -67,44 +67,41 @@ const LecturerSentNotifications = () => {
     totalPages: 0,
     totalElements: 0,
   });
-  const fetchListNotification = async (page = 1) => {
+  const fetchTotalNotifications = async () => {
+    const res = await handleListNotification("desc", 0, 1); // chỉ lấy 1 bản ghi
+    if (res?.data?.totalElements !== undefined) {
+      setTotalSent(res.data.totalElements);
+    }
+  };
+  const fetchNotifications = async (page = 1) => {
+    const type = selectType === "all" ? null : selectType;
     const keyword = debouncedSearchTerm.trim();
-    const isKeywordEmpty = keyword === "";
-    const isTypeAll = selectType === "all";
+    let res;
 
-    let response;
-
-    if (isKeywordEmpty && isTypeAll) {
-      response = await handleListNotification(
+    if (keyword) {
+      res = await handleSearchNotification(
+        keyword,
+        page - 1,
+        pagination.pageSize,
+        type
+      );
+      console.log(res);
+    } else {
+      res = await handleListNotification(
         "desc",
         page - 1,
-        pagination.pageSize
+        pagination.pageSize,
+        type
       );
-      console.log(response);
-
-      if (page === 1 && response?.data?.totalElements) {
-        setTotalSent(response.data.totalElements);
-      }
-    } else {
-      const keywordParam = keyword;
-      const typeParam = isTypeAll ? "" : selectType;
-
-      response = await handleSearchNotification(
-        keywordParam,
-        typeParam,
-        page - 1,
-        pagination.pageSize
-      );
+      console.log(res);
     }
 
-    if (response?.data) {
-      setDataNotify(response.data.notifications);
+    if (res?.data) {
+      setDataNotify(res.data.notifications || []);
       setPagination({
         current: page,
-        pageSize: response.data.pageSize,
-        total: response.data.totalElements,
-        totalPages: response.data.totalPages,
-        totalElements: response.data.totalElements,
+        pageSize: res.data.pageSize,
+        total: res.data.totalElements,
       });
     }
   };
@@ -116,20 +113,27 @@ const LecturerSentNotifications = () => {
     }
   };
   useEffect(() => {
-    const currentPage = searchParams.get("page") || "1"; //
+    const currentSearch = searchParams.get("search") || "";
+    const currentType = searchParams.get("type") || "all";
+    const currentPage = searchParams.get("page") || "1";
 
-    setSearchParams({
-      search: debouncedSearchTerm,
-      type: selectType,
-      page: currentPage,
-    });
+    if (currentSearch !== debouncedSearchTerm || currentType !== selectType) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        type: selectType,
+        page: "1",
+      });
+    }
   }, [debouncedSearchTerm, selectType]);
 
+  // Fetch lại dữ liệu khi URL param thay đổi
   useEffect(() => {
-    fetchListNotification(pageFromUrl);
+    fetchNotifications(pageFromUrl);
+  }, [searchParams]);
+  useEffect(() => {
     fetchNotifyType();
-  }, [pageFromUrl, searchFromUrl, typeFromUrl]);
-
+    fetchTotalNotifications();
+  }, []);
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
 
@@ -230,84 +234,85 @@ const LecturerSentNotifications = () => {
             </CardHeader>
             <CardContent className="overflow-x-auto max-h-[400px]">
               <div className="space-y-4 cursor-pointer">
-                {dataNotify.map((notification) => {
-                  return (
-                    <div
-                      key={notification.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                      onClick={(e) => handleWapper(notification.id, e)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold">
-                              {notification.title}
-                            </h3>
-                            {notification.notificationType && (
-                              <Badge className="bg-blue-100 text-blue-800">
-                                {notification.notificationType}
-                              </Badge>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>
-                                {dayjs(notification.createdAt).format(
-                                  "DD/MM/YYYY HH:mm"
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 ml-4">
-                          <Button
-                            className="cursor-pointer"
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewDetail(notification.id, e);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectNotify(notification);
-                              setOpenModalUpdate(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectNotify(notification);
-                              setModalDelete(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {dataNotify.length === 0 && (
+                {dataNotify.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>Không tìm thấy thông báo nào phù hợp với bộ lọc</p>
                   </div>
+                ) : (
+                  dataNotify.map((notification) => {
+                    return (
+                      <div
+                        key={notification.id}
+                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                        onClick={(e) => handleWapper(notification.id, e)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold">
+                                {notification.title}
+                              </h3>
+                              {notification.notificationType && (
+                                <Badge className="bg-blue-100 text-blue-800">
+                                  {notification.notificationType}
+                                </Badge>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>
+                                  {dayjs(notification.createdAt).format(
+                                    "DD/MM/YYYY HH:mm"
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 ml-4 cursor-pointer">
+                            <Button
+                              className="cursor-pointer"
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewDetail(notification.id, e);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              className="cursor-pointer"
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectNotify(notification);
+                                setOpenModalUpdate(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectNotify(notification);
+                                setModalDelete(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </CardContent>
@@ -339,7 +344,10 @@ const LecturerSentNotifications = () => {
         {openModalDelete && (
           <DeleteNotification
             onOpen={openModalDelete}
-            onSuccess={fetchListNotification}
+            onSuccess={() => {
+              fetchNotifications(pageFromUrl);
+              fetchTotalNotifications();
+            }}
             onClose={() => setModalDelete(false)}
             notify={selectNotify}
           />

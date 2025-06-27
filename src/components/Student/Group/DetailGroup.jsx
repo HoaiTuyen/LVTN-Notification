@@ -16,6 +16,7 @@ import {
   Ellipsis,
   Pencil,
   Trash2,
+  CalendarDays,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
@@ -70,43 +71,12 @@ const DetailGroupStudent = () => {
       setNotificationGroups([]);
     }
   };
-  // const fetchDetailNotificationGroup = async (id) => {
-  //   const detailNotificationGroup = await handleDetailNotificationGroup(id);
-
-  //   if (detailNotificationGroup?.data) {
-  //     setDetailNotify(detailNotificationGroup.data);
-  //     setExpandedId(id);
-  //   } else {
-  //     setDetailNotify([]);
-  //   }
-  // };
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(" ");
     if (parts.length === 1) return parts[0][0].toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
-  // const handleToggleExpand = async (notificationGroup, e) => {
-  //   e.stopPropagation();
-  //   const isSame = expandedId === notificationGroup.id;
-
-  //   if (isSame) {
-  //     setExpandedId(null);
-  //     setDetailNotify([]);
-  //   } else {
-  //     setIsLoadingDetail(true);
-  //     const detail = await handleDetailNotificationGroup(notificationGroup.id);
-
-  //     if (detail?.data) {
-  //       setDetailNotify(detail.data);
-  //       setExpandedId(notificationGroup.id);
-  //     } else {
-  //       setDetailNotify([]);
-  //     }
-
-  //     setIsLoadingDetail(false);
-  //   }
-  // };
 
   useEffect(() => {
     fetchDetailGroup();
@@ -178,20 +148,16 @@ const DetailGroupStudent = () => {
               </div>
               <div className="flex gap-4 mt-6">
                 {/* Class code */}
-                <div className="w-[150px] p-4 bg-white border rounded shadow-sm h-fit shrink-0">
-                  <h3 className="text-sm text-gray-600 mb-1">Class Code</h3>
-                  <div
-                    className="flex text-xl font-mono text-blue-600 cursor-pointer items-center transition-transform active:scale-95"
-                    onClick={() => {
-                      navigator.clipboard.writeText(groupDetail.code);
-                      toast.success("Đã sao chép");
-                    }}
-                  >
-                    {groupDetail.code}
-                    <div className="ml-2">
-                      <Copy />
-                    </div>
+                <div className="w-[200px] p-4 bg-gradient-to-br from-blue-100 to-blue-50 border rounded-xl shadow-sm h-fit shrink-0">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <CalendarDays className="text-blue-600 w-5 h-5" />
+                    <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
+                      Ngày tạo lớp
+                    </h3>
                   </div>
+                  <p className="text-xl font-semibold text-gray-800">
+                    {dayjs(groupDetail.createdAt).format("DD/MM/YYYY")}
+                  </p>
                 </div>
 
                 {/* Announcement + Activity */}
@@ -211,25 +177,6 @@ const DetailGroupStudent = () => {
                     <></>
                   ) : (
                     notificationGroups.map((notify, index) => (
-                      // <div
-                      //   key={index}
-                      //   className="p-4 bg-white border rounded shadow-sm"
-                      // >
-                      //   <div className="flex items-center space-x-2">
-                      //     <div className="bg-pink-500 p-2 rounded-full text-white">
-                      //       <NotepadText size={22} />
-                      //     </div>
-                      //     <div>
-                      //       <p className="font-medium">
-                      //         {groupDetail.userName} thông báo: {notify.title}
-                      //       </p>
-                      //       <p className="text-sm text-gray-500">
-                      //         {dayjs(notify.createdAt).format("DD/MM/YYYY")}
-                      //       </p>
-                      //     </div>
-                      //   </div>
-                      // </div>
-
                       <div
                         key={index}
                         className="bg-white border rounded-xl shadow-sm overflow-hidden cursor-pointer"
@@ -285,21 +232,6 @@ const DetailGroupStudent = () => {
                             ))}
                           </div>
                         )}
-
-                        {/* Comment box */}
-                        {/* <div className="border-t px-4 py-3 flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm text-white">
-                            T
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Thêm nhận xét trong lớp học..."
-                            className="flex-1 rounded-full border px-4 py-2 text-sm focus:outline-none"
-                          />
-                          <button className="text-gray-400 hover:text-blue-600">
-                            <Send size={18} />
-                          </button>
-                        </div> */}
                       </div>
                     ))
                   )}

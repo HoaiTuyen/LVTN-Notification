@@ -113,9 +113,9 @@ const DetailGroupLecturer = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="overflow-hidden bg-gray-50 border-t border-gray-200 rounded-b-xl px-6 py-4"
+      className="overflow-hidden bg-gray-50 border-t border-gray-200 rounded-b-xl"
     >
-      <div className="min-h-screen w-full bg-white p-10 overflow-y-auto max-h-screen pb-24">
+      <div className="min-h-screen w-full bg-white overflow-y-auto max-h-screen p-10">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">

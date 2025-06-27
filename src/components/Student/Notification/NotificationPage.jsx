@@ -3,13 +3,7 @@ import { Outlet, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -24,118 +18,124 @@ import {
   Search,
   Filter,
   BookMarkedIcon as MarkAsUnread,
-  Trash2,
   Clock,
-  AlertCircle,
 } from "lucide-react";
-// import { format } from "date-fns";
-// import { vi } from "date-fns/locale";
-import { handleListNotification } from "../../../controller/NotificationController";
-import { handleListNotificationType } from "../../../controller/NotificationTypeController";
-import useWebSocket from "../../../config/Websorket";
 import { Pagination } from "antd";
 import dayjs from "dayjs";
+
+import {
+  handleListNotification,
+  handleSearchNotification,
+} from "../../../controller/NotificationController";
+import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import useDebounce from "../../../hooks/useDebounce";
 
 const NotificationsPage = () => {
-  const { stompClient, connected, error } = useWebSocket();
-  useEffect(() => {
-    if (connected && stompClient.current) {
-      console.log("✅ WebSocket is connected in Student component");
-
-      // Đăng ký nhận tin nhắn từ server
-      stompClient.current.subscribe("/notification", (message) => {
-        console.log("Received message:", JSON.parse(message.body));
-        fetchListNotify();
-      });
-    }
-  }, [connected, stompClient]);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
   const typeFromUrl = searchParams.get("type") || "all";
+
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [selectedType, setSelectedType] = useState(typeFromUrl);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   const [notifications, setNotifications] = useState([]);
   const [notificationTypes, setNotificationTypes] = useState([]);
+
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: pageFromUrl,
     pageSize: 10,
     total: 0,
-    totalPages: 0,
   });
+
   const navigate = useNavigate();
+
   const handleViewDetail = (id, e) => {
     e.stopPropagation();
-
     navigate(
       `/sinh-vien/notification/${id}?search=${debouncedSearchTerm}&type=${selectedType}&page=${pagination.current}`
     );
   };
-  const fetchListNotify = async (page = 1) => {
-    const req = await handleListNotification(
-      "desc",
-      page - 1,
-      pagination.pageSize
-    );
 
-    if (req?.data) {
-      setNotifications(req.data.notifications);
+  const fetchNotifications = async (page = 1) => {
+    const type = selectedType === "all" ? null : selectedType;
+
+    const keyword = debouncedSearchTerm.trim();
+    let res;
+
+    if (keyword) {
+      res = await handleSearchNotification(
+        keyword,
+        page - 1,
+        pagination.pageSize,
+        type
+      );
+    } else {
+      res = await handleListNotification(
+        "desc",
+        page - 1,
+        pagination.pageSize,
+        type
+      );
+    }
+
+    if (res?.data) {
+      setNotifications(res.data.notifications || []);
       setPagination({
         current: page,
-        pageSize: req.data.pageSize,
-        total: req.data.totalElements,
-        totalPages: req.data.totalPages,
+        pageSize: res.data.pageSize,
+        total: res.data.totalElements,
       });
     }
   };
-  const fetchNotificationType = async () => {
-    const req = await handleListNotificationType();
-    if (req?.data) {
-      setNotificationTypes(req.data.notificationTypes);
-    } else {
-      setNotificationTypes([]);
-    }
+
+  const fetchNotificationTypes = async () => {
+    const res = await handleListNotificationType();
+    setNotificationTypes(res?.data?.notificationTypes || []);
   };
+
   useEffect(() => {
+    const currentSearch = searchParams.get("search") || "";
+    const currentType = searchParams.get("type") || "all";
     const currentPage = searchParams.get("page") || "1";
-    setSearchParams({
-      search: debouncedSearchTerm,
-      type: selectedType,
-      page: currentPage,
-    });
+
+    if (currentSearch !== debouncedSearchTerm || currentType !== selectedType) {
+      setSearchParams({
+        search: debouncedSearchTerm,
+        type: selectedType,
+        page: "1", // reset trang khi lọc thay đổi
+      });
+    }
   }, [debouncedSearchTerm, selectedType]);
+
+  // Fetch lại dữ liệu khi URL param thay đổi
   useEffect(() => {
-    fetchListNotify(pageFromUrl);
-    fetchNotificationType();
-  }, [searchFromUrl, typeFromUrl, pageFromUrl]);
+    fetchNotifications(pageFromUrl);
+    fetchNotificationTypes();
+  }, [searchParams]);
 
   const NotificationCard = ({ notification }) => (
     <Card className="p-0">
       <CardHeader className="pt-5">
         <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <CardTitle
-                  className="text-base cursor-pointer hover:text-blue-500"
-                  onClick={(e) => {
-                    handleViewDetail(notification.id, e);
-                  }}
-                >
-                  {notification.title}
-                </CardTitle>
-                {notification.notificationType && (
-                  <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
-                    {notification.notificationType}
-                  </Badge>
-                )}
-              </div>
-              <div className="flex items-center pt-3">
-                <Clock className="h-3 w-3 mr-1" />
-                {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
-              </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <CardTitle
+                className="text-base cursor-pointer hover:text-blue-500"
+                onClick={(e) => handleViewDetail(notification.id, e)}
+              >
+                {notification.title}
+              </CardTitle>
+              {notification.notificationType && (
+                <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
+                  {notification.notificationType}
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center pt-3 text-sm text-muted-foreground">
+              <Clock className="h-3 w-3 mr-1" />
+              {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
             </div>
           </div>
         </div>
@@ -161,6 +161,7 @@ const NotificationsPage = () => {
     >
       <div className="framer-motion-content bg-white p-0">
         <div className="space-y-6 px-10 pt-10 overflow-x-auto max-h-[730px]">
+          {/* Header */}
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-3xl font-bold tracking-tight">Thông báo</h2>
@@ -170,7 +171,7 @@ const NotificationsPage = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="text-blue-600">
-                {/* {unreadNotifications.length} chưa đọc */} chưa đọc
+                chưa đọc
               </Badge>
               <Button variant="outline" size="sm">
                 <Bell className="h-4 w-4 mr-2" />
@@ -207,34 +208,23 @@ const NotificationsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả loại</SelectItem>
-                    {notificationTypes.length === 0 ? (
-                      <SelectItem>Trống</SelectItem>
-                    ) : (
-                      notificationTypes.map((item) => (
-                        <SelectItem value={item.name}>{item.name}</SelectItem>
-                      ))
-                    )}
+                    {notificationTypes.map((item) => (
+                      <SelectItem key={item.name} value={item.name}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </CardContent>
           </Card>
 
-          {/* Danh sách thông báo */}
+          {/* Danh sách */}
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="all">
-                {/* Tất cả ({filteredNotifications.length}) */}
-                Tất cả
-              </TabsTrigger>
-              <TabsTrigger value="unread">
-                Chưa đọc
-                {/* Chưa đọc ({unreadNotifications.length}) */}
-              </TabsTrigger>
-              <TabsTrigger value="read">
-                {/* Đã đọc ({readNotifications.length}) */}
-                Đã đọc
-              </TabsTrigger>
+              <TabsTrigger value="all">Tất cả</TabsTrigger>
+              <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
+              <TabsTrigger value="read">Đã đọc</TabsTrigger>
             </TabsList>
 
             <TabsContent
@@ -263,7 +253,9 @@ const NotificationsPage = () => {
               )}
             </TabsContent>
           </Tabs>
-          {pagination.total > 10 && (
+
+          {/* Phân trang */}
+          {pagination.total > pagination.pageSize && (
             <div className="flex justify-center mt-4">
               <Pagination
                 current={pagination.current}
@@ -285,4 +277,5 @@ const NotificationsPage = () => {
     </motion.div>
   );
 };
+
 export default NotificationsPage;

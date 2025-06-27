@@ -14,12 +14,13 @@ export const createUserNotification = (formData) => {
     },
   });
 };
-export const listNotification = (sort, page, pageSize = 10) => {
+export const listNotification = (sort, page, pageSize = 10, type) => {
   return api.get("/notification/list_notifications", {
     params: {
       sort: sort,
       page: page,
       pageSize: pageSize,
+      notificationType: type,
     },
   });
 };
@@ -31,19 +32,18 @@ export const detailNotification = (id) => {
 };
 export const searchNotification = async (
   keyword,
-  notificationType,
-  page,
-  pageSize = 10
+  page = 0,
+  pageSize = 10,
+  type
 ) => {
   const req = await api.get("/notification/list_notifications", {
     params: {
       keyword: keyword,
-      notificationType: notificationType,
       page: page,
       pageSize: pageSize,
+      notificationType: type,
     },
   });
-  console.log(req);
   return req;
 };
 export const updateNotification = (formData) => {

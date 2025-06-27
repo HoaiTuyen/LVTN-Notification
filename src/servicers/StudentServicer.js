@@ -17,7 +17,7 @@ export const updateStudent = (data) => {
 export const deleteStudent = (id) => {
   return api.delete(`/student/delete/${id}`);
 };
-export const searchStudent = (status, keyword, page = 0, pageSize) => {
+export const searchStudent = (status, keyword, page = 0, pageSize = 10) => {
   return api.get("/student/list_students", {
     params: {
       status: status,

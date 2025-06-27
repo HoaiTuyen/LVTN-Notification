@@ -13,7 +13,7 @@ import {
 } from "@ant-design/icons";
 import { Dropdown as AntdDropdown } from "antd";
 
-import { Bell, User, LogOut, Group, Users } from "lucide-react";
+import { Bell, User, LogOut, Group, Users, BookOpen } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -36,7 +36,6 @@ const Student = () => {
   const [groupStudents, setGroupStudents] = useState([]);
 
   const [userInfo, setUserInfo] = useState([]);
-  console.log(userInfo);
 
   const fetchListGroupById = async () => {
     const req = await handleListGroupByStudent(userId);
@@ -399,6 +398,11 @@ const Student = () => {
       key: "profile",
       icon: <User size={16} />,
       label: "Thông tin cá nhân",
+    },
+    {
+      key: "subject",
+      icon: <BookOpen size={16} />,
+      label: "Môn học của tôi",
     },
     {
       key: "notification",

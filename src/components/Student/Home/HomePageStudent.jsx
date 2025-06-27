@@ -39,7 +39,6 @@ const HomePageStudent = () => {
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
-  const { stompClient, connected } = useWebSocket();
 
   // Dữ liệu thống kê
   const studentStats = {
@@ -68,11 +67,13 @@ const HomePageStudent = () => {
 
   // Danh sách nhóm học tập
   const [groups, setGroups] = useState([]);
-  const [loadingGroups, setLoadingGroups] = useState(true);
 
+  const [loadingGroups, setLoadingGroups] = useState(true);
   useEffect(() => {
     const fetchGroups = async () => {
       const res = await handleListGroupByStudent(userId, 0, 5);
+      console.log(res);
+
       if (res?.data) {
         setGroups(res.data);
       }
@@ -81,35 +82,9 @@ const HomePageStudent = () => {
     fetchGroups();
   }, [userId]);
 
-  // WebSocket cho thông báo mới
-  //   useEffect(() => {
-  //     if (connected && stompClient.current) {
-  //       stompClient.current.subscribe("/notification", (message) => {
-  //         const newNotification = JSON.parse(message.body);
-  //         setNotifications((prev) => [newNotification, ...prev]);
-  //       });
-  //     }
-  //   }, [connected, stompClient]);
-
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-white to-gray-50 p-0">
       <div className="space-y-8 p-8 overflow-y-auto max-h-[700px]">
-        {/* Header Section */}
-        {/* <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-2"
-        >
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900">
-            Chào mừng trở lại!
-          </h2>
-          <p className="text-gray-600">
-            Đây là tổng quan về tình hình học tập của bạn
-          </p>
-        </motion.div> */}
-
-        {/* Stats Grid */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -242,14 +217,6 @@ const HomePageStudent = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Nhóm học tập</CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate("/student/join-group")}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Tham gia nhóm mới
-                </Button>
               </div>
               <CardDescription>
                 Các nhóm học tập bạn đang tham gia
@@ -264,20 +231,19 @@ const HomePageStudent = () => {
                 ) : (
                   groups.slice(0, 5).map((group) => (
                     <div key={group.id} className="flex items-center space-x-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={group.avatar} alt={group.name} />
-                        <AvatarFallback>
-                          {/* {group.name
+                      <Avatar className="h-10 w-10 ">
+                        <AvatarFallback className="bg-blue-600 text-white">
+                          {group.teacherName
                             .split(" ")
                             .map((word) => word[0])
                             .join("")
-                            .toUpperCase()} */}
+                            .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-medium">{group.name}</p>
+                        <p className="text-sm font-medium">{group.groupName}</p>
                         <p className="text-xs text-gray-500">
-                          {/* {group.members.length} thành viên */}
+                          Giảng viên: {group.teacherName}
                         </p>
                       </div>
                     </div>
