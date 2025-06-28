@@ -11,7 +11,6 @@ import {
 export const handleListStudent = async (page = 0, pageSize = 10) => {
   try {
     const response = await listStudent(page, pageSize);
-    console.log(response);
 
     if (response?.data) {
       return {
@@ -39,7 +38,6 @@ export const handleAddStudent = async (dataStudent) => {
       data: response.data,
     };
   } catch (error) {
-    console.error("Error adding student:", error);
     return {
       status: error.response?.status || 500,
       message:
@@ -57,7 +55,6 @@ export const handleUpdateStudent = async (dataStudent) => {
       data: response.data,
     };
   } catch (error) {
-    console.error("Error adding student:", error);
     return {
       status: error.response?.status || 500,
       message:
@@ -68,7 +65,6 @@ export const handleUpdateStudent = async (dataStudent) => {
 export const handleDeleteStudent = async (id) => {
   try {
     const response = await deleteStudent(id);
-    console.log(response);
     return {
       status: response.status,
       data: response.data,

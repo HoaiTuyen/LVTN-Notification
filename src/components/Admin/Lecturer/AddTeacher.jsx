@@ -23,7 +23,10 @@ import {
 } from "@/controller/TeacherController";
 import { toast } from "react-toastify";
 import { handleListDepartment } from "../../../controller/DepartmentController";
+import { useValidateLecturerForm } from "../../../hooks/useValidateForm";
 const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
+  const { validateForm, formatDate, minBirthDate, maxBirthDate } =
+    useValidateLecturerForm();
   const [listDepartment, setListDepartment] = useState([]);
   const checkEdit = !!teacher?.id;
   const [form, setForm] = useState({
@@ -67,6 +70,9 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!validateForm(form)) {
+        return;
+      }
       if (checkEdit) {
         const reqEdit = await handleUpdateTeacher(form);
 
@@ -176,6 +182,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                   id="dateOfBirth"
                   type="date"
                   value={form.dateOfBirth}
+                  min={formatDate(minBirthDate)}
+                  max={formatDate(maxBirthDate)}
                   onChange={(e) =>
                     setForm({ ...form, dateOfBirth: e.target.value })
                   }
@@ -239,10 +247,18 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={onClose} type="button">
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={onClose}
+              type="button"
+            >
               Hủy
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            >
               {checkEdit ? "Cập nhật" : "Thêm giảng viên"}
             </Button>
           </DialogFooter>

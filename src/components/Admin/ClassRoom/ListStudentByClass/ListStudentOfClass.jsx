@@ -1,5 +1,6 @@
-import { useState } from "react";
-// import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+
+import { Pagination } from "antd";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,15 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -29,21 +22,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Plus, Search, Upload, X } from "lucide-react";
-import { Link } from "react-router-dom";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Search, Upload } from "lucide-react";
 import { handleListStudentByClass } from "../../../../controller/ClassController";
-import { useEffect } from "react";
-import { Pagination } from "antd";
+import { handleSearchStudent } from "../../../../controller/StudentController";
 import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
+import useDebounce from "../../../../hooks/useDebounce";
 const ListStudentOfClass = () => {
   const [searchParams] = useSearchParams();
-
   const page = searchParams.get("page") || "1";
-  const search = searchParams.get("search") || "";
+  const searchFromUrl = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [studentByClass, setStudentByClass] = useState([]);
-
   const [openUpload, setOpenUpload] = useState(false);
   const [dataClass, setDataClass] = useState([]);
   const [pagination, setPagination] = useState({
@@ -51,12 +41,13 @@ const ListStudentOfClass = () => {
     pageSize: 10,
     total: 0,
     totalPages: 0,
+    totalElements: 0,
   });
   const { classId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const backUrl =
-    location.state?.from || `/admin/class?search=${search}&page=${page}`;
+    location.state?.from || `/admin/class?search=${searchFromUrl}&page=${page}`;
 
   const renderGender = (gender) => {
     switch (gender) {
@@ -89,12 +80,22 @@ const ListStudentOfClass = () => {
     }
   }
   const fetchListStudentByClass = async (page = 1) => {
-    const res = await handleListStudentByClass(
-      classId,
-      page - 1,
-      pagination.pageSize
-    );
-    console.log(res);
+    let res;
+    const keyword = debouncedSearchTerm.trim();
+    if (keyword) {
+      res = await handleSearchStudent(
+        "",
+        keyword,
+        page - 1,
+        pagination.pageSize
+      );
+    } else {
+      res = await handleListStudentByClass(
+        classId,
+        page - 1,
+        pagination.pageSize
+      );
+    }
 
     if (res?.data && res?.status === 200) {
       setStudentByClass(res.data.students);
@@ -104,12 +105,13 @@ const ListStudentOfClass = () => {
         pageSize: res.data.pageSize,
         total: res.data.totalElements,
         totalPages: res.data.totalPages,
+        totalElements: res.data.totalElements,
       });
     }
   };
   useEffect(() => {
     fetchListStudentByClass(pagination.current);
-  }, [pagination.current]);
+  }, [pagination.current, debouncedSearchTerm]);
   return (
     <div className="min-h-screen w-full bg-white p-10 ">
       <div className="space-y-6">
@@ -143,7 +145,9 @@ const ListStudentOfClass = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <CardTitle>Danh sách sinh viên đăng ký</CardTitle>
-                <CardDescription>Tổng số: sinh viên</CardDescription>
+                <CardDescription>
+                  Tổng số: {dataClass.totalElements} sinh viên
+                </CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
@@ -160,9 +164,9 @@ const ListStudentOfClass = () => {
                     onSuccess={fetchListStudentByClass}
                   />
                 )}
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                {/* <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="mr-2 h-4 w-4" /> Thêm sinh viên
-                </Button>
+                </Button> */}
               </div>
             </div>
           </CardHeader>
@@ -172,8 +176,8 @@ const ListStudentOfClass = () => {
               <Input
                 placeholder="Tìm kiếm sinh viên..."
                 className="pl-8"
-                //   value={searchTerm}
-                //   onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
@@ -187,6 +191,7 @@ const ListStudentOfClass = () => {
                     <TableHead className="w-1/6 text-center">
                       Giới tính
                     </TableHead>
+                    <TableHead className="w-1/6 text-center">Lớp</TableHead>
                     <TableHead className="w-1/6  text-center">
                       Trạng thái
                     </TableHead>
@@ -217,6 +222,9 @@ const ListStudentOfClass = () => {
                         <TableCell>{student.email}</TableCell>
                         <TableCell className="text-center">
                           {renderGender(student.gender)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {student.className}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge

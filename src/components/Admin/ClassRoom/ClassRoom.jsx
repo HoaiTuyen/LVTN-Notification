@@ -200,7 +200,9 @@ const ClassName = () => {
                     classRoom.map((item, index) => (
                       <TableRow className="border border-gray-200" key={index}>
                         <TableCell className="font-medium">
-                          {index + 1}
+                          {(pagination.current - 1) * pagination.pageSize +
+                            index +
+                            1}
                         </TableCell>
                         <TableCell
                           className="max-w-[180px] truncate"
@@ -236,15 +238,7 @@ const ClassName = () => {
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link to="">
-                                  <FileText className="h-4 w-4" />
-                                  Xem chi tiết
-                                </Link>
-                              </DropdownMenuItem>
+
                               <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"

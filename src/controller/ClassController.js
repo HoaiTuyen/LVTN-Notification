@@ -43,7 +43,7 @@ export const handleListClass = async (page, pageSize) => {
       status: error.response?.status || 500,
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi thêm môn học",
-      data: [],
+      data: error.response?.data || {},
     };
   }
 };

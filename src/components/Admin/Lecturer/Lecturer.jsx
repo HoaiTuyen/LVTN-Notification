@@ -50,12 +50,13 @@ const Lecturer = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
+  const statusFromUrl = searchParams.get("status") || "";
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [showModal, setShowModal] = useState(false);
   const [teachers, setTeachers] = useState([]);
   const [selectTeacher, setSelectTeacher] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [selectStatus, setSelectStatus] = useState("all");
+  const [selectStatus, setSelectStatus] = useState(statusFromUrl || "all");
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   // Lưu tên khoa được chọn
@@ -102,6 +103,7 @@ const Lecturer = () => {
           page - 1,
           pagination.pageSize
         );
+        console.log(result);
       }
       if (result?.data) {
         const response = result.data.teachers;
@@ -129,7 +131,7 @@ const Lecturer = () => {
   }, [debouncedSearchTerm]);
   useEffect(() => {
     fetchListTeacher(pageFromUrl);
-  }, [searchFromUrl, pageFromUrl]);
+  }, [searchFromUrl, pageFromUrl, selectStatus]);
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -153,7 +155,7 @@ const Lecturer = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center"
             onClick={() => setShowModal(true)}
           >
-            <Plus className="mr-2 h-4 w-4" /> Thêm giảng viên
+            <Plus className="h-4 w-4" /> Thêm giảng viên
           </Button>
           {showModal && (
             <AddTeacher
@@ -211,8 +213,8 @@ const Lecturer = () => {
                     ))
                   )} */}
 
-                  <SelectItem value="DANG_CONG_TAC">Đang công tác</SelectItem>
-                  <SelectItem value="CHUYEN_CONG_TAC">
+                  <SelectItem value="ĐANG_CÔNG_TÁC">Đang công tác</SelectItem>
+                  <SelectItem value="CHUYỂN_CÔNG_TÁC">
                     Chuyển công tác
                   </SelectItem>
                 </SelectContent>
@@ -287,7 +289,7 @@ const Lecturer = () => {
                         <TableCell>{teacher.departmentName}</TableCell>
 
                         <TableCell>{renderGender(teacher.gender)}</TableCell>
-                        {teacher.status == "DANG_CONG_TAC" ? (
+                        {teacher.status == "ĐANG_CÔNG_TÁC" ? (
                           <TableCell>Đang công tác</TableCell>
                         ) : (
                           <TableCell>Chuyển công tác</TableCell>
@@ -307,13 +309,14 @@ const Lecturer = () => {
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
+                                className="cursor-pointer"
                                 onClick={() => openModalEdit(teacher)}
                               >
                                 <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                className="text-red-600"
+                                className="text-red-600 cursor-pointer"
                                 onClick={() => {
                                   setSelectTeacher(teacher);
                                   setOpenModalDelete(true);

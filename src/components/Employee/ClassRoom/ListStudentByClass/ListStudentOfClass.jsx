@@ -95,7 +95,12 @@ const ListStudentOfClass = () => {
     let res;
     const keyword = debouncedSearchTerm.trim();
     if (keyword) {
-      res = await handleSearchStudent(keyword, page - 1, pagination.pageSize);
+      res = await handleSearchStudent(
+        "",
+        keyword,
+        page - 1,
+        pagination.pageSize
+      );
       console.log(res);
     } else {
       res = await handleListStudentByClass(
@@ -172,9 +177,9 @@ const ListStudentOfClass = () => {
                     onSuccess={fetchListStudentByClass}
                   />
                 )}
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                {/* <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="mr-2 h-4 w-4" /> Thêm sinh viên
-                </Button>
+                </Button> */}
               </div>
             </div>
           </CardHeader>

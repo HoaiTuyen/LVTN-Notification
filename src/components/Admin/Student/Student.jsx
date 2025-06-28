@@ -49,12 +49,13 @@ const Student = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
+  const statusFromUrl = searchParams.get("status") || "";
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
   const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [selectStatus, setSelectStatus] = useState("all");
+  const [selectStatus, setSelectStatus] = useState(statusFromUrl || "all");
   const [openUpload, setOpenUpload] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [pagination, setPagination] = useState({
@@ -74,7 +75,6 @@ const Student = () => {
       .join(" ");
     if (keyword.trim() === "") {
       response = await handleListStudent(page - 1, pagination.pageSize);
-      console.log(response);
     } else {
       const searchTerm = debouncedSearchTerm.trim();
       const status = selectStatus !== "all" ? selectStatus : "";
@@ -84,12 +84,9 @@ const Student = () => {
         page - 1,
         pagination.pageSize
       );
-      console.log("Response from search:", response);
     }
 
     if (response?.data) {
-      console.log("Fetched students:", response);
-
       setStudents(response.data.students);
       setPagination({
         current: page,
@@ -111,7 +108,7 @@ const Student = () => {
   }, [debouncedSearchTerm]);
   useEffect(() => {
     fetchStudents(pageFromUrl);
-  }, [searchFromUrl, pageFromUrl]);
+  }, [searchFromUrl, pageFromUrl, selectStatus]);
 
   function filterStudents(status) {
     switch (status) {
@@ -314,20 +311,15 @@ const Student = () => {
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem asChild>
-                                <Link to="">
-                                  <FileText className="mr-2 h-4 w-4" /> Xem chi
-                                  tiết
-                                </Link>
-                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => openModalEdit(student)}
+                                className="cursor-pointer"
                               >
                                 <Pencil className="mr-2 h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                className="text-red-600"
+                                className="text-red-600 cursor-pointer"
                                 onClick={() => {
                                   setSelectedStudent(student);
                                   setOpenModalDelete(true);

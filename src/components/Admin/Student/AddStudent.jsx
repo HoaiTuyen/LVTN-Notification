@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import ClassSelect from "react-select";
 import {
   Dialog,
   DialogContent,
@@ -25,10 +25,13 @@ import {
 } from "../../../controller/StudentController";
 import { toast } from "react-toastify";
 import { handleListClass } from "../../../controller/ClassController";
+import { useValidateStudentForm } from "../../../hooks/useValidateForm";
 
 const AddStudent = ({ open, onClose, onSuccess, student }) => {
   const checkEdit = !!student?.id;
   const [dataClass, setDataClass] = useState([]);
+  const { validateForm, formatDate, minBirthDate, maxBirthDate } =
+    useValidateStudentForm();
 
   const [form, setForm] = useState({
     id: student?.id || "",
@@ -42,29 +45,33 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     dateOfBirth: student?.dateOfBirth?.slice(0, 10) || "",
   });
 
-  // Fetch class list first
-  const fetchListClass = async () => {
-    const listClass = await handleListClass();
-    if (listClass?.data) {
-      setDataClass(listClass.data.classes);
+  const fetchAllClasses = async () => {
+    const pageSize = 10;
+    let allClasses = [];
+    let page = 0;
+    let totalPages = 1;
 
-      // If editing, find and set the correct classId
-      if (checkEdit && student?.className) {
-        const studentClass = listClass.data.classes.find(
-          (c) => c.name === student.className
-        );
-        if (studentClass) {
-          setForm((prev) => ({
-            ...prev,
-            classId: studentClass.id,
-          }));
+    try {
+      do {
+        const res = await handleListClass(page, pageSize);
+        if (res?.data?.classes) {
+          allClasses = [...allClasses, ...res.data.classes];
+          totalPages = res.data.totalPages;
+          page++;
+        } else {
+          break; // stop if bad data
         }
-      }
+      } while (page < totalPages);
+      console.log(allClasses);
+      setDataClass(allClasses);
+    } catch (error) {
+      console.error("Lỗi khi fetch all classes:", error);
+      return [];
     }
   };
 
   useEffect(() => {
-    fetchListClass();
+    fetchAllClasses();
   }, []);
 
   useEffect(() => {
@@ -99,21 +106,19 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     e.preventDefault();
     try {
       // Validate required fields
-      if (!form.id || !form.firstName || !form.lastName || !form.email) {
-        toast.error("Vui lòng điền đầy đủ thông tin bắt buộc");
+      if (!validateForm(form)) {
         return;
       }
 
-      // Create payload for API
       const payload = {
         ...form,
-        classId: form.classId, // Use classId for API
+        classId: form.classId,
       };
 
       if (checkEdit) {
         const reqEdit = await handleUpdateStudent(payload);
         if (reqEdit?.status === 204) {
-          toast.success("Cập nhật sinh viên thành công");
+          toast.success(reqEdit.message || "Cập nhật sinh viên thành công");
           onSuccess();
           onClose();
           return;
@@ -124,7 +129,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       } else {
         const response = await handleAddStudent(payload);
         if (response?.status === 201) {
-          toast.success("Thêm sinh viên thành công");
+          toast.success(response.message || "Thêm sinh viên thành công");
           onSuccess();
           onClose();
         } else {
@@ -135,7 +140,10 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       toast.error(error?.message || "Thêm sinh viên thất bại");
     }
   };
-
+  const classOptions = dataClass.map((cls) => ({
+    value: cls.id,
+    label: cls.name,
+  }));
   return (
     <>
       <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
@@ -167,6 +175,8 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   id="dateOfBirth"
                   type="date"
                   value={form.dateOfBirth}
+                  min={formatDate(minBirthDate)}
+                  max={formatDate(maxBirthDate)}
                   onChange={(e) =>
                     setForm({ ...form, dateOfBirth: e.target.value })
                   }
@@ -199,7 +209,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -210,7 +220,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-2 justify-center">
                 <Label htmlFor="gender">Giới tính</Label>
                 <Select
                   value={form.gender}
@@ -226,8 +236,6 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="status">Trạng thái</Label>
                 <Select
@@ -245,39 +253,37 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="class">Lớp</Label>
-                <Select
-                  value={form.classId}
-                  onValueChange={(value) => {
-                    const selectedClass = dataClass.find((c) => c.id === value);
+                <ClassSelect
+                  options={classOptions}
+                  value={classOptions.find((opt) => opt.value === form.classId)}
+                  onChange={(selected) => {
                     setForm({
                       ...form,
-                      classId: value,
-                      className: selectedClass?.name || "",
+                      classId: selected?.value || "",
+                      className: selected?.label || "",
                     });
                   }}
-                >
-                  <SelectTrigger id="class">
-                    <SelectValue placeholder="Chọn lớp" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dataClass.map((item) => (
-                      <SelectItem key={item.id} value={item.id}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Chọn lớp..."
+                  isClearable
+                  isSearchable
+                />
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => onClose()}
+            >
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               onClick={handleSubmitAdd}
             >
               {checkEdit ? "Cập nhật" : "Thêm sinh viên"}

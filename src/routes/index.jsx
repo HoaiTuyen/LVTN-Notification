@@ -36,11 +36,13 @@ import StudentSubject from "../components/Student/Subject/StudentSubject";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
+import SubjectCharge from "../components/Lecturer/SubjectCharge/SubjectCharge";
 // import SentNotifications from "../components/Lecturer/Notification/TestsentNotification";
 import GroupClassTeacher from "../components/Lecturer/GroupClass/GroupClass";
 import DetailGroupLecturer from "../components/Lecturer/GroupClass/DetailGroup";
 import LecturerNotificationDetail from "../components/Lecturer/Notification/DetailNotification";
 import LecturerSentNotifications from "../components/Lecturer/Notification/SentNotification";
+import HomeLecturerPage from "../components/Lecturer/Home/HomeLecturerPage";
 //Employee
 import EmployeeCreateNotification from "../components/Employee/Notification/createNotification";
 import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
@@ -113,7 +115,11 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<HomeLecturerPage />} />
+
             <Route path="profile" element={<TeacherProfile />} />
+            <Route path="subjectCharge" element={<SubjectCharge />} />
             <Route
               path="notification"
               element={<LecturerCreateNotification />}
