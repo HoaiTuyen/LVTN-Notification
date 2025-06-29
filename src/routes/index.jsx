@@ -37,7 +37,6 @@ import StudentSubject from "../components/Student/Subject/StudentSubject";
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
 import SubjectCharge from "../components/Lecturer/SubjectCharge/SubjectCharge";
-// import SentNotifications from "../components/Lecturer/Notification/TestsentNotification";
 import GroupClassTeacher from "../components/Lecturer/GroupClass/GroupClass";
 import DetailGroupLecturer from "../components/Lecturer/GroupClass/DetailGroup";
 import LecturerNotificationDetail from "../components/Lecturer/Notification/DetailNotification";
@@ -55,6 +54,7 @@ import EmployeeListStudentOfClass from "../components/Employee/ClassRoom/ListStu
 import EmployeeSemester from "../components/Employee/Semester/EmployeeSemester";
 import EmployeeSubject from "../components/Employee/Subject/EmployeeSubject";
 import EmployeeCreateNotificationStudent from "../components/Employee/Notification/createNotificationStudent";
+import StudyModule from "../components/Employee/StudyModule/StudyModule";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -157,13 +157,14 @@ function AppRoutes() {
               element={<EmployeeCreateNotificationStudent />}
             />
             <Route
-              path="sentNotification"
+              path="sent-notification"
               element={<EmployeeSentNotifications />}
             />
             <Route
-              path="sentNotification/:notificationId"
+              path="sent-notification/:notificationId"
               element={<EmployeeNotificationDetail />}
             />
+            <Route path="study-module" element={<StudyModule />} />
             <Route
               path="employee-account-student"
               element={<EmployeeStudentAccount />}
@@ -202,9 +203,9 @@ function AppRoutes() {
               path="notification/:notificationId"
               element={<StudentNotificationDetail />}
             />
-            <Route path="groupStudy" element={<GroupStudyStudent />} />
+            <Route path="group-study" element={<GroupStudyStudent />} />
             <Route
-              path="groupStudy/:groupStudyId"
+              path="group-study/:groupStudyId"
               element={<DetailGroupStudent />}
             />
           </Route>

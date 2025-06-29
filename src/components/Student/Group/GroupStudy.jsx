@@ -206,7 +206,10 @@ const GroupStudyStudent = () => {
               </div>
             ) : (
               groups.map((group) => (
-                <Card className="relative p-0 rounded-xl overflow-hidden shadow border w-full h-[300px] flex flex-col justify-between">
+                <Card
+                  key={group.groupId}
+                  className="relative p-0 rounded-xl overflow-hidden shadow border w-full h-[300px] flex flex-col justify-between"
+                >
                   {/* Header - ảnh nền + tên + giảng viên */}
                   <div
                     className="relative h-28 px-4 py-3 text-white"
@@ -215,10 +218,6 @@ const GroupStudyStudent = () => {
                         group.groupId
                       ),
                       color: "white",
-                      // backgroundColor: hashColorFromString(group.groupId), // fallback dark color
-                      // backgroundImage: hashColorFromString(group.groupId),
-                      // backgroundSize: "cover",
-                      // backgroundPosition: "center",
                     }}
                   >
                     <div className="relative z-10">
@@ -226,7 +225,7 @@ const GroupStudyStudent = () => {
                         className="text-lg font-semibold truncate cursor-pointer"
                         title={group.groupName}
                         onClick={() => {
-                          navigate(`/sinh-vien/groupStudy/${group.groupId}`);
+                          navigate(`/sinh-vien/group-study/${group.groupId}`);
                         }}
                       >
                         {group.groupName}

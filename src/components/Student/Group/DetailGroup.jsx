@@ -44,12 +44,8 @@ const DetailGroupStudent = () => {
   const [groupDetail, setGroupDetail] = useState({});
   const [members, setMembers] = useState([]);
   const [notificationGroups, setNotificationGroups] = useState([]);
-  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  const [expandedId, setExpandedId] = useState(null);
-  const [detailNotify, setDetailNotify] = useState([]);
-
-  const backUrl = location.state?.from || "/sinh-vien/groupStudy";
+  const backUrl = location.state?.from || "/sinh-vien/group-study";
   const fetchDetailGroup = async () => {
     const detailGroup = await handleDetailGroup(groupStudyId);
 

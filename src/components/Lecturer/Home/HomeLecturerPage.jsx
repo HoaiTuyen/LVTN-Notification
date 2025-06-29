@@ -97,12 +97,12 @@ const HomeLecturerPage = () => {
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="space-y-6 p-10">
-        <div>
+        {/* <div>
           <h1 className="text-3xl font-bold">Dashboard Giảng viên</h1>
           <p className="text-muted-foreground">
             Chào mừng trở lại! Đây là tổng quan về hoạt động giảng dạy của bạn.
           </p>
-        </div>
+        </div> */}
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

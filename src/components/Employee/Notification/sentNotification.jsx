@@ -181,14 +181,14 @@ const EmployeeSentNotifications = () => {
     e.stopPropagation();
 
     navigate(
-      `/nhan-vien/sentNotification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+      `/nhan-vien/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
     );
   };
   const handleWapper = (id, e) => {
     e.stopPropagation();
 
     navigate(
-      `/nhan-vien/sentNotification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
+      `/nhan-vien/sent-notification/${id}?search=${debouncedSearchTerm}&type=${selectType}&page=${pagination.current}`
     );
   };
 

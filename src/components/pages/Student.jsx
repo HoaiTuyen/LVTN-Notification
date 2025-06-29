@@ -410,7 +410,7 @@ const Student = () => {
       label: "Thông báo",
     },
     {
-      key: "groupStudy",
+      key: "group-study",
       icon: <Group size={16} />,
       label: "Nhóm học tập",
     },

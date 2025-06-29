@@ -72,9 +72,14 @@ const EmployeeDashboard = () => {
       ],
     },
     {
-      key: "sentNotification",
+      key: "sent-notification",
       icon: <Bell size={16} />,
       label: "Thông báo đã gửi",
+    },
+    {
+      key: "study-module",
+      icon: <BookOpen size={16} />,
+      label: "Học phần",
     },
     {
       key: "employee-account",
