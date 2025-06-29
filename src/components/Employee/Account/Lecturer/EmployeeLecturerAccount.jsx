@@ -96,22 +96,10 @@ const EmployeeLecturerAccount = () => {
       if (searchTerm) {
         response = await handleSearchUser(
           searchTerm,
+          "TEACHER",
           page - 1,
           pagination.pageSize
         );
-        // Filter the results to only show teacher accounts
-        if (response?.status === 200 && response?.data) {
-          const teacherUsers = response.data.users.filter(
-            (user) => user.role?.toUpperCase() === "TEACHER"
-          );
-          console.log(teacherUsers);
-
-          response.data.users = teacherUsers;
-          response.data.totalElements = teacherUsers.length;
-          response.data.totalPages = Math.ceil(
-            teacherUsers.length / pagination.pageSize
-          );
-        }
       } else {
         response = await handleFilterUser(
           "teacher",
@@ -119,7 +107,6 @@ const EmployeeLecturerAccount = () => {
           pagination.pageSize
         );
       }
-
       if (response?.status === 200 && response?.data) {
         setUsers(response.data.users);
         setPagination({
@@ -139,7 +126,6 @@ const EmployeeLecturerAccount = () => {
         });
       }
     } catch (error) {
-      console.error("Error fetching user list:", error);
       toast.error("Không thể tải danh sách người dùng");
     }
   };
@@ -155,7 +141,7 @@ const EmployeeLecturerAccount = () => {
         toast.error(req.message);
       }
     } catch (error) {
-      console.error("Error locking user:", error);
+      toast.error("Không thể khoá tài khoản");
     }
   };
   useEffect(() => {
@@ -187,7 +173,7 @@ const EmployeeLecturerAccount = () => {
               onSuccess={fetchListUser}
             />
           )}
-          {/* <Button
+          <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
               setOpenModal(true);
@@ -195,7 +181,7 @@ const EmployeeLecturerAccount = () => {
             }}
           >
             <Plus className="h-4 w-4" /> Tạo tài khoản
-          </Button> */}
+          </Button>
           {openModal && (
             <AddAccountLecturer
               open={openModal}
@@ -212,7 +198,7 @@ const EmployeeLecturerAccount = () => {
         {/* Card */}
         <Card className="border border-gray-100 overflow-y-auto max-h-[600px]">
           <CardHeader>
-            <CardTitle>Danh sách tài khoản nhân viên</CardTitle>
+            <CardTitle>Danh sách tài khoản giảng viên</CardTitle>
             <CardDescription>
               Tổng số: {pagination.totalElements} tài khoản
             </CardDescription>
@@ -229,7 +215,7 @@ const EmployeeLecturerAccount = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select
+              {/* <Select
                 value={selectedRole}
                 onValueChange={(value) => setSelectedRole(value)}
               >
@@ -242,7 +228,7 @@ const EmployeeLecturerAccount = () => {
                   <SelectItem value="STUDENT">Student</SelectItem>
                   <SelectItem value="TEACHER">Teacher</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
 
             {/* Table */}
@@ -316,13 +302,13 @@ const EmployeeLecturerAccount = () => {
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
 
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
+                              {/* <DropdownMenuSeparator /> */}
+                              {/* <DropdownMenuItem
                                 className="text-red-600 cursor-pointer"
                                 onClick={() => SubmitLockUser(user)}
                               >
                                 <Lock className="mr-2 h-4 w-4" /> Khoá tài khoản
-                              </DropdownMenuItem>
+                              </DropdownMenuItem> */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

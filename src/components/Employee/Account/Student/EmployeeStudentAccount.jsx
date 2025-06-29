@@ -22,13 +22,10 @@ import {
   Ellipsis,
   FileText,
   Pencil,
-  Trash2,
-  Plus,
-  Users,
   Upload,
   Lock,
+  Plus,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableHeader,
@@ -93,24 +90,13 @@ const EmployeeStudentAccount = () => {
       let response;
       const searchTerm = debouncedSearchTerm.trim();
 
-      // Use handleFilterUser with teacher role and combine with search term if exists
       if (searchTerm) {
         response = await handleSearchUser(
           searchTerm,
+          "STUDENT",
           page - 1,
           pagination.pageSize
         );
-        // Filter the results to only show teacher accounts
-        if (response?.status === 200 && response?.data) {
-          const teacherUsers = response.data.users.filter(
-            (user) => user.role?.toUpperCase() === "STUDENT"
-          );
-          response.data.users = teacherUsers;
-          response.data.totalElements = teacherUsers.length;
-          response.data.totalPages = Math.ceil(
-            teacherUsers.length / pagination.pageSize
-          );
-        }
       } else {
         response = await handleFilterUser(
           "student",
@@ -187,7 +173,7 @@ const EmployeeStudentAccount = () => {
               onSuccess={fetchListUser}
             />
           )}
-          {/* <Button
+          <Button
             className="bg-blue-600 hover:bg-blue-700 text-white flex items-center  cursor-pointer"
             onClick={() => {
               setOpenModal(true);
@@ -195,7 +181,7 @@ const EmployeeStudentAccount = () => {
             }}
           >
             <Plus className="h-4 w-4" /> Tạo tài khoản
-          </Button> */}
+          </Button>
           {openModal && (
             <AddAccountStudent
               open={openModal}
@@ -229,7 +215,7 @@ const EmployeeStudentAccount = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select
+              {/* <Select
                 value={selectedRole}
                 onValueChange={(value) => setSelectedRole(value)}
               >
@@ -242,7 +228,7 @@ const EmployeeStudentAccount = () => {
                   <SelectItem value="STUDENT">Student</SelectItem>
                   <SelectItem value="TEACHER">Teacher</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
 
             {/* Table */}
@@ -316,13 +302,13 @@ const EmployeeStudentAccount = () => {
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
 
-                              <DropdownMenuSeparator />
+                              {/* <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-red-600 cursor-pointer"
                                 onClick={() => SubmitLockUser(user)}
                               >
                                 <Lock className="mr-2 h-4 w-4" /> Khoá tài khoản
-                              </DropdownMenuItem>
+                              </DropdownMenuItem> */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

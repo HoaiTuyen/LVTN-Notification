@@ -90,56 +90,16 @@ const EmployeeAccount = () => {
       let response;
       const searchTerm = debouncedSearchTerm.trim();
 
-      // Use handleFilterUser with teacher role and combine with search term if exists
       if (searchTerm) {
-        // response = await handleSearchUser(searchTerm, page - 1, 50);
-
-        // if (response?.status === 200 && response?.data) {
-        //   const teacherUsers = response.data.users.filter(
-        //     (user) => user.role?.toUpperCase() === "EMPLOYEE"
-        //   );
-        //   console.log(teacherUsers);
-
-        //   response.data.users = teacherUsers;
-        //   response.data.totalElements = teacherUsers.length;
-        //   response.data.totalPages = Math.ceil(
-        //     teacherUsers.length / pagination.pageSize
-        //   );
-        // }
-        let allUsers = [];
-        let currentPage = 0;
-        let hasMore = true;
-
-        while (hasMore) {
-          const res = await handleSearchUser(searchTerm, currentPage, 50);
-          if (res?.status !== 200 || !res?.data?.users) break;
-
-          allUsers = allUsers.concat(res.data.users);
-
-          hasMore = currentPage + 1 < res.data.totalPages;
-          currentPage++;
-        }
-
-        const employeeUsers = allUsers.filter(
-          (user) => user.role?.toUpperCase() === "EMPLOYEE"
+        response = await handleSearchUser(
+          searchTerm,
+          "EMPLOYEE",
+          page - 1,
+          pagination.pageSize
         );
-        console.log(employeeUsers);
-        setUsers(employeeUsers);
-        setPagination({
-          current: page,
-          pageSize: pagination.pageSize,
-          total: pagination.totalElements,
-          totalPages: Math.ceil(employeeUsers.length / 50),
-          totalElements: employeeUsers.length,
-        });
-        // return {
-        //   users: employeeUsers,
-        //   totalElements: employeeUsers.length,
-        //   totalPages: Math.ceil(employeeUsers.length / 50), // or your actual pageSize
-        // };
       } else {
         response = await handleFilterUser(
-          "employee",
+          "EMPLOYEE",
           page - 1,
           pagination.pageSize
         );

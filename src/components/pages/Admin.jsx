@@ -90,12 +90,7 @@ const AdminDashboard = () => {
       icon: <Sheet size={16} />,
       label: "Quản lý học kỳ",
     },
-    {
-      key: "notificationGroup",
-      icon: <NotificationOutlined />,
-      label: "Quản lý thông báo nhóm học tập",
-      title: "Quản lý thông báo nhóm học tập",
-    },
+
     {
       key: "group",
       icon: <TeamOutlined />,

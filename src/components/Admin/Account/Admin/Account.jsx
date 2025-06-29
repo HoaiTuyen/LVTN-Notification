@@ -113,32 +113,10 @@ const Account = () => {
         // searchTerm ? `${searchTerm} ${roleFilter}`.trim() : roleFilter,
         response = await handleSearchUser(
           searchTerm,
+          "ADMIN",
           page - 1,
           pagination.pageSize
         );
-        console.log(response);
-
-        if (response?.status === 200 && response?.data) {
-          // Lọc role ADMIN
-          const allAdmins = response.data.users.filter(
-            (user) => user.role === "ADMIN"
-          );
-          console.log(allAdmins);
-
-          const startIndex = (page - 1) * pagination.pageSize;
-          const endIndex = startIndex + pagination.pageSize;
-          const paginatedAdmins = allAdmins.slice(startIndex, endIndex);
-
-          setUsers(paginatedAdmins);
-          setPagination({
-            current: page,
-            pageSize: 50,
-            total: allAdmins.length,
-            totalPages: Math.ceil(allAdmins.length / pagination.pageSize),
-            totalElements: allAdmins.length,
-          });
-          return;
-        }
       }
 
       if (response?.status === 200 && response?.data) {

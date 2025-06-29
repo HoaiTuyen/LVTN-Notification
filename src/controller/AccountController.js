@@ -83,10 +83,14 @@ export const handleUpdateUser = async (data) => {
     }
   }
 };
-export const handleSearchUser = async (keyword, page = 0, pageSize = 50) => {
+export const handleSearchUser = async (
+  keyword,
+  role,
+  page = 0,
+  pageSize = 50
+) => {
   try {
-    const response = await searchUser(keyword, page, pageSize);
-
+    const response = await searchUser(keyword, role, page, pageSize);
     return response;
   } catch (error) {
     if (error) {

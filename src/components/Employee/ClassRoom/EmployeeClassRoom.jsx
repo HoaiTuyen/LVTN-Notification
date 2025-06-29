@@ -242,15 +242,7 @@ const EmployeeClassName = () => {
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link to="">
-                                  <FileText className="h-4 w-4" />
-                                  Xem chi tiết
-                                </Link>
-                              </DropdownMenuItem>
+
                               <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"
@@ -274,7 +266,7 @@ const EmployeeClassName = () => {
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
 
-                              <DropdownMenuSeparator />
+                              {/* <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-red-600"
                                 onClick={() => {
@@ -283,7 +275,7 @@ const EmployeeClassName = () => {
                                 }}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Xóa
-                              </DropdownMenuItem>
+                              </DropdownMenuItem> */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

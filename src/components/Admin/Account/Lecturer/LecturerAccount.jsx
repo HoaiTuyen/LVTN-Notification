@@ -91,29 +91,16 @@ const LecturerAccount = () => {
       let response;
       const searchTerm = debouncedSearchTerm.trim();
 
-      // Use handleFilterUser with teacher role and combine with search term if exists
       if (searchTerm) {
         response = await handleSearchUser(
           searchTerm,
+          "TEACHER",
           page - 1,
           pagination.pageSize
         );
-        // Filter the results to only show teacher accounts
-        if (response?.status === 200 && response?.data) {
-          const teacherUsers = response.data.users.filter(
-            (user) => user.role?.toUpperCase() === "TEACHER"
-          );
-          console.log(teacherUsers);
-
-          response.data.users = teacherUsers;
-          response.data.totalElements = teacherUsers.length;
-          response.data.totalPages = Math.ceil(
-            teacherUsers.length / pagination.pageSize
-          );
-        }
       } else {
         response = await handleFilterUser(
-          "teacher",
+          "TEACHER",
           page - 1,
           pagination.pageSize
         );
@@ -222,7 +209,7 @@ const LecturerAccount = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select
+              {/* <Select
                 value={selectedRole}
                 onValueChange={(value) => setSelectedRole(value)}
               >
@@ -235,7 +222,7 @@ const LecturerAccount = () => {
                   <SelectItem value="STUDENT">Student</SelectItem>
                   <SelectItem value="TEACHER">Teacher</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
 
             {/* Table */}

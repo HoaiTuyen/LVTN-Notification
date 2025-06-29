@@ -75,6 +75,7 @@ const Student = () => {
       .join(" ");
     if (keyword.trim() === "") {
       response = await handleListStudent(page - 1, pagination.pageSize);
+      console.log(response);
     } else {
       const searchTerm = debouncedSearchTerm.trim();
       const status = selectStatus !== "all" ? selectStatus : "";
