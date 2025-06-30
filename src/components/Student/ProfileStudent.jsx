@@ -210,7 +210,7 @@ const StudentProfilePage = () => {
                     <Avatar className="h-32 w-32">
                       <AvatarImage
                         src={tempImage || userImage}
-                        alt={profileData.firstName}
+                        // alt={profileData.firstName}
                       />
                       <AvatarFallback>{profileData.lastName}</AvatarFallback>
                     </Avatar>

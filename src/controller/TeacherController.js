@@ -8,6 +8,7 @@ import {
   getListTeacherExcel,
   filterTeacher,
   teacherDetail,
+  listClassOfTeacher,
 } from "../servicers/TeacherServicer";
 
 export const handleAddTeacher = async (dataTeacher) => {
@@ -197,6 +198,27 @@ export const handleFilterTeacher = async (page = 0, pageSize = 10) => {
 export const handleTeacherDetail = async (id) => {
   try {
     const response = await teacherDetail(id);
+
+    if (response?.data) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message ||
+        "Đã xảy ra lỗi khi lấy danh sách sinh viên",
+    };
+  }
+};
+
+export const handleListClassOfTeacher = async (id) => {
+  try {
+    const response = await listClassOfTeacher(id);
 
     if (response?.data) {
       return {

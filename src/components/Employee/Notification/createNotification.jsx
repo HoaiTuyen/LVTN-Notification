@@ -50,12 +50,6 @@ const EmployeeCreateNotification = () => {
     notificationType: "",
     departmentId: "",
     studentId: "",
-
-    // priority: "medium",
-    // targetAudience: [],
-    // scheduleDate: "",
-    // scheduleTime: "",
-    // attachments: [],
   });
 
   const [errors, setErrors] = useState([]);

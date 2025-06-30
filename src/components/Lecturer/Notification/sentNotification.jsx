@@ -250,7 +250,7 @@ const LecturerSentNotifications = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex-1 space-y-2">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold">
+                              <h3 className="font-semibold hover:text-blue-600">
                                 {notification.title}
                               </h3>
                               {notification.notificationType && (

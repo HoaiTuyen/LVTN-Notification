@@ -42,6 +42,8 @@ import DetailGroupLecturer from "../components/Lecturer/GroupClass/DetailGroup";
 import LecturerNotificationDetail from "../components/Lecturer/Notification/DetailNotification";
 import LecturerSentNotifications from "../components/Lecturer/Notification/SentNotification";
 import HomeLecturerPage from "../components/Lecturer/Home/HomeLecturerPage";
+import ClassCharge from "../components/Lecturer/ClassCharge/ClassCharge";
+import ClassDetail from "../components/Lecturer/ClassCharge/ClassDetail";
 //Employee
 import EmployeeCreateNotification from "../components/Employee/Notification/createNotification";
 import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
@@ -120,6 +122,8 @@ function AppRoutes() {
 
             <Route path="profile" element={<TeacherProfile />} />
             <Route path="subjectCharge" element={<SubjectCharge />} />
+            <Route path="class-charge" element={<ClassCharge />} />
+            <Route path="class-charge/:classId" element={<ClassDetail />} />
             <Route
               path="notification"
               element={<LecturerCreateNotification />}

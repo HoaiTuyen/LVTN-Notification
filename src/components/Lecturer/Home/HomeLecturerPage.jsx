@@ -205,32 +205,6 @@ const HomeLecturerPage = () => {
         </div>
 
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Thao tác nhanh</CardTitle>
-            <CardDescription>Các chức năng thường dùng</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Button className="h-20 flex-col space-y-2">
-                <MessageSquare className="h-6 w-6" />
-                <span>Tạo thông báo</span>
-              </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Users className="h-6 w-6" />
-                <span>Tạo nhóm học tập</span>
-              </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <BookOpen className="h-6 w-6" />
-                <span>Quản lý môn học</span>
-              </Button>
-              <Button variant="outline" className="h-20 flex-col space-y-2">
-                <Calendar className="h-6 w-6" />
-                <span>Xem lịch giảng</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

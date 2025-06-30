@@ -31,10 +31,9 @@ const Student = () => {
 
   const [notificationCount, setNotificationCount] = useState(0);
   const [notificationList, setNotificationList] = useState([]);
-  const [groupTeacherMap, setGroupTeacherMap] = useState({});
 
   const [groupStudents, setGroupStudents] = useState([]);
-
+  const [userImage, setUserImage] = useState("");
   const [userInfo, setUserInfo] = useState([]);
 
   const fetchListGroupById = async () => {
@@ -206,14 +205,14 @@ const Student = () => {
         return;
       }
       const req = await handleGetDetailUser(data.userId);
+      console.log(req);
       if (req?.data) {
         if (req.data.studentId) {
+          setUserImage(req.data.image);
           const detailStudent = await handleStudentDetail(req.data.studentId);
           setUserInfo(detailStudent.data);
-        } else if (req.data.teacherId) {
-          const detailTeacher = await handleStudentDetail(req.data.teacherId);
-          setUserInfo(detailTeacher.data);
         } else {
+          setUserInfo([]);
           console.error("No user data found in response");
         }
       } else {
@@ -553,7 +552,7 @@ const Student = () => {
             <div style={{ cursor: "pointer", paddingRight: "25px" }}>
               {/* <Avatar icon={<UserOutlined />} /> */}
               <Avatar className="w-10 h-10  shadow-sm ring-1 ring-gray-200">
-                <AvatarImage src="" alt="Logo" />
+                <AvatarImage src={userImage || "No image"} alt="Logo" />
                 <AvatarFallback></AvatarFallback>
               </Avatar>
             </div>

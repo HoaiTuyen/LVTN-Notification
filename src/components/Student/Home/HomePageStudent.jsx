@@ -175,6 +175,10 @@ const HomePageStudent = () => {
                   <div className="flex items-center justify-center py-4">
                     <Spin size="large" />
                   </div>
+                ) : notifications.length === 0 ? (
+                  <p className="text-center text-gray-500">
+                    Không có thông báo
+                  </p>
                 ) : (
                   notifications.slice(0, 5).map((notification) => (
                     <div
@@ -206,9 +210,11 @@ const HomePageStudent = () => {
                   ))
                 )}
               </div>
-              <Button asChild variant="outline" className="w-full mt-4">
-                <Link to="/sinh-vien/notification">Xem tất cả thông báo</Link>
-              </Button>
+              {notifications.length > 5 && (
+                <Button asChild variant="outline" className="w-full mt-4">
+                  <Link to="/sinh-vien/notification">Xem tất cả thông báo</Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -222,37 +228,51 @@ const HomePageStudent = () => {
                 Các nhóm học tập bạn đang tham gia
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {loadingGroups ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Spin size="large" />
-                  </div>
-                ) : (
-                  groups.slice(0, 5).map((group) => (
-                    <div key={group.id} className="flex items-center space-x-3">
-                      <Avatar className="h-10 w-10 ">
-                        <AvatarFallback className="bg-blue-600 text-white">
-                          {group.teacherName
-                            .split(" ")
-                            .map((word) => word[0])
-                            .join("")
-                            .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{group.groupName}</p>
-                        <p className="text-xs text-gray-500">
-                          Giảng viên: {group.teacherName}
-                        </p>
-                      </div>
+            <CardContent className="h-full">
+              <div className="flex flex-col h-full">
+                <div className="flex-1 space-y-4">
+                  {loadingGroups ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Spin size="large" />
                     </div>
-                  ))
+                  ) : groups.length === 0 ? (
+                    <p className="text-center text-gray-500">
+                      Không có nhóm học tập
+                    </p>
+                  ) : (
+                    groups.slice(0, 5).map((group) => (
+                      <div
+                        key={group.id}
+                        className="flex items-center space-x-3"
+                      >
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-blue-600 text-white">
+                            {group.teacherName
+                              .split(" ")
+                              .map((word) => word[0])
+                              .join("")
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium">
+                            {group.groupName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Giảng viên: {group.teacherName}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {groups.length > 0 && (
+                  <Button asChild variant="outline" className="w-full mt-4">
+                    <Link to="/sinh-vien/groupStudy">Xem tất cả nhóm</Link>
+                  </Button>
                 )}
               </div>
-              <Button asChild variant="outline" className="w-full mt-4">
-                <Link to="/sinh-vien/groupStudy">Xem tất cả nhóm</Link>
-              </Button>
             </CardContent>
           </Card>
         </motion.div>

@@ -62,7 +62,7 @@ const LecturerDashboard = () => {
       label: "Môn học phụ trách",
     },
     {
-      key: "classCharge",
+      key: "class-charge",
       icon: <GraduationCap size={16} />,
       label: "Lớp học phụ trách",
     },

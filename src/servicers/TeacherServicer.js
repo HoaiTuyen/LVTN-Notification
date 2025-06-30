@@ -51,3 +51,7 @@ export const filterTeacher = (keyword = "TEACHER", page = 0, pageSize = 10) => {
 export const teacherDetail = (id) => {
   return api.post(`/teacher/teacher-detail?id=${id}`);
 };
+
+export const listClassOfTeacher = (id) => {
+  return api.post(`/teacher/getall_class?id=${id}`);
+};
