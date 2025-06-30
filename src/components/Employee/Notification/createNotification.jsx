@@ -35,6 +35,7 @@ import { handleCreateNotification } from "../../../controller/NotificationContro
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { handleListDepartment } from "../../../controller/DepartmentController";
 import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 const EmployeeCreateNotification = () => {
   const { connected } = useWebSocket();
 
@@ -44,6 +45,7 @@ const EmployeeCreateNotification = () => {
     }
   }, [connected]);
 
+  const { setLoading } = useLoading();
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -94,6 +96,7 @@ const EmployeeCreateNotification = () => {
 
     try {
       setIsLoading(true);
+      setLoading(true);
       const res = await handleCreateNotification(form);
 
       if (res.status === 201) {
@@ -124,6 +127,7 @@ const EmployeeCreateNotification = () => {
       console.error(err);
     } finally {
       setIsLoading(false);
+      setLoading(false);
     }
   };
   const fetchNotifyType = async () => {
@@ -449,17 +453,11 @@ const EmployeeCreateNotification = () => {
                       + Thêm file
                     </Button>
 
-                    <div className="flex gap-4">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        Lưu nháp
-                      </Button>
+                    <div className="flex gap-4 justify-between">
+                      <div></div>
                       <Button
                         type="submit"
-                        className="flex-1"
+                        className="cursor-pointer"
                         disabled={isLoading}
                       >
                         <Send className="mr-2 h-4 w-4" />

@@ -19,6 +19,8 @@ import {
   Filter,
   BookMarkedIcon as MarkAsUnread,
   Clock,
+  Mail,
+  MailOpen,
 } from "lucide-react";
 import { Pagination } from "antd";
 import dayjs from "dayjs";
@@ -115,42 +117,85 @@ const NotificationsPage = () => {
     fetchNotificationTypes();
   }, [searchParams]);
 
-  const NotificationCard = ({ notification }) => (
+  // const NotificationCard = ({ notification }) => (
+  //   <Card className="p-0">
+  //     <CardHeader className="pt-5">
+  //       <div className="flex items-start justify-between">
+  //         <div className="flex-1">
+  //           <div className="flex items-center gap-2 flex-wrap">
+  //             <CardTitle
+  //               className="text-base cursor-pointer hover:text-blue-500"
+  //               onClick={(e) => handleViewDetail(notification.id, e)}
+  //             >
+  //               {notification.title}
+  //             </CardTitle>
+  //             {notification.notificationType && (
+  //               <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
+  //                 {notification.notificationType}
+  //               </Badge>
+  //             )}
+  //           </div>
+  //           <div className="flex items-center pt-3 text-sm text-muted-foreground">
+  //             <Clock className="h-3 w-3 mr-1" />
+  //             {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </CardHeader>
+  //     <CardContent>
+  //       <div className="flex items-center justify-end space-x-2 mb-3">
+  //         <Button variant="ghost" size="sm">
+  //           <MarkAsUnread className="h-3 w-3 mr-1" />
+  //           {notification.isRead ? "Đánh dấu chưa đọc" : "Đánh dấu đã đọc"}
+  //         </Button>
+  //       </div>
+  //     </CardContent>
+  //   </Card>
+  // );
+  const NotificationCard = ({ notification, onToggleRead, onViewDetail }) => (
     <Card className="p-0">
       <CardHeader className="pt-5">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <CardTitle
-                className="text-base cursor-pointer hover:text-blue-500"
-                onClick={(e) => handleViewDetail(notification.id, e)}
-              >
-                {notification.title}
-              </CardTitle>
-              {notification.notificationType && (
-                <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
-                  {notification.notificationType}
-                </Badge>
-              )}
-            </div>
-            <div className="flex items-center pt-3 text-sm text-muted-foreground">
+        <div className="flex items-center justify-between gap-2 pb-0">
+          {/* LEFT: Title + Badge + Date */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <CardTitle
+              className="text-base cursor-pointer hover:text-blue-500"
+              onClick={(e) => {
+                handleViewDetail(notification.id, e);
+              }}
+            >
+              {notification.title}
+            </CardTitle>
+
+            {notification.notificationType && (
+              <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
+                {notification.notificationType}
+              </Badge>
+            )}
+
+            <div className="flex items-center text-sm text-muted-foreground">
               <Clock className="h-3 w-3 mr-1" />
               {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
             </div>
           </div>
+
+          {/* RIGHT: Toggle read/unread */}
+          <div
+            onClick={() => onToggleRead(notification.id)}
+            className="cursor-pointer p-2 rounded-full hover:bg-muted transition"
+          >
+            {notification.isRead ? (
+              <MailOpen size={25} className="text-gray-700" />
+            ) : (
+              <Mail size={25} className="text-gray-700" />
+            )}
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex items-center justify-end space-x-2 mb-3">
-          <Button variant="ghost" size="sm">
-            <MarkAsUnread className="h-3 w-3 mr-1" />
-            {notification.isRead ? "Đánh dấu chưa đọc" : "Đánh dấu đã đọc"}
-          </Button>
-        </div>
-      </CardContent>
+
+      <CardContent />
     </Card>
   );
-
   return (
     <motion.div
       initial={{ opacity: 0 }}

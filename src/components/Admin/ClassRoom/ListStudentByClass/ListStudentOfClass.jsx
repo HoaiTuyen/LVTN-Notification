@@ -27,6 +27,7 @@ import { handleListStudentByClass } from "../../../../controller/ClassController
 import { handleSearchStudent } from "../../../../controller/StudentController";
 import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
 import useDebounce from "../../../../hooks/useDebounce";
+import DetailStudentOfClass from "./DetailStudentByClass";
 const ListStudentOfClass = () => {
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") || "1";
@@ -35,6 +36,8 @@ const ListStudentOfClass = () => {
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [studentByClass, setStudentByClass] = useState([]);
   const [openUpload, setOpenUpload] = useState(false);
+  const [openDetail, setOpenDetail] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [dataClass, setDataClass] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -144,7 +147,7 @@ const ListStudentOfClass = () => {
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <CardTitle>Danh sách sinh viên đăng ký</CardTitle>
+                <CardTitle>Danh sách sinh viên</CardTitle>
                 <CardDescription>
                   Tổng số: {dataClass.totalElements} sinh viên
                 </CardDescription>
@@ -207,12 +210,19 @@ const ListStudentOfClass = () => {
                         colSpan={6}
                         className="text-center h-24 text-muted-foreground"
                       >
-                        Không có sinh viên nào đăng ký môn học này
+                        Không có sinh viên nào
                       </TableCell>
                     </TableRow>
                   ) : (
                     studentByClass.map((student) => (
-                      <TableRow key={student.id}>
+                      <TableRow
+                        key={student.id}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelectedStudent(student);
+                          setOpenDetail(true);
+                        }}
+                      >
                         <TableCell className="font-medium">
                           {student.id}
                         </TableCell>
@@ -251,20 +261,28 @@ const ListStudentOfClass = () => {
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-center mt-4">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={(page) =>
-              setPagination((prev) => ({
-                ...prev,
-                current: page,
-              }))
-            }
+        {openDetail && (
+          <DetailStudentOfClass
+            open={openDetail}
+            onClose={() => setOpenDetail(false)}
+            student={selectedStudent}
           />
-        </div>
+        )}
+        {pagination.totalElements >= 10 && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={pagination.current}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+              onChange={(page) =>
+                setPagination((prev) => ({
+                  ...prev,
+                  current: page,
+                }))
+              }
+            />
+          </div>
+        )}
       </div>
     </div>
   );

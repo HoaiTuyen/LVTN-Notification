@@ -13,7 +13,15 @@ import {
 } from "@ant-design/icons";
 import { Dropdown as AntdDropdown } from "antd";
 
-import { Bell, User, LogOut, Group, Users, BookOpen } from "lucide-react";
+import {
+  Bell,
+  User,
+  LogOut,
+  Group,
+  Users,
+  BookOpen,
+  BellRing,
+} from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -302,7 +310,7 @@ const Student = () => {
 
       const renderNotificationItem = (item) => {
         const isGroup = !!item.studyGroupId;
-        const typeIcon = isGroup ? <Users size={15} /> : <Bell size={15} />;
+        const typeIcon = isGroup ? <Users size={15} /> : <BellRing size={15} />;
         const getInitials = (name) => {
           if (!name) return "";
           const parts = name.trim().split(" ");
@@ -319,10 +327,10 @@ const Student = () => {
             {isGroup ? (
               <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
                 {/* <AvatarImage
-                  src="/img/logo.png"
-                  alt="Logo"
-                  className="object-contain w-full h-full scale-90"
-                /> */}
+                    src="/img/logo.png"
+                    alt="Logo"
+                    className="object-contain w-full h-full scale-90"
+                  /> */}
                 <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
                   {getInitials(groupTeacherMap[item.studyGroupId])}
                 </AvatarFallback>
@@ -332,7 +340,7 @@ const Student = () => {
                 <AvatarImage
                   src="/img/logo.png"
                   alt="Logo"
-                  className="object-contain w-full h-full scale-90"
+                  className="object-contain w-full h-full scale-150"
                 />
                 <AvatarFallback className="bg-blue-100 text-blue-800 text-base font-semibold flex items-center justify-center">
                   LOGO
@@ -468,13 +476,13 @@ const Student = () => {
             />
           )}
           {/* <div className="relative inline-block cursor-pointer">
-            <Bell className="text-gray-800" size={25} />
-            {notificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-                {notificationCount > 99 ? "99+" : notificationCount}
-              </span>
-            )}
-          </div> */}
+              <Bell className="text-gray-800" size={25} />
+              {notificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                  {notificationCount > 99 ? "99+" : notificationCount}
+                </span>
+              )}
+            </div> */}
           <Dropdown
             overlay={
               <NotificationDropdown

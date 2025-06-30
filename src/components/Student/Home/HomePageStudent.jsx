@@ -210,7 +210,7 @@ const HomePageStudent = () => {
                   ))
                 )}
               </div>
-              {notifications.length > 5 && (
+              {notifications.length > 0 && (
                 <Button asChild variant="outline" className="w-full mt-4">
                   <Link to="/sinh-vien/notification">Xem tất cả thông báo</Link>
                 </Button>
