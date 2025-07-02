@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-
+import StudentSelect from "react-select";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import useWebSocket from "@/config/Websorket";
 import { handleCreateUserNotification } from "../../../controller/NotificationController";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { handleListDepartment } from "../../../controller/DepartmentController";
+import { handleListStudent } from "../../../controller/StudentController";
 import { toast } from "react-toastify";
 import { useLoading } from "../../../context/LoadingProvider";
 const EmployeeCreateNotificationStudent = () => {
@@ -57,8 +58,8 @@ const EmployeeCreateNotificationStudent = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [fileDisplayNames, setFileDisplayNames] = useState([""]);
-  const [notificationTypes, setNotificationTypes] = useState([]);
-  const [departments, setDepartments] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
   const [files, setFiles] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const hanndleSubmit = async (e) => {
@@ -68,20 +69,11 @@ const EmployeeCreateNotificationStudent = () => {
       return;
     }
     if (!validateForm) return;
-
-    // Kiểm tra file + tên hiển thị
-    // const hasEmptyName = fileDisplayNames.some((n) => !n.trim());
-    // const hasEmptyFile = files.some((f) => !f);
-    // if (hasEmptyName || hasEmptyFile) {
-    //   toast.error("Vui lòng nhập tên hiển thị và chọn đầy đủ file PDF");
-    //   return;
-    // }
-
     const form = new FormData();
     form.append("title", formData.title);
     form.append("content", formData.content);
-    form.append("studentId", formData.studentId);
-    form.append("isMail", formData.isMail);
+    form.append("studentId", selectedStudents.map((s) => s.id).join(","));
+    form.append("isMail", formData.isMail ? "true" : "false");
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);
       form.append(`files[${index}]`, files[index]);
@@ -100,6 +92,7 @@ const EmployeeCreateNotificationStudent = () => {
         });
         setFileDisplayNames([""]);
         setFiles([]);
+        setSelectedStudents([]);
         setFileInputKey(Date.now());
 
         toast.success("Gửi thông báo thành công!");
@@ -121,26 +114,7 @@ const EmployeeCreateNotificationStudent = () => {
       setLoading(false);
     }
   };
-  const fetchNotifyType = async () => {
-    const req = await handleListNotificationType();
-    if (req?.data) {
-      setNotificationTypes(req.data.notificationTypes);
-    }
-  };
 
-  // const handleInputChange = (field, value) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [field]: value,
-  //   }));
-
-  //   if (errors[field]) {
-  //     setErrors((prev) => ({
-  //       ...prev,
-  //       [field]: "",
-  //     }));
-  //   }
-  // };
   const handleInputChange = (field, value) => {
     setFormData((prev) => {
       const updated = {
@@ -174,21 +148,45 @@ const EmployeeCreateNotificationStudent = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const fetchListDepartment = async () => {
-    const listDepartment = await handleListDepartment();
 
-    if (listDepartment?.data) {
-      setDepartments(listDepartment.data.departments);
-    }
-  };
   const isValidStudentCode = (code) => {
     const regex = /^DH\d{8,}$/i;
     return regex.test(code.trim());
   };
+  const fetchStudents = async () => {
+    const pageSize = 10;
+    let allStudents = [];
+    let page = 0;
+    let totalPages = 1;
+
+    try {
+      do {
+        const res = await handleListStudent(page, pageSize);
+
+        if (res?.data?.students) {
+          allStudents = [...allStudents, ...res.data.students];
+          totalPages = res.data.totalPages;
+          page++;
+        } else {
+          break; // stop if bad data
+        }
+      } while (page < totalPages);
+
+      const formatted = allStudents.map((s) => ({
+        value: s.id,
+        label: `${s.id} - ${s.firstName} ${s.lastName}`,
+        ...s,
+      }));
+
+      setStudents(formatted);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách sinh viên:", error);
+      toast.error("Không thể tải danh sách sinh viên");
+    }
+  };
 
   useEffect(() => {
-    fetchNotifyType();
-    fetchListDepartment();
+    fetchStudents();
   }, []);
   return (
     <div className="min-h-screen w-full bg-white p-0">
@@ -228,14 +226,28 @@ const EmployeeCreateNotificationStudent = () => {
                         <Label htmlFor="studentId">
                           Mã sinh viên (nếu gửi cho 1 sinh viên)
                         </Label>
-                        <Input
+                        {/* <Input
                           id="studentId"
                           placeholder="Nhập mã sinh viên (VD: DH52110090)"
                           value={formData.studentId}
                           onChange={(e) =>
                             handleInputChange("studentId", e.target.value)
                           }
-                        />
+                        /> */}
+                        <div className="space-y-2">
+                          <StudentSelect
+                            isMulti
+                            name="students"
+                            options={students}
+                            value={selectedStudents}
+                            onChange={(selected) =>
+                              setSelectedStudents(selected)
+                            }
+                            className="react-select-container"
+                            classNamePrefix="select"
+                            placeholder="Chọn sinh viên theo mã, tên hoặc lớp"
+                          />
+                        </div>
 
                         <div className="flex items-center space-x-2 pl-1">
                           <Checkbox

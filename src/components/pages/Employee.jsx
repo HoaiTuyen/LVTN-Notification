@@ -118,7 +118,6 @@ const EmployeeDashboard = () => {
       style: {
         color: "red",
         fontWeight: "bold",
-        BorderTopOutlined: "1px solid #e5e7eb",
       },
     },
   ];
@@ -130,6 +129,10 @@ const EmployeeDashboard = () => {
       onClick={(e) => {
         setSelectedTab(e.key);
         setDrawerVisible(false);
+        if (e.key === "logout") {
+          handleLogoutUser();
+          return;
+        }
         navigate(`/nhan-vien/${e.key}`);
       }}
       items={items}

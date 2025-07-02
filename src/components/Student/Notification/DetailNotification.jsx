@@ -59,6 +59,7 @@ const StudentNotificationDetail = () => {
       <div className="h-full max-h-[750px] overflow-y-auto p-10 bg-white space-y-6">
         <Button
           variant="ghost"
+          className="cursor-pointer"
           onClick={() =>
             navigate(
               `/sinh-vien/notification?search=${search}&type=${type}&page=${page}`

@@ -8,7 +8,7 @@ const useWebSocket = () => {
   const [error, setError] = useState(null);
 
   const connectWebSocket = () => {
-    const socket = new SockJS("http://localhost:8082/ws"); // Xác nhận port
+    const socket = new SockJS("http://localhost:8080/ws"); // Xác nhận port
     const stompClient = Stomp.over(socket);
     const token = localStorage.getItem("access_token");
 

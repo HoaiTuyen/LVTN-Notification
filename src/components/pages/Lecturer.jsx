@@ -102,6 +102,10 @@ const LecturerDashboard = () => {
       onClick={(e) => {
         setSelectedTab(e.key);
         setDrawerVisible(false);
+        if (e.key === "logout") {
+          handleLogoutUser();
+          return;
+        }
         navigate(`/giang-vien/${e.key}`);
       }}
       items={items}

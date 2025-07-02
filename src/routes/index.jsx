@@ -33,6 +33,7 @@ import StudentNotificationDetail from "../components/Student/Notification/Detail
 import DetailGroupStudent from "../components/Student/Group/DetailGroup";
 import HomePageStudent from "../components/Student/Home/HomePageStudent";
 import StudentSubject from "../components/Student/Subject/StudentSubject";
+import Test from "../components/Student/Test";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
@@ -56,7 +57,7 @@ import EmployeeListStudentOfClass from "../components/Employee/ClassRoom/ListStu
 import EmployeeSemester from "../components/Employee/Semester/EmployeeSemester";
 import EmployeeSubject from "../components/Employee/Subject/EmployeeSubject";
 import EmployeeCreateNotificationStudent from "../components/Employee/Notification/createNotificationStudent";
-import StudyModule from "../components/Employee/StudyModule/StudyModule";
+import StudyModule from "../components/Employee/Section/StudyModule";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -212,6 +213,7 @@ function AppRoutes() {
               path="group-study/:groupStudyId"
               element={<DetailGroupStudent />}
             />
+            <Route path="tester" element={<Test />} />
           </Route>
         </Routes>
       </AnimatePresence>

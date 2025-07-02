@@ -91,6 +91,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
   //   }, []);
   const handleSubmit = async () => {
     if (
+      !form.id ||
       !form.academicYear ||
       !form.nameSemester ||
       !form.startDate ||
@@ -169,11 +170,16 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
             </>
           )}
 
+          <div className="grid gap-2">
+            <Label htmlFor="semesterId">Mã học kỳ</Label>
+            <Input
+              id="semesterId"
+              placeholder="VD: 211"
+              value={form.id}
+              onChange={(e) => setForm({ ...form, id: e.target.value })}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4 py-4">
-            {/* <div className="grid gap-2">
-                <Label htmlFor="groupId">Mã nhóm</Label>
-                <Input id="groupId" placeholder="VD: CNTT01" />
-              </div> */}
             <div className="grid gap-2">
               <Label htmlFor="nameSemester">Tên học kỳ</Label>
               <Input

@@ -167,8 +167,27 @@ const Student = () => {
         });
         return sub;
       });
+      const scheduleSub = stompClient.current.subscribe(
+        "/user/queue/schedule",
+        (message) => {
+          const parsedMessage = JSON.parse(message.body);
+          console.log("Received schedule notification:", parsedMessage);
 
-      subscriptions = [generalSub, departmentSub, studentSub, ...groupSubs];
+          // setNotificationList((prev) => {
+          //   if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+          //   return [{ ...parsedMessage, isRead: false }, ...prev];
+          // });
+          // setNotificationCount((prev) => prev + 1);
+        }
+      );
+
+      subscriptions = [
+        generalSub,
+        departmentSub,
+        studentSub,
+        scheduleSub,
+        ...groupSubs,
+      ];
     }
 
     return () => {
@@ -274,7 +293,7 @@ const Student = () => {
       const handleNotificationClick = (item) => {
         const isGroup = !!item.studyGroupId;
         const link = isGroup
-          ? `/sinh-vien/groupStudy/${item.studyGroupId}`
+          ? `/sinh-vien/group-study/${item.studyGroupId}`
           : `/sinh-vien/notification/${item.id}`;
         navigate(link);
 
@@ -428,7 +447,15 @@ const Student = () => {
       style: {
         color: "red",
         fontWeight: "bold",
-        BorderTopOutlined: "1px solid #e5e7eb",
+      },
+    },
+    {
+      key: "tester",
+      label: "Tester",
+      icon: <LogOut size={16} />,
+      style: {
+        color: "red",
+        fontWeight: "bold",
       },
     },
   ];
@@ -439,6 +466,10 @@ const Student = () => {
       onClick={(e) => {
         setSelectedTab(e.key);
         setDrawerVisible(false);
+        if (e.key === "logout") {
+          handleLogoutUser();
+          return;
+        }
         navigate(`/sinh-vien/${e.key}`);
       }}
       items={items}

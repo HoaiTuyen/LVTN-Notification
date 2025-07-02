@@ -58,6 +58,7 @@ const DetailGroupStudent = () => {
     const listNotificationGroup = await handleListNotificationGroup(
       groupStudyId
     );
+    console.log(listNotificationGroup);
     if (listNotificationGroup?.data || listNotificationGroup?.status === 200) {
       const sorted = [...listNotificationGroup.data].sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
@@ -104,6 +105,7 @@ const DetailGroupStudent = () => {
               <Button
                 variant="outline"
                 size="sm"
+                className="cursor-pointer"
                 onClick={() => navigate(backUrl)}
               >
                 <div className="flex items-center">
@@ -178,7 +180,7 @@ const DetailGroupStudent = () => {
                         className="bg-white border rounded-xl shadow-sm overflow-hidden cursor-pointer"
                       >
                         {/* Header */}
-                        <div className="p-4 flex space-x-3">
+                        {/* <div className="p-4 flex space-x-3">
                           <Avatar className="h-10 w-10">
                             <AvatarFallback className="bg-blue-500 text-white">
                               {getInitials(groupDetail.userName) ||
@@ -192,10 +194,54 @@ const DetailGroupStudent = () => {
                             <p className="text-sm text-gray-500">
                               {dayjs(notify.createdAt).format("DD [thg] M")}
                             </p>
-                            <p className="mt-2">{notify.title}</p>
+                            <div className="mt-2 space-y-1">
+                              <p className="text-base font-semibold text-gray-800">
+                                {notify.title}
+                              </p>
+                              {notify.content && (
+                                <p className="text-sm text-gray-600 whitespace-pre-line">
+                                  {notify.content}
+                                </p>
+                              )}
+                            </div>
                           </div>
                           <div className="text-gray-400 cursor-pointer">
                             <MoreVertical size={16} />
+                          </div>
+                        </div> */}
+                        <div className="p-4">
+                          {/* Header row: Avatar + name + date */}
+                          <div className="flex items-start space-x-3 mb-2">
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-blue-500 text-white">
+                                {getInitials(groupDetail.userName) ||
+                                  groupDetail.image}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <p className="font-semibold">
+                                {groupDetail.userName}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                Đã đăng vào ngày{" "}
+                                {dayjs(notify.createdAt).format("DD [thg] M")}
+                              </p>
+                            </div>
+                            <div className="text-gray-400 cursor-pointer">
+                              <MoreVertical size={16} />
+                            </div>
+                          </div>
+
+                          {/* Title + Content full width, sát trái */}
+                          <div className="space-y-1">
+                            <p className="text-base font-semibold text-gray-800">
+                              {notify.title}
+                            </p>
+                            {notify.content && (
+                              <p className="text-sm text-gray-600 whitespace-pre-line">
+                                {notify.content}
+                              </p>
+                            )}
                           </div>
                         </div>
 
