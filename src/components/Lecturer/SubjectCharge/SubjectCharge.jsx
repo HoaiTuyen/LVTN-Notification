@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -40,187 +40,244 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { handleListSemester } from "../../../controller/SemesterController";
+import { handleListClassSectionTeacher } from "../../../controller/TeacherController";
+import { jwtDecode } from "jwt-decode";
+import { handleGetDetailUser } from "../../../controller/AccountController";
 const SubjectCharge = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSemester, setSelectedSemester] = useState("current");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [semesterList, setSemesterList] = useState([]);
+  const [classSectionList, setClassSectionList] = useState([]);
 
-  const teacherCourses = [
-    {
-      id: 1,
-      code: "CS101",
-      name: "Nhập môn lập trình",
-      semester: "Học kỳ 1, 2023-2024",
-      credits: 3,
-      classes: [
-        {
-          id: 1,
-          name: "CNTT-K19A",
-          students: 45,
-          maxStudents: 50,
-          schedule: "Thứ 2, 4, 6 - 07:00-09:00",
-          room: "A101",
-        },
-        {
-          id: 2,
-          name: "CNTT-K19B",
-          students: 42,
-          maxStudents: 50,
-          schedule: "Thứ 3, 5, 7 - 09:00-11:00",
-          room: "A102",
-        },
-      ],
-      totalStudents: 87,
-      assignments: 12,
-      completedAssignments: 8,
-      avgGrade: 7.8,
-      status: "Đang giảng dạy",
-    },
-    {
-      id: 2,
-      code: "CS201",
-      name: "Cấu trúc dữ liệu và giải thuật",
-      semester: "Học kỳ 1, 2023-2024",
-      credits: 4,
-      classes: [
-        {
-          id: 3,
-          name: "CNTT-K18A",
-          students: 38,
-          maxStudents: 40,
-          schedule: "Thứ 2, 4 - 13:00-16:00",
-          room: "B201",
-        },
-      ],
-      totalStudents: 38,
-      assignments: 15,
-      completedAssignments: 12,
-      avgGrade: 8.2,
-      status: "Đang giảng dạy",
-    },
-    {
-      id: 3,
-      code: "CS301",
-      name: "Cơ sở dữ liệu",
-      semester: "Học kỳ 1, 2023-2024",
-      credits: 4,
-      classes: [
-        {
-          id: 4,
-          name: "CNTT-K17A",
-          students: 35,
-          maxStudents: 40,
-          schedule: "Thứ 3, 5 - 07:00-10:00",
-          room: "C301",
-        },
-      ],
-      totalStudents: 35,
-      assignments: 10,
-      completedAssignments: 10,
-      avgGrade: 8.5,
-      status: "Hoàn thành",
-    },
-  ];
+  // const teacherCourses = [
+  //   {
+  //     id: 1,
+  //     code: "CS101",
+  //     name: "Nhập môn lập trình",
+  //     semester: "Học kỳ 1, 2023-2024",
+  //     credits: 3,
+  //     classes: [
+  //       {
+  //         id: 1,
+  //         name: "CNTT-K19A",
+  //         students: 45,
+  //         maxStudents: 50,
+  //         schedule: "Thứ 2, 4, 6 - 07:00-09:00",
+  //         room: "A101",
+  //       },
+  //       {
+  //         id: 2,
+  //         name: "CNTT-K19B",
+  //         students: 42,
+  //         maxStudents: 50,
+  //         schedule: "Thứ 3, 5, 7 - 09:00-11:00",
+  //         room: "A102",
+  //       },
+  //     ],
+  //     totalStudents: 87,
+  //     assignments: 12,
+  //     completedAssignments: 8,
+  //     avgGrade: 7.8,
+  //     status: "Đang giảng dạy",
+  //   },
+  //   {
+  //     id: 2,
+  //     code: "CS201",
+  //     name: "Cấu trúc dữ liệu và giải thuật",
+  //     semester: "Học kỳ 1, 2023-2024",
+  //     credits: 4,
+  //     classes: [
+  //       {
+  //         id: 3,
+  //         name: "CNTT-K18A",
+  //         students: 38,
+  //         maxStudents: 40,
+  //         schedule: "Thứ 2, 4 - 13:00-16:00",
+  //         room: "B201",
+  //       },
+  //     ],
+  //     totalStudents: 38,
+  //     assignments: 15,
+  //     completedAssignments: 12,
+  //     avgGrade: 8.2,
+  //     status: "Đang giảng dạy",
+  //   },
+  //   {
+  //     id: 3,
+  //     code: "CS301",
+  //     name: "Cơ sở dữ liệu",
+  //     semester: "Học kỳ 1, 2023-2024",
+  //     credits: 4,
+  //     classes: [
+  //       {
+  //         id: 4,
+  //         name: "CNTT-K17A",
+  //         students: 35,
+  //         maxStudents: 40,
+  //         schedule: "Thứ 3, 5 - 07:00-10:00",
+  //         room: "C301",
+  //       },
+  //     ],
+  //     totalStudents: 35,
+  //     assignments: 10,
+  //     completedAssignments: 10,
+  //     avgGrade: 8.5,
+  //     status: "Hoàn thành",
+  //   },
+  // ];
 
-  const upcomingClasses = [
-    {
-      course: "Nhập môn lập trình",
-      class: "CNTT-K19A",
-      time: "07:00 - 09:00",
-      room: "A101",
-      date: "Hôm nay",
-      students: 45,
-    },
-    {
-      course: "Cấu trúc dữ liệu và giải thuật",
-      class: "CNTT-K18A",
-      time: "13:00 - 16:00",
-      room: "B201",
-      date: "Hôm nay",
-      students: 38,
-    },
-    {
-      course: "Cơ sở dữ liệu",
-      class: "CNTT-K17A",
-      time: "07:00 - 10:00",
-      room: "C301",
-      date: "Mai",
-      students: 35,
-    },
-  ];
+  // const upcomingClasses = [
+  //   {
+  //     course: "Nhập môn lập trình",
+  //     class: "CNTT-K19A",
+  //     time: "07:00 - 09:00",
+  //     room: "A101",
+  //     date: "Hôm nay",
+  //     students: 45,
+  //   },
+  //   {
+  //     course: "Cấu trúc dữ liệu và giải thuật",
+  //     class: "CNTT-K18A",
+  //     time: "13:00 - 16:00",
+  //     room: "B201",
+  //     date: "Hôm nay",
+  //     students: 38,
+  //   },
+  //   {
+  //     course: "Cơ sở dữ liệu",
+  //     class: "CNTT-K17A",
+  //     time: "07:00 - 10:00",
+  //     room: "C301",
+  //     date: "Mai",
+  //     students: 35,
+  //   },
+  // ];
 
-  const recentActivities = [
-    {
-      type: "assignment",
-      title: "Tạo bài tập mới",
-      description: "Bài tập 5: Thuật toán sắp xếp - CS201",
-      time: "2 giờ trước",
-      icon: FileText,
-    },
-    {
-      type: "grade",
-      title: "Chấm điểm hoàn thành",
-      description: "Bài kiểm tra giữa kỳ - CS101 (45 bài)",
-      time: "5 giờ trước",
-      icon: CheckCircle,
-    },
-    {
-      type: "message",
-      title: "Phản hồi sinh viên",
-      description: "Trả lời 3 câu hỏi trong CS301",
-      time: "1 ngày trước",
-      icon: MessageSquare,
-    },
-  ];
+  // const recentActivities = [
+  //   {
+  //     type: "assignment",
+  //     title: "Tạo bài tập mới",
+  //     description: "Bài tập 5: Thuật toán sắp xếp - CS201",
+  //     time: "2 giờ trước",
+  //     icon: FileText,
+  //   },
+  //   {
+  //     type: "grade",
+  //     title: "Chấm điểm hoàn thành",
+  //     description: "Bài kiểm tra giữa kỳ - CS101 (45 bài)",
+  //     time: "5 giờ trước",
+  //     icon: CheckCircle,
+  //   },
+  //   {
+  //     type: "message",
+  //     title: "Phản hồi sinh viên",
+  //     description: "Trả lời 3 câu hỏi trong CS301",
+  //     time: "1 ngày trước",
+  //     icon: MessageSquare,
+  //   },
+  // ];
 
-  const stats = [
-    {
-      title: "Môn học phụ trách",
-      value: teacherCourses
-        .filter((c) => c.status === "Đang giảng dạy")
-        .length.toString(),
-      description: "Học kỳ này",
-      icon: BookOpen,
-      color: "text-blue-600",
-    },
-    {
-      title: "Tổng sinh viên",
-      value: teacherCourses
-        .reduce((sum, course) => sum + course.totalStudents, 0)
-        .toString(),
-      description: "Tất cả lớp học",
-      icon: Users,
-      color: "text-green-600",
-    },
-    {
-      title: "Bài tập đã giao",
-      value: teacherCourses
-        .reduce((sum, course) => sum + course.assignments, 0)
-        .toString(),
-      description: "Học kỳ này",
-      icon: FileText,
-      color: "text-purple-600",
-    },
-    {
-      title: "Điểm trung bình",
-      value: (
-        teacherCourses.reduce((sum, course) => sum + course.avgGrade, 0) /
-        teacherCourses.length
-      ).toFixed(1),
-      description: "Tất cả môn học",
-      icon: TrendingUp,
-      color: "text-orange-600",
-    },
-  ];
+  // const stats = [
+  //   {
+  //     title: "Môn học phụ trách",
+  //     value: teacherCourses
+  //       .filter((c) => c.status === "Đang giảng dạy")
+  //       .length.toString(),
+  //     description: "Học kỳ này",
+  //     icon: BookOpen,
+  //     color: "text-blue-600",
+  //   },
+  //   {
+  //     title: "Tổng sinh viên",
+  //     value: teacherCourses
+  //       .reduce((sum, course) => sum + course.totalStudents, 0)
+  //       .toString(),
+  //     description: "Tất cả lớp học",
+  //     icon: Users,
+  //     color: "text-green-600",
+  //   },
+  //   {
+  //     title: "Bài tập đã giao",
+  //     value: teacherCourses
+  //       .reduce((sum, course) => sum + course.assignments, 0)
+  //       .toString(),
+  //     description: "Học kỳ này",
+  //     icon: FileText,
+  //     color: "text-purple-600",
+  //   },
+  //   {
+  //     title: "Điểm trung bình",
+  //     value: (
+  //       teacherCourses.reduce((sum, course) => sum + course.avgGrade, 0) /
+  //       teacherCourses.length
+  //     ).toFixed(1),
+  //     description: "Tất cả môn học",
+  //     icon: TrendingUp,
+  //     color: "text-orange-600",
+  //   },
+  // ];
 
-  const filteredCourses = teacherCourses.filter((course) => {
-    const matchesSearch =
-      course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSemester =
-      selectedSemester === "all" ||
-      (selectedSemester === "current" && course.status === "Đang giảng dạy");
-    return matchesSearch && matchesSemester;
+  // const filteredCourses = teacherCourses.filter((course) => {
+  //   const matchesSearch =
+  //     course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     course.code.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesSemester =
+  //     selectedSemester === "all" ||
+  //     (selectedSemester === "current" && course.status === "Đang giảng dạy");
+  //   return matchesSearch && matchesSemester;
+  // });
+  const filteredCourses = classSectionList.map((section, index) => {
+    console.log(section);
+    return {
+      id: `${section.subjectId}-${section.id.groupId}`,
+      code: section.subjectId,
+      name: section.subjectName,
+      semester: section.semesterName,
+      classes: section.courseSchedules.map((s, i) => ({
+        id: `${section.subjectId}-${section.id.groupId}-${i}`,
+        name: `Nhóm học tập ${section.id.groupId.toString().padStart(2, "0")}`,
+        schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
+        room: s.id.room || "Trống",
+      })),
+    };
   });
+
+  const handleSemesterChange = async (value) => {
+    setSelectedSemester(value); // Cập nhật select
+    await fetchClassOfTeacher(value); // Gọi lại API với học kỳ mới
+  };
+  useEffect(() => {
+    const fetchSemester = async () => {
+      try {
+        const res = await handleListSemester("desc", 0, 10);
+        const list = res?.data?.semesters || [];
+        setSemesterList(list);
+        if (list.length > 0) {
+          setSelectedSemester(list[0].id);
+          fetchClassOfTeacher(list[0].id);
+        }
+      } catch (err) {
+        console.error("Lỗi khi fetch học kỳ:", err);
+      }
+    };
+    fetchSemester();
+  }, []);
+  const fetchClassOfTeacher = async (semesterId) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const decoded = jwtDecode(token);
+      const userId = decoded?.userId;
+      const userRes = await handleGetDetailUser(userId);
+      const teacherId = userRes?.data?.teacherId;
+      if (!teacherId) return;
+      const res = await handleListClassSectionTeacher(teacherId, semesterId);
+      console.log(res?.data?.classSections);
+      setClassSectionList(res?.data?.classSections || []);
+    } catch (err) {
+      console.error("Lỗi khi fetch lớp học phần:", err);
+    }
+  };
 
   return (
     <div className="h-full max-h-[750px] overflow-y-auto p-10 bg-white">
@@ -233,7 +290,7 @@ const SubjectCharge = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -253,7 +310,7 @@ const SubjectCharge = () => {
               </Card>
             );
           })}
-        </div>
+        </div> */}
 
         <Tabs defaultValue="courses" className="space-y-4">
           <TabsList>
@@ -273,25 +330,28 @@ const SubjectCharge = () => {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Tìm kiếm môn học..."
-                        className="pl-8 w-[250px]"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
+                    {/* <div className="relative">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Tìm kiếm môn học..."
+                          className="pl-8 w-[250px]"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                      </div> */}
                     <Select
                       value={selectedSemester}
-                      onValueChange={setSelectedSemester}
+                      onValueChange={handleSemesterChange}
                     >
-                      <SelectTrigger className="w-[180px]">
+                      <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="Chọn học kỳ" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="current">Học kỳ hiện tại</SelectItem>
-                        <SelectItem value="all">Tất cả học kỳ</SelectItem>
+                        {semesterList.map((semester) => (
+                          <SelectItem key={semester.id} value={semester.id}>
+                            {semester.nameSemester} - {semester.academicYear}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -311,7 +371,7 @@ const SubjectCharge = () => {
                               <CardTitle className="text-lg">
                                 {course.name}
                               </CardTitle>
-                              <Badge
+                              {/* <Badge
                                 variant={
                                   course.status === "Đang giảng dạy"
                                     ? "default"
@@ -319,15 +379,14 @@ const SubjectCharge = () => {
                                 }
                               >
                                 {course.status}
-                              </Badge>
+                              </Badge> */}
                             </div>
                             <CardDescription>
-                              {course.code} • {course.credits} tín chỉ •{" "}
-                              {course.semester}
+                              {course.code} • {course.semester}
                             </CardDescription>
                           </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                          {/* <DropdownMenu>
+                            <DropdownMenuTrigger>
                               <Button variant="ghost" className="h-8 w-8 p-0">
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
@@ -358,12 +417,12 @@ const SubjectCharge = () => {
                                 </Link>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
-                          </DropdownMenu>
+                          </DropdownMenu> */}
                         </div>
                       </CardHeader>
                       <CardContent>
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                          <div className="flex items-center gap-2">
+                          {/* <div className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-blue-600" />
                             <span className="text-sm">
                               <span className="font-medium">
@@ -371,8 +430,8 @@ const SubjectCharge = () => {
                               </span>{" "}
                               sinh viên
                             </span>
-                          </div>
-                          <div className="flex items-center gap-2">
+                          </div> */}
+                          {/* <div className="flex items-center gap-2">
                             <FileText className="h-4 w-4 text-green-600" />
                             <span className="text-sm">
                               <span className="font-medium">
@@ -390,7 +449,7 @@ const SubjectCharge = () => {
                                 {course.avgGrade}
                               </span>
                             </span>
-                          </div>
+                          </div> */}
                           <div className="flex items-center gap-2">
                             <BookOpen className="h-4 w-4 text-orange-600" />
                             <span className="text-sm">
@@ -415,9 +474,9 @@ const SubjectCharge = () => {
                                   <span className="font-medium text-sm">
                                     {classItem.name}
                                   </span>
-                                  <Badge variant="outline" className="text-xs">
+                                  {/* <Badge variant="outline" className="text-xs">
                                     {classItem.students}/{classItem.maxStudents}
-                                  </Badge>
+                                  </Badge> */}
                                 </div>
                                 <div className="text-xs text-muted-foreground space-y-1">
                                   <div className="flex items-center gap-1">
@@ -448,7 +507,7 @@ const SubjectCharge = () => {
                 <CardDescription>Các lớp học trong tuần này</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   {upcomingClasses.map((classItem, index) => (
                     <div
                       key={index}
@@ -488,7 +547,7 @@ const SubjectCharge = () => {
                       </div>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </CardContent>
             </Card>
           </TabsContent>
@@ -502,7 +561,7 @@ const SubjectCharge = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   {recentActivities.map((activity, index) => {
                     const Icon = activity.icon;
                     return (
@@ -527,7 +586,7 @@ const SubjectCharge = () => {
                       </div>
                     );
                   })}
-                </div>
+                </div> */}
               </CardContent>
             </Card>
           </TabsContent>

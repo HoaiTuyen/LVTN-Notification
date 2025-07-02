@@ -1,8 +1,9 @@
 import api from "../axios/customAxios";
 
-export const listSemester = (page, pageSize = 10) => {
+export const listSemester = (sort, page, pageSize = 10) => {
   return api.get("/semester/list_semesters", {
     params: {
+      sort: sort,
       page: page,
       pageSize: pageSize,
     },

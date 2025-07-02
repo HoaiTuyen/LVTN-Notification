@@ -6,9 +6,9 @@ import {
   searchSemester,
 } from "../servicers/SemesterServicer";
 
-export const handleListSemester = async (page, pageSize) => {
+export const handleListSemester = async (sort, page, pageSize) => {
   try {
-    const response = await listSemester(page, pageSize);
+    const response = await listSemester(sort, page, pageSize);
 
     if (response?.data) {
       return {

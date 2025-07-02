@@ -9,6 +9,7 @@ import {
   filterTeacher,
   teacherDetail,
   listClassOfTeacher,
+  listClassSectionTeacher,
 } from "../servicers/TeacherServicer";
 
 export const handleAddTeacher = async (dataTeacher) => {
@@ -233,6 +234,23 @@ export const handleListClassOfTeacher = async (id) => {
       message:
         error.response?.data?.message ||
         "Đã xảy ra lỗi khi lấy danh sách sinh viên",
+    };
+  }
+};
+
+export const handleListClassSectionTeacher = async (teacherId, semesterId) => {
+  try {
+    const response = await listClassSectionTeacher(teacherId, semesterId);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Đã xảy ra lỗi khi xử lý",
     };
   }
 };

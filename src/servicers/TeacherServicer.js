@@ -55,3 +55,11 @@ export const teacherDetail = (id) => {
 export const listClassOfTeacher = (id) => {
   return api.post(`/teacher/getall_class?id=${id}`);
 };
+export const listClassSectionTeacher = (teacherId, semesterId) => {
+  return api.get("/teacher/list_class_section", {
+    params: {
+      teacherId: teacherId,
+      semesterId: semesterId,
+    },
+  });
+};
