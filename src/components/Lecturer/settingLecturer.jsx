@@ -29,6 +29,7 @@ import {
   Award,
   BookOpen,
   BriefcaseBusiness,
+  Info,
 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
@@ -52,6 +53,7 @@ const TeacherProfile = () => {
   const inputRef = useRef(null);
   const [initialProfileData, setInitialProfileData] = useState(null); // Lưu dữ liệu ban đầu
   const [initialUserImage, setInitialUserImage] = useState(null);
+  const [infoCheck, setInfoCheck] = useState(false);
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
       ...prev,
@@ -123,13 +125,24 @@ const TeacherProfile = () => {
       setInitialUserImage(req.data.image); // Lưu ảnh ban đầu
       setProfileData(teacherDetail.data);
       setInitialProfileData(teacherDetail.data);
+    } else {
+      setInfoCheck(true);
     }
   };
 
   useEffect(() => {
     fetchUser();
   }, []);
-
+  if (infoCheck) {
+    return (
+      <div className="flex items-center justify-center h-[300px]">
+        <div className="flex flex-col items-center text-gray-500 text-lg">
+          <Info className="w-8 h-8 mb-2" />
+          <p className="font-medium">Không tìm thấy thông tin</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="space-y-6 p-10">

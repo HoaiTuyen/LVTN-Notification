@@ -138,18 +138,18 @@ const Student = () => {
         }
       );
 
-      const studentSub = stompClient.current.subscribe(
-        `/notification/student/${userInfo.id}`,
-        (message) => {
-          const parsedMessage = JSON.parse(message.body);
-          console.log("Received student notification:", parsedMessage);
-          setNotificationList((prev) => {
-            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-            return [{ ...parsedMessage, isRead: false }, ...prev];
-          });
-          setNotificationCount((prev) => prev + 1);
-        }
-      );
+      // const studentSub = stompClient.current.subscribe(
+      //   `/notification/student/${userInfo.id}`,
+      //   (message) => {
+      //     const parsedMessage = JSON.parse(message.body);
+      //     console.log("Received student notification:", parsedMessage);
+      //     setNotificationList((prev) => {
+      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+      //       return [{ ...parsedMessage, isRead: false }, ...prev];
+      //     });
+      //     setNotificationCount((prev) => prev + 1);
+      //   }
+      // );
 
       const groupSubs = groupStudents.map((groupId) => {
         const groupTopic = `/notification/group/${groupId}`;
@@ -172,20 +172,32 @@ const Student = () => {
         (message) => {
           const parsedMessage = JSON.parse(message.body);
           console.log("Received schedule notification:", parsedMessage);
-
-          // setNotificationList((prev) => {
-          //   if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-          //   return [{ ...parsedMessage, isRead: false }, ...prev];
-          // });
-          // setNotificationCount((prev) => prev + 1);
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+            return [{ ...parsedMessage, isRead: false }, ...prev];
+          });
+          setNotificationCount((prev) => prev + 1);
+        }
+      );
+      const personalSub = stompClient.current.subscribe(
+        "/user/queue/personal",
+        (message) => {
+          const parsedMessage = JSON.parse(message.body);
+          console.log("Received personal notification:", parsedMessage);
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+            return [{ ...parsedMessage, isRead: false }, ...prev];
+          });
+          setNotificationCount((prev) => prev + 1);
         }
       );
 
       subscriptions = [
         generalSub,
         departmentSub,
-        studentSub,
+
         scheduleSub,
+        personalSub,
         ...groupSubs,
       ];
     }
@@ -443,15 +455,6 @@ const Student = () => {
     {
       key: "logout",
       label: "Đăng xuất",
-      icon: <LogOut size={16} />,
-      style: {
-        color: "red",
-        fontWeight: "bold",
-      },
-    },
-    {
-      key: "tester",
-      label: "Tester",
       icon: <LogOut size={16} />,
       style: {
         color: "red",

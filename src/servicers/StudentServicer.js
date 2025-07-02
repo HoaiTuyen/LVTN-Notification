@@ -48,3 +48,12 @@ export const createStudentExcel = (data) => {
 export const studentDetail = (id) => {
   return api.post(`/student/student-detail?id=${id}`);
 };
+
+export const listClassSectionStudent = (studentId, semesterId) => {
+  return api.get("/student/list_class_section", {
+    params: {
+      studentId: studentId,
+      semesterId: semesterId,
+    },
+  });
+};

@@ -61,6 +61,7 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
       if (res?.data && res?.status === 201) {
         onClose();
         toast.success(res.message || "Thêm môn học thành công");
+        onSuccess();
       } else {
         toast.error(res.message || "Lỗi");
       }

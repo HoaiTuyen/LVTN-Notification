@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 import {
@@ -36,7 +36,10 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import { handleListSemester } from "../../../controller/SemesterController";
+import { handleListClassSectionStudent } from "../../../controller/StudentController";
+import { handleGetDetailUser } from "../../../controller/AccountController";
+import { jwtDecode } from "jwt-decode";
 // Mock data for student courses
 const studentCourses = [
   {
@@ -219,17 +222,34 @@ const weeklySchedule = [
 export default function StudentCoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedSemester, setSelectedSemester] = useState("HK1 2023-2024");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [semesterList, setSemesterList] = useState([]);
+  const [classSectionList, setClassSectionList] = useState([]);
 
-  const filteredCourses = studentCourses.filter((course) => {
-    const matchesSearch =
-      course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      filterStatus === "all" || course.status === filterStatus;
-    const matchesSemester = course.semester === selectedSemester;
-    return matchesSearch && matchesStatus && matchesSemester;
+  // const filteredCourses = studentCourses.filter((course) => {
+  //   const matchesSearch =
+  //     course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesStatus =
+  //     filterStatus === "all" || course.status === filterStatus;
+  //   const matchesSemester = course.semester === selectedSemester;
+  //   return matchesSearch && matchesStatus && matchesSemester;
+  // });
+  const filteredCourses = classSectionList.map((section, index) => {
+    return {
+      id: `${section.subjectId}-${section.id.groupId}`,
+      code: section.subjectId,
+      name: section.subjectName,
+      semester: section.semesterName,
+      classes: section.courseSchedules.map((s, i) => ({
+        id: `${section.subjectId}-${section.id.groupId}-${i}`,
+        name: `Nhóm học tập ${section.id.groupId.toString().padStart(2, "0")}`,
+        schedule: `Thứ ${s.id.day}`,
+        section: `Tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
+        room: s.id.room || "Trống",
+      })),
+    };
   });
 
   const getStatusColor = (status) => {
@@ -268,6 +288,47 @@ export default function StudentCoursesPage() {
       minute: "2-digit",
     });
   };
+  useEffect(() => {
+    const fetchSemester = async () => {
+      try {
+        const res = await handleListSemester("desc", 0, 10);
+        if (res?.data?.semesters) {
+          const list = res?.data?.semesters || [];
+          setSemesterList(list);
+          if (list.length > 0) {
+            setSelectedSemester(list[0].id);
+            fetchClassOfStudent(list[0].id);
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi khi fetch học kỳ:", err);
+      }
+    };
+    fetchSemester();
+  }, []);
+  const handleSemesterChange = async (value) => {
+    setSelectedSemester(value); // Cập nhật select
+    await fetchClassOfStudent(value); // Gọi lại API với học kỳ mới
+  };
+  const fetchClassOfStudent = async (semesterId) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const decoded = jwtDecode(token);
+      const userId = decoded?.userId;
+      const userRes = await handleGetDetailUser(userId);
+      const studentId = userRes?.data?.studentId;
+      if (!studentId) return;
+      const res = await handleListClassSectionStudent(studentId, semesterId);
+      if (res?.data?.classSections) {
+        const list = res?.data?.classSections || [];
+        setClassSectionList(list);
+      } else {
+        setClassSectionList([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi fetch lớp học phần:", err);
+    }
+  };
 
   return (
     <motion.div
@@ -288,16 +349,6 @@ export default function StudentCoursesPage() {
                 Quản lý và theo dõi tiến độ học tập của bạn
               </p>
             </div>
-            {/* <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                Xuất lịch học
-              </Button>
-              <Button variant="outline" size="sm">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                Đồng bộ lịch
-              </Button>
-            </div> */}
           </div>
 
           {/* Quick Stats */}
@@ -379,215 +430,128 @@ export default function StudentCoursesPage() {
           <Tabs defaultValue="courses" className="space-y-4">
             <TabsList>
               <TabsTrigger value="courses">Danh sách môn học</TabsTrigger>
-              <TabsTrigger value="schedule">Lịch học tuần</TabsTrigger>
-              <TabsTrigger value="upcoming">Lớp học sắp tới</TabsTrigger>
             </TabsList>
 
             <TabsContent value="courses" className="space-y-4">
               {/* Filters */}
-              <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Tìm kiếm môn học..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
-                  />
-                </div>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-[180px]">
-                    <Filter className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả</SelectItem>
-                    <SelectItem value="Đang học">Đang học</SelectItem>
-                    <SelectItem value="Hoàn thành">Hoàn thành</SelectItem>
-                    <SelectItem value="Tạm dừng">Tạm dừng</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex gap-4 md:flex-row md:items-center">
                 <Select
                   value={selectedSemester}
-                  onValueChange={setSelectedSemester}
+                  onValueChange={handleSemesterChange}
                 >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Học kỳ" />
+                  <SelectTrigger className="w-[200px] ml-auto">
+                    <SelectValue placeholder="Chọn học kỳ" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="HK1 2023-2024">HK1 2023-2024</SelectItem>
-                    <SelectItem value="HK2 2022-2023">HK2 2022-2023</SelectItem>
-                    <SelectItem value="HK1 2022-2023">HK1 2022-2023</SelectItem>
+                    {semesterList.map((semester) => (
+                      <SelectItem key={semester.id} value={semester.id}>
+                        {semester.nameSemester} - {semester.academicYear}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Course Cards */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-                {filteredCourses.map((course) => (
-                  <Card key={course.id} className="overflow-hidden">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <CardTitle className="text-lg">
-                              {course.name}
-                            </CardTitle>
-                            <Badge variant="outline">{course.code}</Badge>
-                            <Badge className={getStatusColor(course.status)}>
-                              {course.status}
-                            </Badge>
-                            {course.grade && (
-                              <Badge variant="secondary">
-                                Điểm: {course.grade}
-                              </Badge>
-                            )}
-                          </div>
-                          <CardDescription>
-                            {course.description}
-                          </CardDescription>
-                        </div>
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/student/courses/${course.id}`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {/* Course Info */}
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            <span>{course.instructor}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              {course.credits} tín chỉ • {course.semester}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              Điểm danh: {course.attendance}/
-                              {course.totalSessions}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              Bài tập: {course.completedAssignments}/
-                              {course.assignments}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <BookOpen className="h-4 w-4 text-muted-foreground" />
-                            <span>{course.materials} tài liệu</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>{course.announcements} thông báo</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Progress */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Tiến độ học tập</span>
-                          <span className="font-medium">
-                            {course.progress}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${getProgressColor(
-                              course.progress
-                            )}`}
-                            style={{ width: `${course.progress}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Schedule */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium">Lịch học:</h4>
-                        <div className="grid gap-2">
-                          {course.schedule.map((schedule, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span>{schedule.day}</span>
-                                <Badge variant="outline" className="text-xs">
-                                  {schedule.type}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <Clock className="h-4 w-4" />
-                                <span>{schedule.time}</span>
-                                <MapPin className="h-4 w-4" />
-                                <span>{schedule.room}</span>
-                              </div>
+                {filteredCourses.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center text-gray-500 text-base py-12">
+                    <BookOpen className="w-8 h-8 mb-3" />
+                    <p className="font-medium">
+                      Hiện chưa có môn học nào được đăng ký
+                    </p>
+                  </div>
+                ) : (
+                  filteredCourses.map((course) => (
+                    <Card key={course.id} className="overflow-hidden">
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <CardTitle className="text-lg">
+                                {course.name}
+                              </CardTitle>
+                              <Badge variant="outline">{course.code}</Badge>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Next Class */}
-                      {course.nextClass && course.status === "Đang học" && (
-                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <div className="flex items-center gap-2 text-sm text-blue-800">
-                            <Clock className="h-4 w-4" />
-                            <span className="font-medium">
-                              Lớp học tiếp theo:
-                            </span>
-                            <span>
-                              {formatDate(course.nextClass)} lúc{" "}
-                              {formatTime(course.nextClass)}
-                            </span>
+                            <CardDescription>
+                              {course.description}
+                            </CardDescription>
                           </div>
                         </div>
-                      )}
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {/* Course Info */}
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="space-y-2">
+                            {/* <div className="flex items-center gap-2 text-sm">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <span>{course.instructor}</span>
+                              </div> */}
+                            <div className="flex items-center gap-2 text-sm">
+                              <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                              <span>{course.semester}</span>
+                            </div>
+                            {/* <div className="flex items-center gap-2 text-sm">
+                                <Users className="h-4 w-4 text-muted-foreground" />
+                                <span>
+                                  Điểm danh: {course.attendance}/
+                                  {course.totalSessions}
+                                </span>
+                              </div> */}
+                          </div>
+                          {/* <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-sm">
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                                <span>
+                                  Bài tập: {course.completedAssignments}/
+                                  {course.assignments}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                                <span>{course.materials} tài liệu</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span>{course.announcements} thông báo</span>
+                              </div>
+                            </div> */}
+                        </div>
+                        {/* Progress */}
+                        {/* Schedule */}
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium">Lịch học:</h4>
+                          <div className="grid gap-2">
+                            {course.classes.map((schedule, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                                  <span>{schedule.schedule}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                  <Clock className="h-4 w-4" />
+                                  <span>{schedule.section}</span>
+                                  <MapPin className="h-4 w-4" />
+                                  <span>{schedule.room}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Next Class */}
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 pt-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/student/courses/${course.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Xem chi tiết
-                          </Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            href={`/student/courses/${course.id}/materials`}
-                          >
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            Tài liệu
-                          </Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            href={`/student/courses/${course.id}/assignments`}
-                          >
-                            <FileText className="mr-2 h-4 w-4" />
-                            Bài tập
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        {/* Actions */}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </TabsContent>
 
-            <TabsContent value="schedule" className="space-y-4">
+            {/* <TabsContent value="schedule" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Lịch học tuần</CardTitle>
@@ -641,9 +605,9 @@ export default function StudentCoursesPage() {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </TabsContent> */}
 
-            <TabsContent value="upcoming" className="space-y-4">
+            {/* <TabsContent value="upcoming" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Lớp học sắp tới</CardTitle>
@@ -701,7 +665,7 @@ export default function StudentCoursesPage() {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>

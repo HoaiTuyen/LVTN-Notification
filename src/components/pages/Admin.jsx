@@ -112,7 +112,7 @@ const AdminDashboard = () => {
       label: "Quản lý  giảng viên",
     },
     {
-      key: "registerClass",
+      key: "register-class",
       icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
       label: "Quản lý  đăng ký lớp học phần",
       title: "Quản lý đăng ký lớp học phần",

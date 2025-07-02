@@ -106,7 +106,7 @@ function AppRoutes() {
               />
             </Route>
 
-            <Route path="registerClass" element={<RegistrationClass />} />
+            <Route path="register-class" element={<RegistrationClass />} />
 
             <Route path="setting" element={<AdminProfilePage />} />
           </Route>
@@ -122,16 +122,16 @@ function AppRoutes() {
             <Route path="home" element={<HomeLecturerPage />} />
 
             <Route path="profile" element={<TeacherProfile />} />
-            <Route path="subjectCharge" element={<SubjectCharge />} />
+            <Route path="subject-charge" element={<SubjectCharge />} />
             <Route path="class-charge" element={<ClassCharge />} />
             <Route path="class-charge/:classId" element={<ClassDetail />} />
             <Route
               path="notification"
               element={<LecturerCreateNotification />}
             />
-            <Route path="groupClass" element={<GroupClassTeacher />} />
+            <Route path="group-class" element={<GroupClassTeacher />} />
             <Route
-              path="groupClass/:groupId"
+              path="group-class/:groupId"
               element={<DetailGroupLecturer />}
             />
             <Route
@@ -197,8 +197,6 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
-            {/* <Route index element={<Navigate to="home" replace />} />
-            <Route path="home" element={<HomeAdmin />} /> */}
             <Route index element={<Navigate to="home" />}></Route>
             <Route path="home" element={<HomePageStudent />} />
             <Route path="profile" element={<StudentProfilePage />} />

@@ -8,9 +8,9 @@ const useWebSocket = () => {
   const [error, setError] = useState(null);
 
   const connectWebSocket = () => {
-    const socket = new SockJS("http://localhost:8080/ws"); // Xác nhận port
-    const stompClient = Stomp.over(socket);
     const token = localStorage.getItem("access_token");
+    const socket = new SockJS(`http://localhost:8080/ws?token=${token}`); // Xác nhận port
+    const stompClient = Stomp.over(socket);
 
     if (!token) {
       console.error("No access token found in localStorage");
@@ -19,9 +19,7 @@ const useWebSocket = () => {
     }
 
     stompClient.connect(
-      {
-        Authorization: `Bearer ${token}`,
-      },
+      {},
       () => {
         console.log("✅ Connected to WebSocket");
         stompClientRef.current = stompClient;

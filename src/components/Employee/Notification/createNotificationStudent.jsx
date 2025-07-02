@@ -50,7 +50,7 @@ const EmployeeCreateNotificationStudent = () => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    studentId: "",
+    studentIds: [],
     isMail: false,
   });
 
@@ -72,7 +72,7 @@ const EmployeeCreateNotificationStudent = () => {
     const form = new FormData();
     form.append("title", formData.title);
     form.append("content", formData.content);
-    form.append("studentId", selectedStudents.map((s) => s.id).join(","));
+    form.append("studentIds", formData.studentIds.join(","));
     form.append("isMail", formData.isMail ? "true" : "false");
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);
@@ -83,12 +83,13 @@ const EmployeeCreateNotificationStudent = () => {
       setIsLoading(true);
       setLoading(true);
       const res = await handleCreateUserNotification(form);
-
+      console.log(res);
       if (res.status === 201) {
         setFormData({
           title: "",
           content: "",
-          studentId: "",
+          studentIds: [],
+          isMail: false,
         });
         setFileDisplayNames([""]);
         setFiles([]);
@@ -123,7 +124,7 @@ const EmployeeCreateNotificationStudent = () => {
       };
 
       // Nếu người dùng đang thay đổi mã sinh viên và nó không hợp lệ → reset gửi email
-      if (field === "studentId" && !isValidStudentCode(value)) {
+      if (field === "studentIds" && !isValidStudentCode(value)) {
         updated.isMail = false;
       }
 
@@ -150,9 +151,11 @@ const EmployeeCreateNotificationStudent = () => {
   };
 
   const isValidStudentCode = (code) => {
+    if (typeof code !== "string") return false;
     const regex = /^DH\d{8,}$/i;
     return regex.test(code.trim());
   };
+
   const fetchStudents = async () => {
     const pageSize = 10;
     let allStudents = [];
@@ -184,10 +187,18 @@ const EmployeeCreateNotificationStudent = () => {
       toast.error("Không thể tải danh sách sinh viên");
     }
   };
+  useEffect(() => {
+    const ids = selectedStudents.map((s) => s.value);
+    handleInputChange("studentIds", ids);
+  }, [selectedStudents]);
 
   useEffect(() => {
     fetchStudents();
   }, []);
+  const isSingleValidStudent =
+    formData.studentIds.length === 1 &&
+    isValidStudentCode(formData.studentIds[0]);
+
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -223,7 +234,7 @@ const EmployeeCreateNotificationStudent = () => {
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="studentId">
+                        <Label htmlFor="studentIds">
                           Mã sinh viên (nếu gửi cho 1 sinh viên)
                         </Label>
                         {/* <Input
@@ -253,7 +264,7 @@ const EmployeeCreateNotificationStudent = () => {
                           <Checkbox
                             id="isMail"
                             checked={formData.isMail}
-                            disabled={!isValidStudentCode(formData.studentId)}
+                            disabled={!isSingleValidStudent}
                             onCheckedChange={(checked) =>
                               handleInputChange("isMail", checked === true)
                             }
@@ -261,7 +272,7 @@ const EmployeeCreateNotificationStudent = () => {
                           <label
                             htmlFor="isMail"
                             className={`text-sm ${
-                              !isValidStudentCode(formData.studentId)
+                              !isSingleValidStudent
                                 ? "text-gray-400"
                                 : "text-muted-foreground"
                             }`}
@@ -269,12 +280,11 @@ const EmployeeCreateNotificationStudent = () => {
                             Gửi email đến sinh viên có mã trên
                           </label>
                         </div>
-                        {formData.studentId &&
-                          !isValidStudentCode(formData.studentId) && (
-                            <p className="text-sm text-red-600">
-                              Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
-                            </p>
-                          )}
+                        {formData.studentId && !isSingleValidStudent && (
+                          <p className="text-sm text-red-600">
+                            Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -295,46 +305,6 @@ const EmployeeCreateNotificationStudent = () => {
                       )}
                     </div>
 
-                    {/* {fileDisplayNames.map((name, index) => (
-                      <div key={index} className="flex items-center gap-2 mb-2">
-                        <Input
-                          type="text"
-                          placeholder="Tên hiển thị file (VD: Đề cương gì đó...)"
-                          value={name}
-                          onChange={(e) => {
-                            const newNames = [...fileDisplayNames];
-                            newNames[index] = e.target.value;
-                            setFileDisplayNames(newNames);
-                          }}
-                        />
-                        <Input
-                          type="file"
-                          accept="application/pdf"
-                          onChange={(e) => {
-                            const newFiles = [...files];
-                            newFiles[index] = e.target.files[0];
-                            setFiles(newFiles);
-                          }}
-                        />
-                        {fileDisplayNames.length > 1 && (
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
-                              const newNames = [...fileDisplayNames];
-                              const newFiles = [...files];
-                              newNames.splice(index, 1);
-                              newFiles.splice(index, 1);
-                              setFileDisplayNames(newNames);
-                              setFiles(newFiles);
-                            }}
-                          >
-                            <X className="w-4 h-4 text-red-500" />
-                          </Button>
-                        )}
-                      </div>
-                    ))} */}
                     {fileDisplayNames.map((name, index) => (
                       <div
                         key={`${fileInputKey}-${index}`}

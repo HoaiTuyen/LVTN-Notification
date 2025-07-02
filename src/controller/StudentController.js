@@ -7,6 +7,7 @@ import {
   getListStudentExcel,
   createStudentExcel,
   studentDetail,
+  listClassSectionStudent,
 } from "../servicers/StudentServicer";
 export const handleListStudent = async (page = 0, pageSize = 10) => {
   try {
@@ -159,6 +160,23 @@ export const handleStudentDetail = async (id) => {
       message:
         error.response?.data?.message ||
         "Đã xảy ra lỗi khi lấy danh sách sinh viên",
+    };
+  }
+};
+
+export const handleListClassSectionStudent = async (studentId, semesterId) => {
+  try {
+    const response = await listClassSectionStudent(studentId, semesterId);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Đã xảy ra lỗi khi xử lý",
     };
   }
 };

@@ -57,7 +57,7 @@ const LecturerDashboard = () => {
       label: "Thông tin cá nhân",
     },
     {
-      key: "subjectCharge",
+      key: "subject-charge",
       icon: <BookOpen size={16} />,
       label: "Môn học phụ trách",
     },
@@ -67,21 +67,21 @@ const LecturerDashboard = () => {
       label: "Lớp học phụ trách",
     },
     {
-      key: "groupClass",
+      key: "group-class",
       icon: <Users size={16} />,
       label: "Nhóm học tập",
     },
-    {
-      key: "notification",
-      icon: <MessageSquare size={16} />,
-      label: "Tạo thông báo",
-      title: "",
-    },
-    {
-      key: "sentNotification",
-      icon: <Bell size={16} />,
-      label: "Thông báo đã gửi",
-    },
+    // {
+    //   key: "notification",
+    //   icon: <MessageSquare size={16} />,
+    //   label: "Tạo thông báo",
+    //   title: "",
+    // },
+    // {
+    //   key: "sentNotification",
+    //   icon: <Bell size={16} />,
+    //   label: "Thông báo đã gửi",
+    // },
 
     {
       key: "logout",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -57,21 +57,27 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  Upload,
 } from "lucide-react";
 import ImportSection from "./ImportSection";
+import { handleListSemester } from "../../../controller/SemesterController";
+import { handleListClassSectionTeacher } from "../../../controller/TeacherController";
+import { handleGetDetailUser } from "../../../controller/AccountController";
+import { jwtDecode } from "jwt-decode";
+import ImportRegisterStudentSection from "./ImportRegisterStudentSection";
 const StudyModule = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSemester, setSelectedSemester] = useState("2023-2024-1");
+  const [selectedSemester, setSelectedSemester] = useState("");
   const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false);
   const [isAssignTeacherOpen, setIsAssignTeacherOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [openModalImport, setOpenModalImport] = useState(false);
+  const [semesterList, setSemesterList] = useState([]);
+  const [classSectionList, setClassSectionList] = useState([]);
+  const [openModalRegisterStudent, setOpenModalRegisterStudent] =
+    useState(false);
+
   // Mock data
-  const semesters = [
-    { id: "2023-2024-1", name: "Học kỳ 1, 2023-2024", status: "Đang diễn ra" },
-    { id: "2023-2024-2", name: "Học kỳ 2, 2023-2024", status: "Sắp diễn ra" },
-    { id: "2022-2023-2", name: "Học kỳ 2, 2022-2023", status: "Đã kết thúc" },
-  ];
 
   const courses = [
     {
@@ -235,29 +241,76 @@ const StudyModule = () => {
     },
   ];
 
-  const filteredCourses = courses.filter((course) => {
-    const matchesSearch =
-      course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSemester = course.semester === selectedSemester;
-    return matchesSearch && matchesSemester;
+  const filteredCourses = classSectionList.map((section, index) => {
+    return {
+      id: `${section.subjectId}-${section.id.groupId}`,
+      code: section.subjectId,
+      name: section.subjectName,
+      semester: section.semesterName,
+      classes: section.courseSchedules.map((s, i) => ({
+        id: `${section.subjectId}-${section.id.groupId}-${i}`,
+        name: `Nhóm học tập ${section.id.groupId.toString().padStart(2, "0")}`,
+        schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
+        room: s.id.room || "Trống",
+      })),
+    };
   });
-
+  const handleSemesterChange = async (value) => {
+    setSelectedSemester(value); // Cập nhật select
+    await fetchClassOfTeacher(value); // Gọi lại API với học kỳ mới
+  };
+  useEffect(() => {
+    const fetchSemester = async () => {
+      try {
+        const res = await handleListSemester("desc", 0, 10);
+        if (res?.data?.semesters) {
+          const list = res?.data?.semesters || [];
+          setSemesterList(list);
+          if (list.length > 0) {
+            setSelectedSemester(list[0].id);
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi khi fetch học kỳ:", err);
+      }
+    };
+    fetchSemester();
+  }, []);
+  const fetchClassOfTeacher = async (semesterId) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const decoded = jwtDecode(token);
+      const userId = decoded?.userId;
+      const userRes = await handleGetDetailUser(userId);
+      const teacherId = userRes?.data?.teacherId;
+      if (!teacherId) return;
+      const res = await handleListClassSectionTeacher(teacherId, semesterId);
+      if (res?.data?.classSections) {
+        const list = res?.data?.classSections || [];
+        setClassSectionList(list);
+      } else {
+        setClassSectionList([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi fetch lớp học phần:", err);
+    }
+  };
   return (
     <div className="min-h-screen w-full bg-white p-10 overflow-y-auto max-h-[700px] ">
       <div className="space-y-6 ">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Quản lý đào tạo</h1>
-            <p className="text-muted-foreground">
-              Quản lý môn học và phân công giảng viên theo học kỳ
-            </p>
-          </div>
+        {/* <div className="flex justify-between items-center">
           <Button
             onClick={() => setOpenModalImport(true)}
             className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
           >
-            <Plus className="h-4 w-4" /> Nhập danh sách lớp học phần
+            <Upload className="h-4 w-4" /> Nhập danh sách lớp học phần
+          </Button>
+          <Button
+            onClick={() => setOpenModalImport(true)}
+            className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+          >
+            <Upload className="h-4 w-4" /> Nhập danh sách sinh viên đăng ký môn
+            học
           </Button>
           {openModalImport && (
             <ImportSection
@@ -266,30 +319,40 @@ const StudyModule = () => {
               onSuccess={() => setOpenModalImport(false)}
             />
           )}
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stat.description}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        </div> */}
+        <Card className="p-4  w-full md:w-fit">
+          <CardTitle className="text-base mb-2">Nhập dữ liệu từ file</CardTitle>
+          <div className="flex flex-col md:flex-row gap-3">
+            <Button
+              onClick={() => setOpenModalImport(true)}
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Nhập danh sách lớp học phần
+            </Button>
+            <Button
+              onClick={() => setOpenModalRegisterStudent(true)}
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Nhập danh sách sinh viên đăng ký
+            </Button>
+          </div>
+          {openModalImport && (
+            <ImportSection
+              open={openModalImport}
+              onClose={() => setOpenModalImport(false)}
+              onSuccess={() => setOpenModalImport(false)}
+            />
+          )}
+          {openModalRegisterStudent && (
+            <ImportRegisterStudentSection
+              open={openModalRegisterStudent}
+              onClose={() => setOpenModalRegisterStudent(false)}
+              onSuccess={() => setOpenModalRegisterStudent(false)}
+            />
+          )}
+        </Card>
 
         <Tabs defaultValue="courses" className="space-y-4">
           <TabsList>
@@ -307,7 +370,7 @@ const StudyModule = () => {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <div className="relative">
+                    {/* <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         placeholder="Tìm kiếm môn học..."
@@ -315,18 +378,18 @@ const StudyModule = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
-                    </div>
+                    </div> */}
                     <Select
                       value={selectedSemester}
-                      onValueChange={setSelectedSemester}
+                      onValueChange={handleSemesterChange}
                     >
                       <SelectTrigger className="w-[200px]">
                         <SelectValue placeholder="Chọn học kỳ" />
                       </SelectTrigger>
                       <SelectContent>
-                        {semesters.map((semester) => (
+                        {semesterList.map((semester) => (
                           <SelectItem key={semester.id} value={semester.id}>
-                            {semester.name}
+                            {semester.nameSemester} - {semester.academicYear}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -336,168 +399,180 @@ const StudyModule = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {filteredCourses.map((course) => (
-                    <Card
-                      key={course.id}
-                      className="border-l-4 border-l-blue-500"
-                    >
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <CardTitle className="text-lg">
-                                {course.name}
-                              </CardTitle>
-                              <Badge
-                                variant={
-                                  course.status === "Đang mở"
-                                    ? "default"
-                                    : course.status === "Chưa phân công"
-                                    ? "destructive"
-                                    : "secondary"
-                                }
-                              >
-                                {course.status}
-                              </Badge>
-                            </div>
-                            <CardDescription>
-                              {course.code} • {course.credits} tín chỉ •{" "}
-                              {course.department}
-                            </CardDescription>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Chỉnh sửa
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedCourse(course);
-                                  setIsAssignTeacherOpen(true);
-                                }}
-                              >
-                                <UserPlus className="mr-2 h-4 w-4" />
-                                Phân công GV
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-red-600">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Xóa
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid gap-4 md:grid-cols-3 mb-4">
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm">
-                              <span className="font-medium">
-                                {course.totalStudents}
-                              </span>{" "}
-                              sinh viên
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <GraduationCap className="h-4 w-4 text-green-600" />
-                            <span className="text-sm">
-                              <span className="font-medium">
-                                {course.totalClasses}
-                              </span>{" "}
-                              lớp học
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-purple-600" />
-                            <span className="text-sm">
-                              <span className="font-medium">
-                                {course.assignedClasses}/{course.totalClasses}
-                              </span>{" "}
-                              đã phân công
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Classes */}
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-medium">
-                            Danh sách lớp học:
-                          </h4>
-                          <div className="space-y-2">
-                            {course.classes.map((classItem) => (
-                              <div
-                                key={classItem.id}
-                                className="p-3 border rounded-lg"
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">
-                                      {classItem.name}
-                                    </span>
-                                    <Badge
-                                      variant={
-                                        classItem.instructor
-                                          ? "default"
-                                          : "destructive"
-                                      }
-                                    >
-                                      {classItem.status}
-                                    </Badge>
-                                  </div>
-                                  <Badge variant="outline">
-                                    {classItem.students}/{classItem.maxStudents}{" "}
-                                    SV
+                  {filteredCourses.map(
+                    (course) => (
+                      console.log(course),
+                      (
+                        <Card
+                          key={course.id}
+                          className="border-l-4 border-l-blue-500"
+                        >
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <CardTitle className="text-lg">
+                                    {course.name}
+                                  </CardTitle>
+                                  <Badge
+                                    variant={
+                                      course.status === "Đang mở"
+                                        ? "default"
+                                        : course.status === "Chưa phân công"
+                                        ? "destructive"
+                                        : "secondary"
+                                    }
+                                  >
+                                    {course.status}
                                   </Badge>
                                 </div>
-                                <div className="grid gap-2 md:grid-cols-2 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <Users className="h-3 w-3" />
-                                    GV:{" "}
-                                    {classItem.instructor || "Chưa phân công"}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="h-3 w-3" />
-                                    Phòng {classItem.room}
-                                  </div>
-                                  <div className="flex items-center gap-1 md:col-span-2">
-                                    <Clock className="h-3 w-3" />
-                                    {classItem.schedule}
-                                  </div>
-                                </div>
-                                {!classItem.instructor && (
-                                  <div className="mt-2">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => {
-                                        setSelectedCourse({
-                                          ...course,
-                                          selectedClass: classItem,
-                                        });
-                                        setIsAssignTeacherOpen(true);
-                                      }}
-                                    >
-                                      <UserPlus className="mr-1 h-3 w-3" />
-                                      Phân công GV
-                                    </Button>
-                                  </div>
-                                )}
+                                <CardDescription>
+                                  {course.code} • {course.credits} tín chỉ •{" "}
+                                  {course.department}
+                                </CardDescription>
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>
+                                    Thao tác
+                                  </DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Chỉnh sửa
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelectedCourse(course);
+                                      setIsAssignTeacherOpen(true);
+                                    }}
+                                  >
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                    Phân công GV
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem className="text-red-600">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Xóa
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid gap-4 md:grid-cols-3 mb-4">
+                              <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4 text-blue-600" />
+                                <span className="text-sm">
+                                  <span className="font-medium">
+                                    {course.totalStudents}
+                                  </span>{" "}
+                                  sinh viên
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <GraduationCap className="h-4 w-4 text-green-600" />
+                                <span className="text-sm">
+                                  <span className="font-medium">
+                                    {course.totalClasses}
+                                  </span>{" "}
+                                  lớp học
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <CheckCircle className="h-4 w-4 text-purple-600" />
+                                <span className="text-sm">
+                                  <span className="font-medium">
+                                    {course.assignedClasses}/
+                                    {course.totalClasses}
+                                  </span>{" "}
+                                  đã phân công
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Classes */}
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-medium">
+                                Danh sách lớp học:
+                              </h4>
+                              <div className="space-y-2">
+                                {course.classes.map((classItem) => (
+                                  <div
+                                    key={classItem.id}
+                                    className="p-3 border rounded-lg"
+                                  >
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium">
+                                          {classItem.name}
+                                        </span>
+                                        <Badge
+                                          variant={
+                                            classItem.instructor
+                                              ? "default"
+                                              : "destructive"
+                                          }
+                                        >
+                                          {classItem.status}
+                                        </Badge>
+                                      </div>
+                                      <Badge variant="outline">
+                                        {classItem.students}/
+                                        {classItem.maxStudents} SV
+                                      </Badge>
+                                    </div>
+                                    <div className="grid gap-2 md:grid-cols-2 text-sm text-muted-foreground">
+                                      <div className="flex items-center gap-1">
+                                        <Users className="h-3 w-3" />
+                                        GV:{" "}
+                                        {classItem.instructor ||
+                                          "Chưa phân công"}
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <Calendar className="h-3 w-3" />
+                                        Phòng {classItem.room}
+                                      </div>
+                                      <div className="flex items-center gap-1 md:col-span-2">
+                                        <Clock className="h-3 w-3" />
+                                        {classItem.schedule}
+                                      </div>
+                                    </div>
+                                    {!classItem.instructor && (
+                                      <div className="mt-2">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => {
+                                            setSelectedCourse({
+                                              ...course,
+                                              selectedClass: classItem,
+                                            });
+                                            setIsAssignTeacherOpen(true);
+                                          }}
+                                        >
+                                          <UserPlus className="mr-1 h-3 w-3" />
+                                          Phân công GV
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )
+                    )
+                  )}
                 </div>
               </CardContent>
             </Card>

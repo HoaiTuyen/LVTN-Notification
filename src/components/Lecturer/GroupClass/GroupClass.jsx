@@ -13,6 +13,7 @@ import {
   FileText,
   User,
   Folder,
+  Info,
 } from "lucide-react";
 import {
   Card,
@@ -56,6 +57,7 @@ const GroupClassTeacher = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectGroup, setSelectGroup] = useState(null);
+
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -74,15 +76,22 @@ const GroupClassTeacher = () => {
       pagination.pageSize
     );
 
-    if (listGroup?.data || listGroup?.status === 200) {
+    if (listGroup?.data?.studyGroups || listGroup?.status === 200) {
       setGroups(listGroup.data.studyGroups);
-
       setPagination({
         current: page,
         pageSize: listGroup.data.pageSize,
         total: listGroup.data.totalElements,
         totalPages: listGroup.data.totalPages,
         totalElements: listGroup.data.totalElements,
+      });
+    } else {
+      setGroups([]);
+      setPagination({
+        current: 1,
+        pageSize: 10,
+        total: 0,
+        totalPages: 0,
       });
     }
   };
