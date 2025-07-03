@@ -167,15 +167,15 @@ const NotificationsPage = () => {
               {notification.title}
             </CardTitle>
 
-            {notification.notificationType && (
+            {/* {notification.notificationType && (
               <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
                 {notification.notificationType}
               </Badge>
-            )}
+            )} */}
 
             <div className="flex items-center text-sm text-muted-foreground">
               <Clock className="h-3 w-3 mr-1" />
-              {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
+              {dayjs(notification.createdAt).format("DD/MM/YYYY")}
             </div>
           </div>
 

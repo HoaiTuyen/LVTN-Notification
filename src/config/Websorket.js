@@ -9,7 +9,8 @@ const useWebSocket = () => {
 
   const connectWebSocket = () => {
     const token = localStorage.getItem("access_token");
-    const socket = new SockJS(`http://localhost:8080/ws?token=${token}`); // Xác nhận port
+    const socket = new SockJS(`http://localhost:8080/ws?token=${token}`);
+    console.log(socket);
     const stompClient = Stomp.over(socket);
 
     if (!token) {
@@ -19,7 +20,7 @@ const useWebSocket = () => {
     }
 
     stompClient.connect(
-      {},
+      { Authorization: `Bearer ${token}` },
       () => {
         console.log("✅ Connected to WebSocket");
         stompClientRef.current = stompClient;

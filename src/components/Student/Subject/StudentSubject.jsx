@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+
 import { motion } from "framer-motion";
 
 import {
@@ -40,6 +41,7 @@ import { handleListSemester } from "../../../controller/SemesterController";
 import { handleListClassSectionStudent } from "../../../controller/StudentController";
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { jwtDecode } from "jwt-decode";
+import Timetable from "./Timetable";
 // Mock data for student courses
 const studentCourses = [
   {
@@ -226,16 +228,6 @@ export default function StudentCoursesPage() {
   const [semesterList, setSemesterList] = useState([]);
   const [classSectionList, setClassSectionList] = useState([]);
 
-  // const filteredCourses = studentCourses.filter((course) => {
-  //   const matchesSearch =
-  //     course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
-  //   const matchesStatus =
-  //     filterStatus === "all" || course.status === filterStatus;
-  //   const matchesSemester = course.semester === selectedSemester;
-  //   return matchesSearch && matchesStatus && matchesSemester;
-  // });
   const filteredCourses = classSectionList.map((section, index) => {
     return {
       id: `${section.subjectId}-${section.id.groupId}`,
@@ -252,42 +244,6 @@ export default function StudentCoursesPage() {
     };
   });
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Đang học":
-        return "bg-blue-100 text-blue-800";
-      case "Hoàn thành":
-        return "bg-green-100 text-green-800";
-      case "Tạm dừng":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getProgressColor = (progress) => {
-    if (progress >= 80) return "bg-green-500";
-    if (progress >= 60) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
   useEffect(() => {
     const fetchSemester = async () => {
       try {
@@ -352,88 +308,14 @@ export default function StudentCoursesPage() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Tổng môn học
-                </CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {studentCourses.length}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {studentCourses.filter((c) => c.status === "Đang học").length}{" "}
-                  đang học
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Tổng tín chỉ
-                </CardTitle>
-                <GraduationCap className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {studentCourses.reduce(
-                    (sum, course) => sum + course.credits,
-                    0
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">Học kỳ này</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Tiến độ trung bình
-                </CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {Math.round(
-                    studentCourses.reduce(
-                      (sum, course) => sum + course.progress,
-                      0
-                    ) / studentCourses.length
-                  )}
-                  %
-                </div>
-                <p className="text-xs text-muted-foreground">Hoàn thành</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Bài tập chưa nộp
-                </CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {studentCourses.reduce(
-                    (sum, course) =>
-                      sum + (course.assignments - course.completedAssignments),
-                    0
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">Cần hoàn thành</p>
-              </CardContent>
-            </Card>
-          </div>
 
           <Tabs defaultValue="courses" className="space-y-4">
             <TabsList>
               <TabsTrigger value="courses">Danh sách môn học</TabsTrigger>
+              <TabsTrigger value="timetable">Lịch học</TabsTrigger>
             </TabsList>
 
             <TabsContent value="courses" className="space-y-4">
-              {/* Filters */}
               <div className="flex gap-4 md:flex-row md:items-center">
                 <Select
                   value={selectedSemester}
@@ -452,7 +334,6 @@ export default function StudentCoursesPage() {
                 </Select>
               </div>
 
-              {/* Course Cards */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
                 {filteredCourses.length === 0 ? (
                   <div className="flex flex-col items-center justify-center text-gray-500 text-base py-12">
@@ -480,45 +361,15 @@ export default function StudentCoursesPage() {
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {/* Course Info */}
                         <div className="grid gap-4 md:grid-cols-2">
                           <div className="space-y-2">
-                            {/* <div className="flex items-center gap-2 text-sm">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span>{course.instructor}</span>
-                              </div> */}
                             <div className="flex items-center gap-2 text-sm">
                               <GraduationCap className="h-4 w-4 text-muted-foreground" />
                               <span>{course.semester}</span>
                             </div>
-                            {/* <div className="flex items-center gap-2 text-sm">
-                                <Users className="h-4 w-4 text-muted-foreground" />
-                                <span>
-                                  Điểm danh: {course.attendance}/
-                                  {course.totalSessions}
-                                </span>
-                              </div> */}
                           </div>
-                          {/* <div className="space-y-2">
-                              <div className="flex items-center gap-2 text-sm">
-                                <FileText className="h-4 w-4 text-muted-foreground" />
-                                <span>
-                                  Bài tập: {course.completedAssignments}/
-                                  {course.assignments}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                                <span>{course.materials} tài liệu</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span>{course.announcements} thông báo</span>
-                              </div>
-                            </div> */}
                         </div>
-                        {/* Progress */}
-                        {/* Schedule */}
+
                         <div className="space-y-2">
                           <h4 className="text-sm font-medium">Lịch học:</h4>
                           <div className="grid gap-2">
@@ -541,131 +392,15 @@ export default function StudentCoursesPage() {
                             ))}
                           </div>
                         </div>
-                        {/* Next Class */}
-
-                        {/* Actions */}
                       </CardContent>
                     </Card>
                   ))
                 )}
               </div>
             </TabsContent>
-
-            {/* <TabsContent value="schedule" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Lịch học tuần</CardTitle>
-                  <CardDescription>
-                    Thời khóa biểu chi tiết theo từng ngày trong tuần
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4">
-                    {weeklySchedule.map((day) => (
-                      <div key={day.day} className="border rounded-lg p-4">
-                        <h3 className="font-semibold mb-3 text-lg">
-                          {day.day}
-                        </h3>
-                        {day.slots.length > 0 ? (
-                          <div className="space-y-2">
-                            {day.slots.map((slot, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="flex items-center gap-2">
-                                    <Clock className="h-4 w-4 text-muted-foreground" />
-                                    <span className="font-medium">
-                                      {slot.time}
-                                    </span>
-                                  </div>
-                                  <Badge variant="outline">{slot.course}</Badge>
-                                  <Badge
-                                    variant="secondary"
-                                    className="text-xs"
-                                  >
-                                    {slot.type}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <MapPin className="h-4 w-4" />
-                                  <span>{slot.room}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-muted-foreground text-sm">
-                            Không có lớp học
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent> */}
-
-            {/* <TabsContent value="upcoming" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Lớp học sắp tới</CardTitle>
-                  <CardDescription>
-                    Danh sách các lớp học trong những ngày tới
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {upcomingClasses.map((class_) => (
-                      <div
-                        key={class_.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">
-                              {class_.courseName}
-                            </h3>
-                            <Badge variant="outline">{class_.courseCode}</Badge>
-                            <Badge variant="secondary" className="text-xs">
-                              {class_.type}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>{formatDate(class_.date)}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              <span>{class_.time}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              <span>{class_.room}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <User className="h-4 w-4" />
-                              <span>{class_.instructor}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
-                            <Video className="mr-2 h-4 w-4" />
-                            Tham gia
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent> */}
+            <TabsContent value="timetable" className="space-y-4">
+              <Timetable classSectionList={classSectionList} />
+            </TabsContent>
           </Tabs>
         </div>
       </div>

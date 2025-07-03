@@ -52,7 +52,7 @@ const DetailGroupLecturer = () => {
   const [expandedId, setExpandedId] = useState(null);
   const [detailNotify, setDetailNotify] = useState([]);
 
-  const backUrl = location.state?.from || "/giang-vien/groupClass";
+  const backUrl = location.state?.from || "/giang-vien/group-class";
   const fetchDetailGroup = async () => {
     const detailGroup = await handleDetailGroup(groupId);
 

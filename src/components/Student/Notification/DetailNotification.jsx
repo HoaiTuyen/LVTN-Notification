@@ -74,24 +74,37 @@ const StudentNotificationDetail = () => {
           <CardHeader>
             <div className="flex justify-start items-start">
               <div>
-                <div className="grid grid-cols-2 gap-3">
-                  <CardTitle className="text-xl">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  {/* Tiêu đề */}
+                  <CardTitle className="text-xl whitespace-nowrap">
                     {notification.title || "Trống"}
                   </CardTitle>
-                  {notification.notificationType && (
-                    <Badge className="bg-blue-100 text-blue-800">
-                      {notification.notificationType}
-                    </Badge>
-                  )}
+
+                  {/* Badge container */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {notification.notificationType && (
+                      <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                        {notification.notificationType}
+                      </span>
+                    )}
+                    {notification.departmentName && (
+                      <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
+                        {notification.departmentName}
+                      </span>
+                    )}
+                    {!notification.notificationType &&
+                      !notification.departmentName && (
+                        <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                          Phòng Đào tạo
+                        </span>
+                      )}
+                  </div>
                 </div>
+
                 <CardDescription className="flex items-center space-x-4 mt-2 text-sm">
                   <span className="flex items-center">
-                    <User className="h-4 w-4 mr-1" />
-                    {notification.sender}
-                  </span>
-                  <span className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
-                    {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
+                    {dayjs(notification.createdAt).format("DD/MM/YYYY")}
                   </span>
                 </CardDescription>
               </div>

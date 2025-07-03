@@ -155,7 +155,7 @@ const GroupClassTeacher = () => {
                         <h2
                           className="text-lg font-semibold truncate cursor-pointer"
                           onClick={() => {
-                            navigate(`/giang-vien/groupClass/${group.id}`);
+                            navigate(`/giang-vien/group-class/${group.id}`);
                           }}
                         >
                           {group.name}

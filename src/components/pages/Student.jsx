@@ -118,6 +118,8 @@ const Student = () => {
         "/notification",
         (message) => {
           const parsedMessage = JSON.parse(message.body);
+          console.log(parsedMessage);
+
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
             return [{ ...parsedMessage, isRead: false }, ...prev];
@@ -173,6 +175,8 @@ const Student = () => {
           const parsedMessage = JSON.parse(message.body);
           console.log("Received schedule notification:", parsedMessage);
           setNotificationList((prev) => {
+            console.log(prev);
+
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
             return [{ ...parsedMessage, isRead: false }, ...prev];
           });
@@ -390,11 +394,23 @@ const Student = () => {
                   {item.studyGroupName}
                 </span>
               ) : (
-                item.notificationType && (
-                  <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                    {item.notificationType}
-                  </span>
-                )
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {item.notificationType && (
+                    <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                      {item.notificationType}
+                    </span>
+                  )}
+                  {item.departmentName && (
+                    <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
+                      {item.departmentName}
+                    </span>
+                  )}
+                  {!item.notificationType && !item.departmentName && (
+                    <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                      Phòng Đào tạo
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>
