@@ -39,43 +39,70 @@ const HomePageStudent = () => {
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
-
-  // Dữ liệu thống kê
-  const studentStats = {
+  const [stats, setStats] = useState({
     totalCourses: 6,
     totalGroups: 3,
-    unreadNotifications: 5,
-    gpa: 3.7,
-    completedCredits: 90,
-    totalCredits: 150,
-  };
+    notifications: 5,
+  });
 
-  // Danh sách thông báo
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      const res = await handleListNotification("desc", 0, 5);
-      if (res?.data) {
-        setNotifications(res.data.notifications);
+      const pageSize = 10;
+      let allNotification = [];
+      let page = 0;
+      let totalPages = 1;
+      do {
+        const res = await handleListNotification("desc", page, pageSize);
+
+        if (res?.data) {
+          allNotification = [...allNotification, ...res.data.notifications];
+          totalPages = res.data.totalPages;
+          page++;
+        } else {
+          break; // stop if bad data
+        }
+      } while (page < totalPages);
+      if (allNotification) {
+        setStats((prev) => ({
+          ...prev,
+          notifications: allNotification.length,
+        }));
+        setNotifications(allNotification);
       }
       setLoadingNotifications(false);
     };
     fetchNotifications();
   }, []);
 
-  // Danh sách nhóm học tập
   const [groups, setGroups] = useState([]);
 
   const [loadingGroups, setLoadingGroups] = useState(true);
   useEffect(() => {
     const fetchGroups = async () => {
-      const res = await handleListGroupByStudent(userId, 0, 5);
-      console.log(res);
+      const pageSize = 10;
+      let allGroup = [];
+      let page = 0;
+      let totalPages = 1;
+      do {
+        const res = await handleListGroupByStudent(userId, page, pageSize);
 
-      if (res?.data) {
-        setGroups(res.data);
+        if (res?.data) {
+          allGroup = [...allGroup, ...res.data];
+          totalPages = res.data.totalPages;
+          page++;
+        } else {
+          break; // stop if bad data
+        }
+      } while (page < totalPages);
+      if (allGroup) {
+        setStats((prev) => ({
+          ...prev,
+          totalGroups: allGroup.length,
+        }));
+        setGroups(allGroup);
       }
       setLoadingGroups(false);
     };
@@ -91,7 +118,7 @@ const HomePageStudent = () => {
           transition={{ delay: 0.2 }}
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         >
-          <Card className="hover:shadow-lg transition-shadow">
+          {/* <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Môn học đang theo
@@ -100,11 +127,11 @@ const HomePageStudent = () => {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <div className="text-3xl font-bold text-primary">
-                {studentStats.totalCourses}
+                {stats.totalCourses}
               </div>
               <p className="text-sm text-gray-500">Môn học</p>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -115,7 +142,7 @@ const HomePageStudent = () => {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <div className="text-3xl font-bold text-primary">
-                {studentStats.totalGroups}
+                {stats.totalGroups}
               </div>
               <p className="text-sm text-gray-500">Nhóm</p>
             </CardContent>
@@ -130,7 +157,7 @@ const HomePageStudent = () => {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <div className="text-3xl font-bold text-red-500">
-                {studentStats.unreadNotifications}
+                {stats.notifications}
               </div>
               <p className="text-sm text-gray-500">Chưa đọc</p>
             </CardContent>
@@ -161,9 +188,7 @@ const HomePageStudent = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Thông báo mới</CardTitle>
-                <Badge variant="outline">
-                  {studentStats.unreadNotifications} mới
-                </Badge>
+                <Badge variant="outline">{stats.notifications} mới</Badge>
               </div>
               <CardDescription>
                 Các thông báo mới nhất từ giảng viên và nhóm học tập
@@ -269,7 +294,7 @@ const HomePageStudent = () => {
 
                 {groups.length > 0 && (
                   <Button asChild variant="outline" className="w-full mt-4">
-                    <Link to="/sinh-vien/groupStudy">Xem tất cả nhóm</Link>
+                    <Link to="/sinh-vien/group-study">Xem tất cả nhóm</Link>
                   </Button>
                 )}
               </div>

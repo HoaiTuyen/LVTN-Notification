@@ -267,7 +267,7 @@ const Lecturer = () => {
                           {teacher.id}
                         </TableCell>
                         <TableCell
-                          className="max-w-[100px] truncate"
+                          className="max-w-[150px] truncate"
                           title={teacher.firstName}
                         >
                           <div className="flex items-center gap-2">

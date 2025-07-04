@@ -16,6 +16,7 @@ import {
   Clock,
   MessageSquare,
 } from "lucide-react";
+import { useState } from "react";
 
 const HomeLecturerPage = () => {
   const stats = [
@@ -93,6 +94,11 @@ const HomeLecturerPage = () => {
       date: "Mai",
     },
   ];
+  const [statsData, setStatsData] = useState({
+    totalCourses: 0,
+    totalGroups: 0,
+    notifications: 0,
+  });
 
   return (
     <div className="min-h-screen w-full bg-white p-0">

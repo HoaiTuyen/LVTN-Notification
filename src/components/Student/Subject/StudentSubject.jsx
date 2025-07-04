@@ -42,6 +42,7 @@ import { handleListClassSectionStudent } from "../../../controller/StudentContro
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { jwtDecode } from "jwt-decode";
 import Timetable from "./Timetable";
+import dayjs from "dayjs";
 // Mock data for student courses
 const studentCourses = [
   {
@@ -234,6 +235,9 @@ export default function StudentCoursesPage() {
       code: section.subjectId,
       name: section.subjectName,
       semester: section.semesterName,
+      date: `Thời gian bắt đầu: ${dayjs(section.startDate).format(
+        "DD/MM/YYYY"
+      )} - Thời gian kết thúc: ${dayjs(section.endDate).format("DD/MM/YYYY")}`,
       classes: section.courseSchedules.map((s, i) => ({
         id: `${section.subjectId}-${section.id.groupId}-${i}`,
         name: `Nhóm học tập ${section.id.groupId.toString().padStart(2, "0")}`,
@@ -273,8 +277,10 @@ export default function StudentCoursesPage() {
       const userId = decoded?.userId;
       const userRes = await handleGetDetailUser(userId);
       const studentId = userRes?.data?.studentId;
+
       if (!studentId) return;
       const res = await handleListClassSectionStudent(studentId, semesterId);
+      console.log(res);
       if (res?.data?.classSections) {
         const list = res?.data?.classSections || [];
         setClassSectionList(list);
@@ -312,7 +318,7 @@ export default function StudentCoursesPage() {
           <Tabs defaultValue="courses" className="space-y-4">
             <TabsList>
               <TabsTrigger value="courses">Danh sách môn học</TabsTrigger>
-              <TabsTrigger value="timetable">Lịch học</TabsTrigger>
+              {/* <TabsTrigger value="timetable">Lịch học</TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="courses" className="space-y-4">
@@ -352,15 +358,17 @@ export default function StudentCoursesPage() {
                               <CardTitle className="text-lg">
                                 {course.name}
                               </CardTitle>
-                              <Badge variant="outline">{course.code}</Badge>
+                              <div className="text-sm text-muted-foreground">
+                                {course.date}
+                              </div>
                             </div>
                             <CardDescription>
-                              {course.description}
+                              {course.code} • {course.semester}
                             </CardDescription>
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      {/* <CardContent className="space-y-4">
                         <div className="grid gap-4 md:grid-cols-2">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm">
@@ -392,15 +400,48 @@ export default function StudentCoursesPage() {
                             ))}
                           </div>
                         </div>
+                      </CardContent> */}
+                      <CardContent>
+                        <div className="mt-4 space-y-2">
+                          <div className="grid gap-2 md:grid-cols-2">
+                            {course.classes.map(
+                              (classItem) => (
+                                console.log(classItem),
+                                (
+                                  <div
+                                    key={classItem.id}
+                                    className="p-3 border rounded-lg bg-muted/50"
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="font-medium text-sm">
+                                        {classItem.name}
+                                      </span>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground space-y-1">
+                                      <div className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3" />
+                                        {classItem.schedule}
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <Calendar className="h-3 w-3" />
+                                        Phòng {classItem.room}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              )
+                            )}
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   ))
                 )}
               </div>
             </TabsContent>
-            <TabsContent value="timetable" className="space-y-4">
+            {/* <TabsContent value="timetable" className="space-y-4">
               <Timetable classSectionList={classSectionList} />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>

@@ -45,8 +45,9 @@ import { handleListSemester } from "../../../controller/SemesterController";
 import { handleListClassSectionTeacher } from "../../../controller/TeacherController";
 import { jwtDecode } from "jwt-decode";
 import { handleGetDetailUser } from "../../../controller/AccountController";
+import TimetableLecturer from "./Timetable";
+import dayjs from "dayjs";
 const SubjectCharge = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
   const [semesterList, setSemesterList] = useState([]);
   const [classSectionList, setClassSectionList] = useState([]);
@@ -234,9 +235,12 @@ const SubjectCharge = () => {
       code: section.subjectId,
       name: section.subjectName,
       semester: section.semesterName,
+      date: `Thời gian bắt đầu: ${dayjs(section.startDate).format(
+        "DD/MM/YYYY"
+      )} - Thời gian kết thúc: ${dayjs(section.endDate).format("DD/MM/YYYY")}`,
       classes: section.courseSchedules.map((s, i) => ({
         id: `${section.subjectId}-${section.id.groupId}-${i}`,
-        name: `Nhóm học tập ${section.id.groupId.toString().padStart(2, "0")}`,
+        name: `Nhóm môn học ${section.id.groupId.toString().padStart(2, "0")}`,
         schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
         room: s.id.room || "Trống",
       })),
@@ -321,8 +325,7 @@ const SubjectCharge = () => {
         <Tabs defaultValue="courses" className="space-y-4">
           <TabsList>
             <TabsTrigger value="courses">Danh sách môn học</TabsTrigger>
-            {/* <TabsTrigger value="schedule">Lịch giảng dạy</TabsTrigger>
-            <TabsTrigger value="activities">Hoạt động gần đây</TabsTrigger> */}
+            {/* <TabsTrigger value="schedule">Lịch giảng dạy</TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="courses" className="space-y-4">
@@ -382,53 +385,14 @@ const SubjectCharge = () => {
                                 <CardTitle className="text-lg">
                                   {course.name}
                                 </CardTitle>
-                                {/* <Badge
-                                  variant={
-                                    course.status === "Đang giảng dạy"
-                                      ? "default"
-                                      : "secondary"
-                                  }
-                                >
-                                  {course.status}
-                                </Badge> */}
+                                <div className="text-sm text-muted-foreground">
+                                  {course.date}
+                                </div>
                               </div>
                               <CardDescription>
                                 {course.code} • {course.semester}
                               </CardDescription>
                             </div>
-                            {/* <DropdownMenu>
-                              <DropdownMenuTrigger>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/teacher/courses/${course.id}`}>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Xem chi tiết
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                  <Link
-                                    href={`/teacher/courses/${course.id}/assignments`}
-                                  >
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    Quản lý bài tập
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                  <Link
-                                    href={`/teacher/courses/${course.id}/grades`}
-                                  >
-                                    <GraduationCap className="mr-2 h-4 w-4" />
-                                    Bảng điểm
-                                  </Link>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu> */}
                           </div>
                         </CardHeader>
                         <CardContent>
@@ -445,7 +409,6 @@ const SubjectCharge = () => {
                           </div>
 
                           <div className="mt-4 space-y-2">
-                            <h4 className="text-sm font-medium">Lớp học:</h4>
                             <div className="grid gap-2 md:grid-cols-2">
                               {course.classes.map((classItem) => (
                                 <div
@@ -480,96 +443,17 @@ const SubjectCharge = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="schedule" className="space-y-4">
+          {/* <TabsContent value="schedule" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Lịch giảng dạy sắp tới</CardTitle>
                 <CardDescription>Các lớp học trong tuần này</CardDescription>
               </CardHeader>
               <CardContent>
-                {/* <div className="space-y-4">
-                  {upcomingClasses.map((classItem, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="space-y-1">
-                        <h4 className="font-medium">{classItem.course}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {classItem.class} • {classItem.students} sinh viên
-                        </p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {classItem.time}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            Phòng {classItem.room}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge
-                          variant={
-                            classItem.date === "Hôm nay"
-                              ? "default"
-                              : "secondary"
-                          }
-                        >
-                          {classItem.date}
-                        </Badge>
-                        <div className="mt-2">
-                          <Button size="sm" variant="outline">
-                            Vào lớp
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div> */}
+                <TimetableLecturer classSectionList={classSectionList} />
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="activities" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Hoạt động gần đây</CardTitle>
-                <CardDescription>
-                  Các hoạt động giảng dạy mới nhất
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* <div className="space-y-4">
-                  {recentActivities.map((activity, index) => {
-                    const Icon = activity.icon;
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-start space-x-3 p-3 border rounded-lg"
-                      >
-                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                          <Icon className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <h4 className="font-medium text-sm">
-                            {activity.title}
-                          </h4>
-                          <p className="text-sm text-muted-foreground">
-                            {activity.description}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {activity.time}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div> */}
-              </CardContent>
-            </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </div>
     </div>

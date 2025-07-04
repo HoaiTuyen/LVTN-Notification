@@ -54,21 +54,23 @@ const ImportRegisterStudentSection = ({ open, onClose, onSuccess }) => {
     setLoading(true);
     try {
       const res = await handleGetListRegisterStudentExcel(formData);
-      console.log(res);
 
       const students = res.data.students || [];
       const errs = res.data.errors || [];
       console.log(errs);
-
       const studentsWithErrors = students.map((student) => {
-        const matchingError = errs.find((err) => err.rowIndex === student.stt);
-        console.log(matchingError);
+        const matchingError = errs.find(
+          (err) => String(err.rowIndex) === String(student.stt)
+        );
+        console.log("STT:", student.stt, "Error:", matchingError);
 
         return {
           ...student,
           error: matchingError?.message || null,
         };
       });
+      console.log(studentsWithErrors);
+
       // setPreviewData(students || []);
       setPreviewData(studentsWithErrors);
       setErrors(errs || []);
