@@ -12,6 +12,7 @@ import {
   createLecturerAccountExcel,
   getListLecturerAccountExcel,
   listGroupByStudent,
+  checkCourseSchedule,
 } from "../servicers/AccountServicer";
 
 export const handleListUser = async (page = 0, pageSize = 1000) => {
@@ -247,6 +248,25 @@ export const handleListGroupByStudent = async (userId, page, pageSize) => {
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
       data: [],
+    };
+  }
+};
+export const handleCheckCourseSchedule = async (id, check) => {
+  try {
+    const response = await checkCourseSchedule(id, check);
+
+    if (response?.message) {
+      return {
+        status: response.status,
+        message: response.message,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
     };
   }
 };

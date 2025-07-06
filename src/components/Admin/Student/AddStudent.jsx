@@ -62,7 +62,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
           break; // stop if bad data
         }
       } while (page < totalPages);
-      console.log(allClasses);
+
       setDataClass(allClasses);
     } catch (error) {
       console.error("Lỗi khi fetch all classes:", error);

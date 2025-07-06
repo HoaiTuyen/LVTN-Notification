@@ -68,12 +68,19 @@ export const filterUser = (keyword, page = 0, pageSize = 10) => {
     },
   });
 };
-// /user/list_study_group_by_user?userId=
+
 export const listGroupByStudent = async (id, page = 0, pageSize = 10) => {
   return api.get(`/account/list_study_group_by_user?userId=${id}`, {
     params: {
       page,
       pageSize,
     },
+  });
+};
+
+export const checkCourseSchedule = (id, check) => {
+  return api.post("/account/check_course_schedule", {
+    id: id,
+    check: check,
   });
 };

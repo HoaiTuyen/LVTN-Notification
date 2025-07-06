@@ -169,20 +169,42 @@ const Student = () => {
         });
         return sub;
       });
+      // const scheduleSub = stompClient.current.subscribe(
+      //   "/user/queue/schedule",
+      //   (message) => {
+      //     console.log(message.body);
+      //     const parsedMessage = JSON.stringify(message.body);
+      //     console.log("Received schedule notification:", parsedMessage);
+      //     setNotificationList((prev) => {
+      //       console.log(prev);
+
+      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+      //       return [{ ...parsedMessage, isRead: false }, ...prev];
+      //     });
+      //     setNotificationCount((prev) => prev + 1);
+      //   }
+      // );
+
       const scheduleSub = stompClient.current.subscribe(
         "/user/queue/schedule",
         (message) => {
-          const parsedMessage = JSON.parse(message.body);
-          console.log("Received schedule notification:", parsedMessage);
-          setNotificationList((prev) => {
-            console.log(prev);
+          console.log(message.body);
+          const parsedMessage = {
+            id: new Date().getTime(),
+            title: message.body,
+            isRead: false,
+          };
 
-            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-            return [{ ...parsedMessage, isRead: false }, ...prev];
+          setNotificationList((prev) => {
+            if (prev.some((item) => item.title === parsedMessage.title))
+              return prev;
+            return [parsedMessage, ...prev];
           });
+
           setNotificationCount((prev) => prev + 1);
         }
       );
+
       const personalSub = stompClient.current.subscribe(
         "/user/queue/personal",
         (message) => {
@@ -333,18 +355,103 @@ const Student = () => {
       }
 
       // Chỉ hiển thị các thông báo chưa đọc
+      // const groupNotifications = notificationList
+      //   .filter((n) => n.studyGroupId && !n.isRead)
+      //   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      //   .slice(0, 5);
+
+      // const generalNotifications = notificationList
+      //   .filter((n) => !n.studyGroupId && !n.isRead)
+      //   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      //   .slice(0, 5);
       const groupNotifications = notificationList
         .filter((n) => n.studyGroupId && !n.isRead)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
         .slice(0, 5);
 
       const generalNotifications = notificationList
         .filter((n) => !n.studyGroupId && !n.isRead)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
         .slice(0, 5);
+
+      // const renderNotificationItem = (item) => {
+      //   const isGroup = !!item.studyGroupId;
+      //   const typeIcon = isGroup ? <Users size={15} /> : <BellRing size={15} />;
+      //   const getInitials = (name) => {
+      //     if (!name) return "";
+      //     const parts = name.trim().split(" ");
+      //     if (parts.length === 1) return parts[0][0].toUpperCase();
+      //     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      //   };
+
+      //   return (
+      //     <div
+      //       key={item.id}
+      //       onClick={() => handleNotificationClick(item)}
+      //       className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group"
+      //     >
+      //       {isGroup ? (
+      //         <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
+      //           {/* <AvatarImage
+      //               src="/img/logo.png"
+      //               alt="Logo"
+      //               className="object-contain w-full h-full scale-90"
+      //             /> */}
+      //           <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
+      //             {getInitials(groupTeacherMap[item.studyGroupId])}
+      //           </AvatarFallback>
+      //         </Avatar>
+      //       ) : (
+      //         <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
+      //           <AvatarImage
+      //             src="/img/logo.png"
+      //             alt="Logo"
+      //             className="object-contain w-full h-full scale-150"
+      //           />
+      //           <AvatarFallback className="bg-blue-100 text-blue-800 text-base font-semibold flex items-center justify-center">
+      //             LOGO
+      //           </AvatarFallback>
+      //         </Avatar>
+      //       )}
+      //       <div className="flex-1 min-w-0">
+      //         <div className="flex items-center gap-2">
+      //           <span className="font-semibold line-clamp-1 flex items-center gap-1">
+      //             {item.title}
+      //             <span className="text-xl">{typeIcon}</span>
+      //           </span>
+      //         </div>
+      //         {isGroup ? (
+      //           <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
+      //             {item.studyGroupName}
+      //           </span>
+      //         ) : (
+      //           <div className="flex flex-wrap gap-1 mt-1">
+      //             {item.notificationType && (
+      //               <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+      //                 {item.notificationType}
+      //               </span>
+      //             )}
+      //             {item.departmentName && (
+      //               <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
+      //                 {item.departmentName}
+      //               </span>
+      //             )}
+      //             {!item.notificationType && !item.departmentName && (
+      //               <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+      //                 Phòng Đào tạo
+      //               </span>
+      //             )}
+      //           </div>
+      //         )}
+      //       </div>
+      //     </div>
+      //   );
+      // };
 
       const renderNotificationItem = (item) => {
         const isGroup = !!item.studyGroupId;
+        const hasContentOnly = !item.title && item.content;
+
         const typeIcon = isGroup ? <Users size={15} /> : <BellRing size={15} />;
         const getInitials = (name) => {
           if (!name) return "";
@@ -355,17 +462,12 @@ const Student = () => {
 
         return (
           <div
-            key={item.id}
+            key={item.id || item.content} // dùng content làm key fallback nếu không có id
             onClick={() => handleNotificationClick(item)}
             className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group"
           >
             {isGroup ? (
               <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
-                {/* <AvatarImage
-                    src="/img/logo.png"
-                    alt="Logo"
-                    className="object-contain w-full h-full scale-90"
-                  /> */}
                 <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
                   {getInitials(groupTeacherMap[item.studyGroupId])}
                 </AvatarFallback>
@@ -382,18 +484,20 @@ const Student = () => {
                 </AvatarFallback>
               </Avatar>
             )}
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-semibold line-clamp-1 flex items-center gap-1">
-                  {item.title}
+                <span className="font-semibold line-clamp-2 flex items-center gap-1 text-sm text-gray-900">
+                  {item.title || item.content?.slice(0, 50)}
                   <span className="text-xl">{typeIcon}</span>
                 </span>
               </div>
+
               {isGroup ? (
                 <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
                   {item.studyGroupName}
                 </span>
-              ) : (
+              ) : item.notificationType || item.departmentName ? (
                 <div className="flex flex-wrap gap-1 mt-1">
                   {item.notificationType && (
                     <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
@@ -405,13 +509,12 @@ const Student = () => {
                       {item.departmentName}
                     </span>
                   )}
-                  {!item.notificationType && !item.departmentName && (
-                    <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-                      Phòng Đào tạo
-                    </span>
-                  )}
                 </div>
-              )}
+              ) : hasContentOnly ? (
+                <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                  Tự động
+                </span>
+              ) : null}
             </div>
           </div>
         );

@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -41,8 +42,10 @@ import { handleListSemester } from "../../../controller/SemesterController";
 import { handleListClassSectionStudent } from "../../../controller/StudentController";
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { jwtDecode } from "jwt-decode";
-import Timetable from "./Timetable";
+import CheckCourseSchedule from "./CheckCourseSchedule";
 import dayjs from "dayjs";
+import { handleCheckCourseSchedule } from "../../../controller/AccountController";
+import { toast } from "react-toastify";
 // Mock data for student courses
 const studentCourses = [
   {
@@ -228,8 +231,13 @@ export default function StudentCoursesPage() {
   const [selectedSemester, setSelectedSemester] = useState("");
   const [semesterList, setSemesterList] = useState([]);
   const [classSectionList, setClassSectionList] = useState([]);
+  const [notifyDisabled, setNotifyDisabled] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [studentId, setStudentId] = useState(null);
 
   const filteredCourses = classSectionList.map((section, index) => {
+    console.log();
+
     return {
       id: `${section.subjectId}-${section.id.groupId}`,
       code: section.subjectId,
@@ -241,13 +249,33 @@ export default function StudentCoursesPage() {
       classes: section.courseSchedules.map((s, i) => ({
         id: `${section.subjectId}-${section.id.groupId}-${i}`,
         name: `Nhóm học tập ${section.id.groupId.toString().padStart(2, "0")}`,
-        schedule: `Thứ ${s.id.day}`,
-        section: `Tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
+        schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
         room: s.id.room || "Trống",
       })),
     };
   });
-
+  const handleToggleNotification = (checked) => {
+    if (checked) {
+      setShowDialog(true); // xác nhận tắt
+    } else {
+      // Bật lại không cần hỏi
+      updateNotificationSetting(false);
+    }
+  };
+  const updateNotificationSetting = async (checked) => {
+    try {
+      const res = await handleCheckCourseSchedule(studentId, checked); // true = tắt, false = bật
+      setNotifyDisabled(checked);
+      toast.success(res.message || "Cập nhật trạng thái thông báo thành công");
+    } catch (err) {
+      console.error("Lỗi khi cập nhật thông báo:", err);
+      toast.error(err.response.data.message || "Lỗi khi cập nhật thông báo");
+    }
+  };
+  const confirmDisableNotification = () => {
+    setShowDialog(false);
+    updateNotificationSetting(true);
+  };
   useEffect(() => {
     const fetchSemester = async () => {
       try {
@@ -273,8 +301,10 @@ export default function StudentCoursesPage() {
   const fetchClassOfStudent = async (semesterId) => {
     try {
       const token = localStorage.getItem("access_token");
+      console.log(token);
       const decoded = jwtDecode(token);
       const userId = decoded?.userId;
+      setStudentId(userId);
       const userRes = await handleGetDetailUser(userId);
       const studentId = userRes?.data?.studentId;
 
@@ -323,6 +353,26 @@ export default function StudentCoursesPage() {
 
             <TabsContent value="courses" className="space-y-4">
               <div className="flex gap-4 md:flex-row md:items-center">
+                <div className="flex items-center gap-2 py-2">
+                  <Checkbox
+                    id="notify-6am"
+                    checked={notifyDisabled}
+                    onCheckedChange={handleToggleNotification}
+                  />
+                  <label
+                    htmlFor="notify-6am"
+                    className="text-sm cursor-pointer"
+                  >
+                    Không nhận thông báo khi có lịch học
+                  </label>
+                </div>
+                {showDialog && (
+                  <CheckCourseSchedule
+                    open={showDialog}
+                    onClose={() => setShowDialog(false)}
+                    onConfirm={confirmDisableNotification}
+                  />
+                )}
                 <Select
                   value={selectedSemester}
                   onValueChange={handleSemesterChange}
@@ -439,9 +489,6 @@ export default function StudentCoursesPage() {
                 )}
               </div>
             </TabsContent>
-            {/* <TabsContent value="timetable" className="space-y-4">
-              <Timetable classSectionList={classSectionList} />
-            </TabsContent> */}
           </Tabs>
         </div>
       </div>
