@@ -281,8 +281,7 @@ const Student = () => {
 
   const fetchInitialNotifications = async () => {
     try {
-      const res = await handleListNotificationByStudent(userId);
-      console.log(res);
+      const res = await handleListNotificationByStudent(userId, 0, 100);
       if (res?.data?.responses) {
         const notifications = res.data.responses;
         const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -298,16 +297,21 @@ const Student = () => {
   };
 
   const loadMoreNotifications = async () => {
+    const nextPage = apiNotificationPage + 1;
+
     try {
-      const res = await handleListNotificationByStudent(
-        userId,
-        apiNotificationPage,
-        5
-      );
+      const res = await handleListNotificationByStudent(userId, nextPage, 5);
+
       if (res?.data?.responses?.length > 0) {
-        setNotificationList((prev) => [...prev, ...res.data.responses]);
-        setApiNotificationPage((prev) => prev + 1);
-        setHasMoreNotifications(apiNotificationPage + 1 < res.data.totalPages);
+        setNotificationList((prev) => [
+          ...prev,
+          ...res.data.responses.filter(
+            (newItem) => !prev.some((oldItem) => oldItem.id === newItem.id)
+          ),
+        ]);
+
+        setApiNotificationPage(nextPage);
+        setHasMoreNotifications(nextPage < res.data.totalPages);
       } else {
         setHasMoreNotifications(false);
       }

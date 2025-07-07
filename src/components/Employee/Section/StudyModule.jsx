@@ -58,6 +58,7 @@ import {
   CheckCircle,
   AlertCircle,
   Upload,
+  MapPin,
 } from "lucide-react";
 import ImportSection from "./ImportSection";
 import { handleListSemester } from "../../../controller/SemesterController";
@@ -132,18 +133,43 @@ const StudyModule = () => {
           const subjectId = section.subjectId;
           const groupId = section.id.groupId;
           const teacher = section.teacherName || null;
+          const groupedClassesMap = {};
+          // const classData =
+          //   section.courseSchedules?.map((s, i) => ({
+          //     id: `${s.id.subjectId}-${s.id.groupId}-${s.id.teacherId}-${i}`,
+          //     sectionId: id,
+          //     name: `Nhóm môn học ${groupId.toString().padStart(2, "0")}`,
+          //     room: s.id.room || "Chưa có phòng",
+          //     schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`,
+          //     instructor: teacher,
+          //     startDate: section.startDate,
+          //     endDate: section.endDate,
+          //   })) || [];
+          section.courseSchedules?.forEach((s) => {
+            const key = `${groupId}_${teacher}`; // gộp theo group + giáo viên
+            const scheduleStr = `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`;
+            const roomStr = s.id.room || "Chưa có phòng";
 
-          const classData =
-            section.courseSchedules?.map((s, i) => ({
-              id: `${s.id.subjectId}-${s.id.groupId}-${s.id.teacherId}-${i}`,
-              sectionId: id,
-              name: `Nhóm học tập ${groupId}`,
-              room: s.id.room || "Chưa có phòng",
-              schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`,
-              instructor: teacher,
-              startDate: section.startDate,
-              endDate: section.endDate,
-            })) || [];
+            if (!groupedClassesMap[key]) {
+              groupedClassesMap[key] = {
+                id: `${subjectId}-${groupId}-${teacher}`,
+                sectionId: id,
+                name: `Nhóm môn học ${groupId.toString().padStart(2, "0")}`,
+                instructor: teacher,
+                schedules: [],
+                rooms: new Set(),
+                startDate: section.startDate,
+                endDate: section.endDate,
+              };
+            }
+
+            groupedClassesMap[key].scheduleRooms =
+              groupedClassesMap[key].scheduleRooms || [];
+            groupedClassesMap[key].scheduleRooms.push({
+              schedule: scheduleStr,
+              room: roomStr,
+            });
+          });
 
           if (!courseMap[subjectId]) {
             courseMap[subjectId] = {
@@ -159,10 +185,21 @@ const StudyModule = () => {
             };
           }
 
-          courseMap[subjectId].classes.push(...classData);
-          courseMap[subjectId].totalClasses += classData.length;
+          // courseMap[subjectId].classes.push(...classData);
+          // courseMap[subjectId].totalClasses += classData.length;
+          // courseMap[subjectId].assignedClasses += teacher
+          //   ? classData.length
+          //   : 0;
+          const groupedClassList = Object.values(groupedClassesMap).map(
+            (item) => ({
+              ...item,
+              rooms: Array.from(item.rooms), // convert Set to Array
+            })
+          );
+          courseMap[subjectId].classes.push(...groupedClassList);
+          courseMap[subjectId].totalClasses += groupedClassList.length;
           courseMap[subjectId].assignedClasses += teacher
-            ? classData.length
+            ? groupedClassList.length
             : 0;
         });
         console.log(courseMap);
@@ -265,9 +302,35 @@ const StudyModule = () => {
         </Card>
 
         <Tabs defaultValue="courses" className="space-y-4">
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger value="courses">Quản lý môn học</TabsTrigger>
-          </TabsList>
+          </TabsList> */}
+          <div className="flex gap-2 justify-end">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm môn học..."
+                className="pl-8 w-[250px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select
+              value={selectedSemester}
+              onValueChange={handleSemesterChange}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Chọn học kỳ" />
+              </SelectTrigger>
+              <SelectContent>
+                {semesterList.map((semester) => (
+                  <SelectItem key={semester.id} value={semester.id}>
+                    {semester.nameSemester} - {semester.academicYear}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <TabsContent value="courses" className="space-y-4">
             <Card className="overflow-y-auto max-h-[600px]">
               <CardHeader>
@@ -278,32 +341,6 @@ const StudyModule = () => {
                       Quản lý môn học theo học kỳ
                     </CardDescription>
                   </div>
-                  <div className="flex gap-2">
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Tìm kiếm môn học..."
-                        className="pl-8 w-[250px]"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                    <Select
-                      value={selectedSemester}
-                      onValueChange={handleSemesterChange}
-                    >
-                      <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Chọn học kỳ" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {semesterList.map((semester) => (
-                          <SelectItem key={semester.id} value={semester.id}>
-                            {semester.nameSemester} - {semester.academicYear}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -311,115 +348,110 @@ const StudyModule = () => {
                   {classSectionList.length === 0 ? (
                     <p className="text-center">Không có dữ liệu phù hợp</p>
                   ) : (
-                    classSectionList.map(
-                      (course) => (
-                        console.log(course),
-                        (
-                          <Card
-                            key={course.id}
-                            className="border-l-4 border-l-blue-500"
-                          >
-                            <CardHeader>
-                              <div className="flex items-start justify-between">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <CardTitle className="text-lg">
-                                      {course.name}
-                                    </CardTitle>
-                                    <div>
-                                      Thời gian bắt đầu:{" "}
-                                      {dayjs(course.startDate).format(
-                                        "DD/MM/YYYY"
-                                      )}
-                                      {" - "}
-                                      Thời gian kết thúc:{"  "}
-                                      {dayjs(course.endDate).format(
-                                        "DD/MM/YYYY"
-                                      )}
+                    classSectionList.map((course) => (
+                      <Card
+                        key={course.id}
+                        className="border-l-4 border-l-blue-500"
+                      >
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <CardTitle className="text-lg">
+                                  {course.name}
+                                </CardTitle>
+                                <div>
+                                  Thời gian bắt đầu:{" "}
+                                  {dayjs(course.startDate).format("DD/MM/YYYY")}
+                                  {" - "}
+                                  Thời gian kết thúc:{"  "}
+                                  {dayjs(course.endDate).format("DD/MM/YYYY")}
+                                </div>
+                              </div>
+                              <CardDescription>{course.code}</CardDescription>
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+
+                                <DropdownMenuItem
+                                  className="text-red-600 cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedSection(course.sectionId);
+                                    setOpenModalDelete(true);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-medium">
+                              Danh sách lớp học:
+                            </h4>
+                            {course.classes.length === 0 ? (
+                              <div className="text-sm italic text-muted-foreground">
+                                <AlertCircle className="inline h-4 w-4 mr-1 text-red-500" />
+                                Chưa có lớp học nào
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {course.classes.map((classItem) => (
+                                  <div
+                                    key={classItem.id}
+                                    className="p-3 border rounded-lg"
+                                  >
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium">
+                                          {classItem.name}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="grid gap-2 text-sm text-muted-foreground">
+                                      <div className="flex items-center gap-1">
+                                        <Users className="h-3 w-3" />
+                                        GV:{" "}
+                                        {classItem.instructor ||
+                                          "Chưa phân công"}
+                                      </div>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-1">
+                                        {classItem.scheduleRooms?.map(
+                                          (item, idx) => (
+                                            <div
+                                              key={idx}
+                                              className="flex flex-col text-sm text-muted-foreground border rounded px-2 py-1"
+                                            >
+                                              <div className="flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                {item.schedule}
+                                              </div>
+                                              <div className="flex items-center gap-1">
+                                                <MapPin className="h-3 w-3" />
+                                                {item.room}
+                                              </div>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                  <CardDescription>
-                                    {course.code}
-                                  </CardDescription>
-                                </div>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger>
-                                    <Button
-                                      variant="ghost"
-                                      className="h-8 w-8 p-0"
-                                    >
-                                      <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>
-                                      Thao tác
-                                    </DropdownMenuLabel>
-
-                                    <DropdownMenuItem
-                                      className="text-red-600 cursor-pointer"
-                                      onClick={() => {
-                                        setSelectedSection(course.sectionId);
-                                        setOpenModalDelete(true);
-                                      }}
-                                    >
-                                      <Trash2 className="mr-2 h-4 w-4" />
-                                      Xóa
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                                ))}
                               </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-2">
-                                <h4 className="text-sm font-medium">
-                                  Danh sách lớp học:
-                                </h4>
-                                {course.classes.length === 0 ? (
-                                  <div className="text-sm italic text-muted-foreground">
-                                    <AlertCircle className="inline h-4 w-4 mr-1 text-red-500" />
-                                    Chưa có lớp học nào
-                                  </div>
-                                ) : (
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {course.classes.map((classItem) => (
-                                      <div
-                                        key={classItem.id}
-                                        className="p-3 border rounded-lg"
-                                      >
-                                        <div className="flex items-center justify-between mb-2">
-                                          <div className="flex items-center gap-2">
-                                            <span className="font-medium">
-                                              {classItem.name}
-                                            </span>
-                                          </div>
-                                        </div>
-                                        <div className="grid gap-2 text-sm text-muted-foreground">
-                                          <div className="flex items-center gap-1">
-                                            <Users className="h-3 w-3" />
-                                            GV:{" "}
-                                            {classItem.instructor ||
-                                              "Chưa phân công"}
-                                          </div>
-                                          <div className="flex items-center gap-1">
-                                            <Calendar className="h-3 w-3" />
-                                            Phòng {classItem.room}
-                                          </div>
-                                          <div className="flex items-center gap-1">
-                                            <Clock className="h-3 w-3" />
-                                            {classItem.schedule}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        )
-                      )
-                    )
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
                   )}
                 </div>
               </CardContent>

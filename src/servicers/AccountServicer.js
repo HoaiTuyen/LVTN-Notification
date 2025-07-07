@@ -85,12 +85,12 @@ export const checkCourseSchedule = (id, check) => {
   });
 };
 
-export const listNotificationByStudent = async (StudentId) => {
+export const listNotificationByStudent = async (StudentId, page, pageSize) => {
   return api.get("/account/list_notifications", {
     params: {
       userId: StudentId,
-      page: 0,
-      pageSize: 100,
+      page,
+      pageSize,
     },
   });
 };

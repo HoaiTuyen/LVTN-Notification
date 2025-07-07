@@ -82,7 +82,7 @@ const EmployeeSemester = () => {
     if (keyword) {
       res = await handleSearchSemester(keyword, page - 1, pagination.pageSize);
     } else {
-      res = await handleListSemester(page - 1, pagination.pageSize);
+      res = await handleListSemester("desc", page - 1, pagination.pageSize);
     }
 
     if (res?.data) {

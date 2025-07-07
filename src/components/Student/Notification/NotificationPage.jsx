@@ -117,41 +117,6 @@ const NotificationsPage = () => {
     fetchNotificationTypes();
   }, [searchParams]);
 
-  // const NotificationCard = ({ notification }) => (
-  //   <Card className="p-0">
-  //     <CardHeader className="pt-5">
-  //       <div className="flex items-start justify-between">
-  //         <div className="flex-1">
-  //           <div className="flex items-center gap-2 flex-wrap">
-  //             <CardTitle
-  //               className="text-base cursor-pointer hover:text-blue-500"
-  //               onClick={(e) => handleViewDetail(notification.id, e)}
-  //             >
-  //               {notification.title}
-  //             </CardTitle>
-  //             {notification.notificationType && (
-  //               <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
-  //                 {notification.notificationType}
-  //               </Badge>
-  //             )}
-  //           </div>
-  //           <div className="flex items-center pt-3 text-sm text-muted-foreground">
-  //             <Clock className="h-3 w-3 mr-1" />
-  //             {dayjs(notification.createdAt).format("DD/MM/YYYY HH:mm")}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </CardHeader>
-  //     <CardContent>
-  //       <div className="flex items-center justify-end space-x-2 mb-3">
-  //         <Button variant="ghost" size="sm">
-  //           <MarkAsUnread className="h-3 w-3 mr-1" />
-  //           {notification.isRead ? "Đánh dấu chưa đọc" : "Đánh dấu đã đọc"}
-  //         </Button>
-  //       </div>
-  //     </CardContent>
-  //   </Card>
-  // );
   const NotificationCard = ({ notification, onToggleRead, onViewDetail }) => (
     <Card className="p-0">
       <CardHeader className="pt-5">
@@ -166,12 +131,6 @@ const NotificationsPage = () => {
             >
               {notification.title}
             </CardTitle>
-
-            {/* {notification.notificationType && (
-              <Badge className="bg-blue-100 text-blue-700 border border-blue-200">
-                {notification.notificationType}
-              </Badge>
-            )} */}
 
             <div className="flex items-center text-sm text-muted-foreground">
               <Clock className="h-3 w-3 mr-1" />
@@ -289,12 +248,17 @@ const NotificationsPage = () => {
                   </CardContent>
                 </Card>
               ) : (
-                notifications.map((notification) => (
-                  <NotificationCard
-                    key={notification.id}
-                    notification={notification}
-                  />
-                ))
+                notifications.map(
+                  (notification) => (
+                    console.log(notification),
+                    (
+                      <NotificationCard
+                        key={notification.id}
+                        notification={notification}
+                      />
+                    )
+                  )
+                )
               )}
             </TabsContent>
           </Tabs>
@@ -304,6 +268,7 @@ const NotificationsPage = () => {
             <div className="flex justify-center mt-4">
               <Pagination
                 current={pagination.current}
+                showSizeChanger={false}
                 pageSize={pagination.pageSize}
                 total={pagination.total}
                 onChange={(page) => {

@@ -248,7 +248,7 @@ export default function StudentCoursesPage() {
       )} - Thời gian kết thúc: ${dayjs(section.endDate).format("DD/MM/YYYY")}`,
       classes: section.courseSchedules.map((s, i) => ({
         id: `${section.subjectId}-${section.id.groupId}-${i}`,
-        name: `Nhóm học tập ${section.id.groupId.toString().padStart(2, "0")}`,
+        name: `Nhóm môn học ${section.id.groupId.toString().padStart(2, "0")}`,
         schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
         room: s.id.room || "Trống",
       })),

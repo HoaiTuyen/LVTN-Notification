@@ -123,6 +123,7 @@ const EmployeeSentNotifications = () => {
         page - 1,
         pagination.pageSize
       );
+      console.log(response);
     } else {
       const keywordParam = keyword;
       const typeParam = isTypeAll ? "" : selectType;
@@ -291,8 +292,13 @@ const EmployeeSentNotifications = () => {
                               {notification.title}
                             </h3>
                             {notification.notificationType && (
-                              <Badge className="bg-blue-100 text-blue-800">
-                                {notification.notificationType}
+                              <Badge className="bg-slate-200	text-slate-800">
+                                {notification.notificationType || ""}
+                              </Badge>
+                            )}
+                            {notification.departmentName && (
+                              <Badge className="bg-blue-100 text-blue-700">
+                                {notification.departmentName || ""}
                               </Badge>
                             )}
                           </div>
@@ -371,6 +377,7 @@ const EmployeeSentNotifications = () => {
             <Pagination
               current={pagination.current}
               pageSize={pagination.pageSize}
+              showSizeChanger={false}
               total={pagination.total}
               onChange={(page) => {
                 const params = new URLSearchParams({

@@ -272,9 +272,13 @@ export const handleCheckCourseSchedule = async (id, check) => {
   }
 };
 
-export const handleListNotificationByStudent = async (StudentId) => {
+export const handleListNotificationByStudent = async (
+  StudentId,
+  page,
+  pageSize
+) => {
   try {
-    const response = await listNotificationByStudent(StudentId);
+    const response = await listNotificationByStudent(StudentId, page, pageSize);
 
     return response;
   } catch (error) {

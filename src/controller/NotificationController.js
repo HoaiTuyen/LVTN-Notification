@@ -41,12 +41,11 @@ export const handleCreateUserNotification = async (formData) => {
       };
     }
   } catch (error) {
-    console.error("Error fetching departments:", error);
+    console.error("Error creating user notification:", error);
     return {
       status: error.response?.status || 500,
       message:
-        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
-      data: [],
+        error.response?.data?.message || "Đã xảy ra lỗi khi tạo thông báo",
     };
   }
 };

@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { handleDetailGroup } from "../../controller/GroupController";
 import { Users, BellRing } from "lucide-react";
-
+import dayjs from "dayjs";
+import isTodayPlugin from "dayjs/plugin/isToday";
+dayjs.extend(isTodayPlugin);
 const NotificationDropdown = ({
   notificationList,
   setNotificationList,
@@ -18,18 +20,20 @@ const NotificationDropdown = ({
 
   useEffect(() => {
     const fetchTeacherNames = async () => {
-      const studyGroupIds = notificationList
-        .filter((n) => n.studyGroupId)
-        .map((n) => n.studyGroupId);
-      const uniqueIds = [...new Set(studyGroupIds)];
-      const newIds = uniqueIds.filter((id) => !groupTeacherMap[id]);
+      const groupIds = notificationList
+        .filter((n) => n.groupId)
+        .map((n) => n.groupId);
 
+      const uniqueIds = [...new Set(groupIds)];
+      console.log(uniqueIds);
+      const newIds = uniqueIds.filter((id) => !groupTeacherMap[id]);
       if (!newIds.length) return;
 
       try {
         const results = await Promise.all(
           newIds.map(async (id) => {
             const res = await handleDetailGroup(id);
+            console.log(res);
             return { id, userName: res?.data?.userName || "GV" };
           })
         );
@@ -49,9 +53,9 @@ const NotificationDropdown = ({
   }, [notificationList]);
 
   const handleNotificationClick = (item) => {
-    const isGroup = !!item.studyGroupId;
-    const link = isGroup
-      ? `/sinh-vien/group-study/${item.studyGroupId}`
+    const groupId = !!item.groupId;
+    const link = groupId
+      ? `/sinh-vien/group-study/${item.groupId}`
       : `/sinh-vien/notification/${item.id}`;
     navigate(link);
 
@@ -60,24 +64,21 @@ const NotificationDropdown = ({
     );
     setNotificationCount((prev) => Math.max(0, prev - 1));
   };
-  const isToday = (dateStr) => {
-    const today = new Date();
-    const date = new Date(dateStr);
-    return (
-      today.getFullYear() === date.getFullYear() &&
-      today.getMonth() === date.getMonth() &&
-      today.getDate() === date.getDate()
-    );
-  };
-  const todayNotifications = notificationList.filter((n) =>
-    isToday(n.createdAt)
+
+  const sortedList = [...notificationList].sort(
+    (a, b) => dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf()
   );
-  const olderNotifications = notificationList.filter(
-    (n) => !isToday(n.createdAt)
+
+  const latestNotifications = sortedList.slice(0, 3);
+  const latestIds = latestNotifications.map((n) => n.id);
+  const olderNotifications = sortedList.filter(
+    (n) => !latestIds.includes(n.id)
   );
+
   const renderNotificationItem = (item) => {
-    const isGroup = !!item.studyGroupId;
-    const typeIcon = isGroup ? <Users size={15} /> : <BellRing size={15} />;
+    const groupId = !!item.groupId;
+    console.log(item.groupId);
+    const typeIcon = groupId ? <Users size={15} /> : <BellRing size={15} />;
     const getInitials = (name) => {
       if (!name) return "";
       const parts = name.trim().split(" ");
@@ -90,20 +91,13 @@ const NotificationDropdown = ({
       <div
         key={item.id || item.content}
         onClick={() => handleNotificationClick(item)}
-        // className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition group mb-1 rounded-md
-        //   ${
-        //     item.isRead === 0
-        //       ? "bg-blue-50 border-l-4 border-blue-500 hover:bg-blue-100"
-        //       : "hover:bg-gray-50"
-        //   }
-        // `}
         className="flex items-start gap-3 px-4 py-3 cursor-pointer transition group mb-1 rounded-md hover:bg-gray-100"
       >
         {/* Avatar */}
-        {isGroup ? (
+        {groupId ? (
           <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
             <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
-              {getInitials(groupTeacherMap[item.studyGroupId])}
+              {getInitials(groupTeacherMap[item.groupId])}
             </AvatarFallback>
           </Avatar>
         ) : (
@@ -122,32 +116,43 @@ const NotificationDropdown = ({
         {/* Nội dung */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-semibold line-clamp-2 flex items-center gap-1 text-sm text-gray-900">
-              {item.title || item.content?.slice(0, 50)}
-              <span className="text-xl">{typeIcon}</span>
+            <span className="font-semibold flex items-center gap-1 text-sm text-gray-900 line-clamp-2 overflow-hidden text-ellipsis">
+              <span className="block max-w-[200px] truncate">
+                {item.title || item.content?.slice(0, 50)}
+              </span>
+              <span className="text-xl shrink-0">{typeIcon}</span>
             </span>
-            {item.isRead === 0 && (
+            {!item?.isRead && (
               <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
             )}
           </div>
 
-          {item.type === "ChungToanTruong" ? (
-            <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-yellow-100 text-yellow-800">
-              Thông báo chung
-            </span>
-          ) : item.studyGroupName ? (
-            <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
-              {item.studyGroupName}
-            </span>
-          ) : item.departmentName ? (
-            <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-purple-100 text-purple-700">
-              {item.departmentName}
-            </span>
-          ) : (
-            <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-              Tự động
-            </span>
-          )}
+          <div className="flex flex-wrap gap-1 mt-1">
+            {item.notificationType && (
+              <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-slate-200	text-slate-800">
+                {item.notificationType}
+              </span>
+            )}
+
+            {item.departmentName && (
+              <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
+                {item.departmentName}
+              </span>
+            )}
+            {item.groupName && (
+              <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                {item.groupName}
+              </span>
+            )}
+
+            {!item.notificationType &&
+              !item.departmentName &&
+              !item.groupName && (
+                <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                  Phòng đào tạo
+                </span>
+              )}
+          </div>
         </div>
       </div>
     );
@@ -161,12 +166,12 @@ const NotificationDropdown = ({
         </div>
       ) : (
         <>
-          {todayNotifications.length > 0 && (
+          {latestNotifications.length > 0 && (
             <>
               <div className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-50 sticky top-0 z-10">
                 Mới nhất
               </div>
-              {todayNotifications.map(renderNotificationItem)}
+              {latestNotifications.map(renderNotificationItem)}
             </>
           )}
 
