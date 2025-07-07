@@ -10,8 +10,10 @@ import {
 import { toast } from "react-toastify";
 import { handleDeleteClassSection } from "../../../controller/SectionController";
 const DeleteSection = ({ onOpen, onClose, section, onSuccess }) => {
+  console.log(section);
   const handleDelete = async () => {
-    const response = await handleDeleteClassSection(section.id);
+    const response = await handleDeleteClassSection(section);
+    console.log(response);
     if (response?.status === 204) {
       toast.success(response.message || "Xóa lớp thành công");
       onSuccess();
@@ -27,17 +29,10 @@ const DeleteSection = ({ onOpen, onClose, section, onSuccess }) => {
         <DialogHeader>
           <DialogTitle>Xác nhận xóa</DialogTitle>
           <DialogDescription>
-            Bạn có chắc chắn muốn xóa lớp này?
+            Bạn có chắc chắn muốn xóa lớp học phần này?
           </DialogDescription>
         </DialogHeader>
-        {section && (
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              Mã lớp học phần: {section.id}
-            </p>
-            <p className="font-medium">Tên lớp học phần: {section.name}</p>
-          </div>
-        )}
+
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Hủy

@@ -32,7 +32,14 @@ export const getListStudentRegister = (semesterId, page, pageSize) => {
 };
 
 export const deleteClassSection = (id) => {
-  return api.delete(`/classsection/delete/${id}`);
+  axios.delete("/classsection/delete", {
+    data: {
+      subjectId: id.subjectId,
+      groupId: id.groupId,
+      teacherId: id.teacherId,
+      semesterId: id.semesterId,
+    },
+  });
 };
 
 export const searchStudentRegister = (keyword, semesterId, page, pageSize) => {

@@ -27,22 +27,31 @@ const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
 
 import { handleGetDetailUser } from "../../controller/AccountController";
-import { handleTeacherDetail } from "../../controller/TeacherController";
+
 import { handleStudentDetail } from "../../controller/StudentController";
 import { handleListGroupByStudent } from "../../controller/AccountController";
 import { handleDetailGroup } from "../../controller/GroupController";
+import { handleListNotificationByStudent } from "../../controller/AccountController";
+import NotificationDropdown from "./NotificationDropdown";
 const Student = () => {
   const { stompClient, connected, error } = useWebSocket();
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
-
+  const navigate = useNavigate();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
   const [notificationCount, setNotificationCount] = useState(0);
   const [notificationList, setNotificationList] = useState([]);
 
   const [groupStudents, setGroupStudents] = useState([]);
   const [userImage, setUserImage] = useState("");
   const [userInfo, setUserInfo] = useState([]);
+  const [selectedTab, setSelectedTab] = useState("home");
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [apiNotificationList, setApiNotificationList] = useState([]);
+  const [apiNotificationPage, setApiNotificationPage] = useState(0);
+  const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
 
   const fetchListGroupById = async () => {
     const req = await handleListGroupByStudent(userId);
@@ -140,19 +149,6 @@ const Student = () => {
         }
       );
 
-      // const studentSub = stompClient.current.subscribe(
-      //   `/notification/student/${userInfo.id}`,
-      //   (message) => {
-      //     const parsedMessage = JSON.parse(message.body);
-      //     console.log("Received student notification:", parsedMessage);
-      //     setNotificationList((prev) => {
-      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-      //       return [{ ...parsedMessage, isRead: false }, ...prev];
-      //     });
-      //     setNotificationCount((prev) => prev + 1);
-      //   }
-      // );
-
       const groupSubs = groupStudents.map((groupId) => {
         const groupTopic = `/notification/group/${groupId}`;
         const sub = stompClient.current.subscribe(groupTopic, (message) => {
@@ -242,12 +238,7 @@ const Student = () => {
     userInfo.id,
     groupStudents,
   ]);
-  const [selectedTab, setSelectedTab] = useState("home");
-  const [drawerVisible, setDrawerVisible] = useState(false);
 
-  const navigate = useNavigate();
-  const screens = useBreakpoint();
-  const isMobile = !screens.md;
   const handleLogoutUser = () => {
     handleLogout(navigate);
     toast.success("Đăng xuất thành công");
@@ -288,266 +279,42 @@ const Student = () => {
     }
   };
 
-  const NotificationDropdown = memo(
-    ({ notificationList, setNotificationList, setNotificationCount }) => {
-      const navigate = useNavigate();
-      const [groupTeacherMap, setGroupTeacherMap] = useState({});
+  const fetchInitialNotifications = async () => {
+    try {
+      const res = await handleListNotificationByStudent(userId);
+      console.log(res);
+      if (res?.data?.responses) {
+        const notifications = res.data.responses;
+        const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-      useEffect(() => {
-        const fetchTeacherNames = async () => {
-          if (!notificationList?.length) return;
-
-          const studyGroupIds = notificationList
-            .filter((n) => n.studyGroupId)
-            .map((n) => n.studyGroupId);
-          const uniqueIds = [...new Set(studyGroupIds)];
-          const newIds = uniqueIds.filter((id) => !groupTeacherMap[id]);
-
-          if (!newIds.length) return;
-
-          try {
-            const results = await Promise.all(
-              newIds.map(async (id) => {
-                const res = await handleDetailGroup(id);
-                console.log(res);
-                return { id, userName: res?.data?.userName || "GV" };
-              })
-            );
-
-            setGroupTeacherMap((prev) => ({
-              ...prev,
-              ...Object.fromEntries(
-                results.map(({ id, userName }) => [id, userName])
-              ),
-            }));
-          } catch (err) {
-            console.error("Lỗi lấy thông tin nhóm:", err);
-          }
-        };
-
-        fetchTeacherNames();
-      }, [notificationList]);
-
-      const handleNotificationClick = (item) => {
-        const isGroup = !!item.studyGroupId;
-        const link = isGroup
-          ? `/sinh-vien/group-study/${item.studyGroupId}`
-          : `/sinh-vien/notification/${item.id}`;
-        navigate(link);
-
-        // Đánh dấu thông báo là đã đọc
-        setNotificationList((prev) =>
-          prev.map((notification) =>
-            notification.id === item.id
-              ? { ...notification, isRead: true }
-              : notification
-          )
-        );
-        setNotificationCount((prev) => Math.max(0, prev - 1)); // Giảm số đếm cho thông báo chưa đọc
-      };
-
-      if (!notificationList?.length) {
-        return (
-          <div className="p-6 w-80 text-center text-gray-400">
-            <p>Không có thông báo nào</p>
-          </div>
-        );
+        setNotificationList(notifications.slice(0, 5)); // hiển thị 5 đầu
+        setNotificationCount(unreadCount);
+        setApiNotificationPage(1);
+        setHasMoreNotifications(res.data.totalPages > 1);
       }
-
-      // Chỉ hiển thị các thông báo chưa đọc
-      // const groupNotifications = notificationList
-      //   .filter((n) => n.studyGroupId && !n.isRead)
-      //   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      //   .slice(0, 5);
-
-      // const generalNotifications = notificationList
-      //   .filter((n) => !n.studyGroupId && !n.isRead)
-      //   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      //   .slice(0, 5);
-      const groupNotifications = notificationList
-        .filter((n) => n.studyGroupId && !n.isRead)
-        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-        .slice(0, 5);
-
-      const generalNotifications = notificationList
-        .filter((n) => !n.studyGroupId && !n.isRead)
-        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-        .slice(0, 5);
-
-      // const renderNotificationItem = (item) => {
-      //   const isGroup = !!item.studyGroupId;
-      //   const typeIcon = isGroup ? <Users size={15} /> : <BellRing size={15} />;
-      //   const getInitials = (name) => {
-      //     if (!name) return "";
-      //     const parts = name.trim().split(" ");
-      //     if (parts.length === 1) return parts[0][0].toUpperCase();
-      //     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-      //   };
-
-      //   return (
-      //     <div
-      //       key={item.id}
-      //       onClick={() => handleNotificationClick(item)}
-      //       className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group"
-      //     >
-      //       {isGroup ? (
-      //         <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
-      //           {/* <AvatarImage
-      //               src="/img/logo.png"
-      //               alt="Logo"
-      //               className="object-contain w-full h-full scale-90"
-      //             /> */}
-      //           <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
-      //             {getInitials(groupTeacherMap[item.studyGroupId])}
-      //           </AvatarFallback>
-      //         </Avatar>
-      //       ) : (
-      //         <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
-      //           <AvatarImage
-      //             src="/img/logo.png"
-      //             alt="Logo"
-      //             className="object-contain w-full h-full scale-150"
-      //           />
-      //           <AvatarFallback className="bg-blue-100 text-blue-800 text-base font-semibold flex items-center justify-center">
-      //             LOGO
-      //           </AvatarFallback>
-      //         </Avatar>
-      //       )}
-      //       <div className="flex-1 min-w-0">
-      //         <div className="flex items-center gap-2">
-      //           <span className="font-semibold line-clamp-1 flex items-center gap-1">
-      //             {item.title}
-      //             <span className="text-xl">{typeIcon}</span>
-      //           </span>
-      //         </div>
-      //         {isGroup ? (
-      //           <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
-      //             {item.studyGroupName}
-      //           </span>
-      //         ) : (
-      //           <div className="flex flex-wrap gap-1 mt-1">
-      //             {item.notificationType && (
-      //               <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-      //                 {item.notificationType}
-      //               </span>
-      //             )}
-      //             {item.departmentName && (
-      //               <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
-      //                 {item.departmentName}
-      //               </span>
-      //             )}
-      //             {!item.notificationType && !item.departmentName && (
-      //               <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-      //                 Phòng Đào tạo
-      //               </span>
-      //             )}
-      //           </div>
-      //         )}
-      //       </div>
-      //     </div>
-      //   );
-      // };
-
-      const renderNotificationItem = (item) => {
-        const isGroup = !!item.studyGroupId;
-        const hasContentOnly = !item.title && item.content;
-
-        const typeIcon = isGroup ? <Users size={15} /> : <BellRing size={15} />;
-        const getInitials = (name) => {
-          if (!name) return "";
-          const parts = name.trim().split(" ");
-          if (parts.length === 1) return parts[0][0].toUpperCase();
-          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-        };
-
-        return (
-          <div
-            key={item.id || item.content} // dùng content làm key fallback nếu không có id
-            onClick={() => handleNotificationClick(item)}
-            className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group"
-          >
-            {isGroup ? (
-              <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
-                <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
-                  {getInitials(groupTeacherMap[item.studyGroupId])}
-                </AvatarFallback>
-              </Avatar>
-            ) : (
-              <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
-                <AvatarImage
-                  src="/img/logo.png"
-                  alt="Logo"
-                  className="object-contain w-full h-full scale-150"
-                />
-                <AvatarFallback className="bg-blue-100 text-blue-800 text-base font-semibold flex items-center justify-center">
-                  LOGO
-                </AvatarFallback>
-              </Avatar>
-            )}
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold line-clamp-2 flex items-center gap-1 text-sm text-gray-900">
-                  {item.title || item.content?.slice(0, 50)}
-                  <span className="text-xl">{typeIcon}</span>
-                </span>
-              </div>
-
-              {isGroup ? (
-                <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
-                  {item.studyGroupName}
-                </span>
-              ) : item.notificationType || item.departmentName ? (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {item.notificationType && (
-                    <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                      {item.notificationType}
-                    </span>
-                  )}
-                  {item.departmentName && (
-                    <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
-                      {item.departmentName}
-                    </span>
-                  )}
-                </div>
-              ) : hasContentOnly ? (
-                <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-                  Tự động
-                </span>
-              ) : null}
-            </div>
-          </div>
-        );
-      };
-
-      return (
-        <div className="max-h-96 w-92 bg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
-          {groupNotifications.length > 0 && (
-            <>
-              <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
-                Nhóm học tập
-              </div>
-              <div>{groupNotifications.map(renderNotificationItem)}</div>
-            </>
-          )}
-          {generalNotifications.length > 0 && (
-            <>
-              <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
-                Thông báo chung
-              </div>
-              <div>{generalNotifications.map(renderNotificationItem)}</div>
-            </>
-          )}
-          {groupNotifications.length === 0 &&
-            generalNotifications.length === 0 && (
-              <div className="p-6 w-80 text-center text-gray-400">
-                <p>Không có thông báo chưa đọc</p>
-              </div>
-            )}
-        </div>
-      );
+    } catch (error) {
+      console.error("Lỗi fetch thông báo:", error);
     }
-  );
+  };
+
+  const loadMoreNotifications = async () => {
+    try {
+      const res = await handleListNotificationByStudent(
+        userId,
+        apiNotificationPage,
+        5
+      );
+      if (res?.data?.responses?.length > 0) {
+        setNotificationList((prev) => [...prev, ...res.data.responses]);
+        setApiNotificationPage((prev) => prev + 1);
+        setHasMoreNotifications(apiNotificationPage + 1 < res.data.totalPages);
+      } else {
+        setHasMoreNotifications(false);
+      }
+    } catch (err) {
+      console.error("Lỗi load thêm thông báo:", err);
+    }
+  };
 
   const items = [
     { key: "home", icon: <HomeOutlined />, label: "Trang chủ" },
@@ -600,7 +367,9 @@ const Student = () => {
   );
   useEffect(() => {
     fetchUserDetail();
+    fetchInitialNotifications();
   }, []);
+
   return (
     <Layout style={{ minHeight: "150vh", width: "100vw" }}>
       <Header
@@ -628,23 +397,16 @@ const Student = () => {
               onClick={() => setDrawerVisible(true)}
             />
           )}
-          {/* <div className="relative inline-block cursor-pointer">
-              <Bell className="text-gray-800" size={25} />
-              {notificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-                  {notificationCount > 99 ? "99+" : notificationCount}
-                </span>
-              )}
-            </div> */}
           <Dropdown
-            overlay={
+            dropdownRender={() => (
               <NotificationDropdown
                 notificationList={notificationList}
                 setNotificationList={setNotificationList}
                 setNotificationCount={setNotificationCount}
+                loadMore={loadMoreNotifications}
+                hasMore={hasMoreNotifications}
               />
-            }
-            // trigger={["hover"]}
+            )}
             trigger={["click"]}
             placement="bottomRight"
             overlayStyle={{
@@ -653,9 +415,6 @@ const Student = () => {
               zIndex: 999,
               backgroundColor: "#fff",
             }}
-            // onOpenChange={() => {
-            //   setNotificationCount(0);
-            // }}
             onOpenChange={(open) => {
               if (open) {
                 setNotificationCount(
@@ -755,3 +514,248 @@ const Student = () => {
   );
 };
 export default Student;
+
+// const NotificationDropdown = memo(
+//   ({
+//     notificationList,
+//     setNotificationList,
+//     setNotificationCount,
+//     loadMore,
+//     hasMore,
+//   }) => {
+//     const navigate = useNavigate();
+//     const [groupTeacherMap, setGroupTeacherMap] = useState({});
+
+//     useEffect(() => {
+//       const fetchTeacherNames = async () => {
+//         if (!notificationList?.length) return;
+
+//         const studyGroupIds = notificationList
+//           .filter((n) => n.studyGroupId)
+//           .map((n) => n.studyGroupId);
+//         const uniqueIds = [...new Set(studyGroupIds)];
+//         const newIds = uniqueIds.filter((id) => !groupTeacherMap[id]);
+
+//         if (!newIds.length) return;
+
+//         try {
+//           const results = await Promise.all(
+//             newIds.map(async (id) => {
+//               const res = await handleDetailGroup(id);
+//               console.log(res);
+//               return { id, userName: res?.data?.userName || "GV" };
+//             })
+//           );
+
+//           setGroupTeacherMap((prev) => ({
+//             ...prev,
+//             ...Object.fromEntries(
+//               results.map(({ id, userName }) => [id, userName])
+//             ),
+//           }));
+//         } catch (err) {
+//           console.error("Lỗi lấy thông tin nhóm:", err);
+//         }
+//       };
+
+//       fetchTeacherNames();
+//     }, [notificationList]);
+
+//     const handleNotificationClick = (item) => {
+//       const isGroup = !!item.studyGroupId;
+//       const link = isGroup
+//         ? `/sinh-vien/group-study/${item.studyGroupId}`
+//         : `/sinh-vien/notification/${item.id}`;
+//       navigate(link);
+
+//       // Đánh dấu thông báo là đã đọc
+//       setNotificationList((prev) =>
+//         prev.map((notification) =>
+//           notification.id === item.id
+//             ? { ...notification, isRead: true }
+//             : notification
+//         )
+//       );
+//       setNotificationCount((prev) => Math.max(0, prev - 1)); // Giảm số đếm cho thông báo chưa đọc
+//     };
+
+//     if (!notificationList?.length) {
+//       return (
+//         <div className="p-6 w-80 text-center text-gray-400">
+//           <p>Không có thông báo nào</p>
+//         </div>
+//       );
+//     }
+
+//     const groupNotifications = notificationList
+//       .filter((n) => n.studyGroupId && !n.isRead)
+//       .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+//       .slice(0, 5);
+
+//     const generalNotifications = notificationList
+//       .filter((n) => !n.studyGroupId && !n.isRead)
+//       .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+//       .slice(0, 5);
+
+//     const renderNotificationItem = (item) => {
+//       const isGroup = !!item.studyGroupId;
+//       const hasContentOnly = !item.title && item.content;
+
+//       const typeIcon = isGroup ? <Users size={15} /> : <BellRing size={15} />;
+//       const getInitials = (name) => {
+//         if (!name) return "";
+//         const parts = name.trim().split(" ");
+//         if (parts.length === 1) return parts[0][0].toUpperCase();
+//         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+//       };
+
+//       // return (
+//       //   <div
+//       //     key={item.id || item.content} // dùng content làm key fallback nếu không có id
+//       //     onClick={() => handleNotificationClick(item)}
+//       //     className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group"
+//       //   >
+//       //     {isGroup ? (
+//       //       <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
+//       //         <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
+//       //           {getInitials(groupTeacherMap[item.studyGroupId])}
+//       //         </AvatarFallback>
+//       //       </Avatar>
+//       //     ) : (
+//       //       <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
+//       //         <AvatarImage
+//       //           src="/img/logo.png"
+//       //           alt="Logo"
+//       //           className="object-contain w-full h-full scale-150"
+//       //         />
+//       //         <AvatarFallback className="bg-blue-100 text-blue-800 text-base font-semibold flex items-center justify-center">
+//       //           LOGO
+//       //         </AvatarFallback>
+//       //       </Avatar>
+//       //     )}
+
+//       //     <div className="flex-1 min-w-0">
+//       //       <div className="flex items-center gap-2">
+//       //         <span className="font-semibold line-clamp-2 flex items-center gap-1 text-sm text-gray-900">
+//       //           {item.title || item.content?.slice(0, 50)}
+//       //           <span className="text-xl">{typeIcon}</span>
+//       //         </span>
+//       //       </div>
+
+//       //       {isGroup ? (
+//       //         <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-green-100 text-green-700">
+//       //           {item.studyGroupName}
+//       //         </span>
+//       //       ) : item.notificationType || item.departmentName ? (
+//       //         <div className="flex flex-wrap gap-1 mt-1">
+//       //           {item.notificationType && (
+//       //             <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+//       //               {item.notificationType}
+//       //             </span>
+//       //           )}
+//       //           {item.departmentName && (
+//       //             <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
+//       //               {item.departmentName}
+//       //             </span>
+//       //           )}
+//       //         </div>
+//       //       ) : hasContentOnly ? (
+//       //         <span className="inline-block text-xs font-medium mt-1 px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+//       //           Tự động
+//       //         </span>
+//       //       ) : null}
+//       //     </div>
+//       //   </div>
+//       // );
+//       return (
+//         <div className="max-h-[400px] w-92 bg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
+//           {notificationList.length > 0 ? (
+//             <>
+//               {notificationList.map((item) => (
+//                 <div
+//                   key={item.id}
+//                   onClick={() => handleNotificationClick(item)}
+//                   className={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition group ${
+//                     item.isRead === 0
+//                       ? "bg-gray-50 border-l-4 border-blue-500"
+//                       : ""
+//                   }`}
+//                 >
+//                   <Avatar className="w-10 h-10 shadow ring ring-gray-200">
+//                     <AvatarFallback className="bg-blue-500 text-white">
+//                       {item.type?.slice(0, 2)?.toUpperCase() || "TB"}
+//                     </AvatarFallback>
+//                   </Avatar>
+//                   <div className="flex-1">
+//                     <div className="text-sm font-semibold text-gray-900">
+//                       {item.title || "Không có tiêu đề"}
+//                     </div>
+//                     <div className="text-xs text-gray-500">
+//                       {new Date(item.createdAt).toLocaleString()}
+//                     </div>
+//                   </div>
+//                   {item.isRead === 0 && (
+//                     <span className="w-2 h-2 bg-blue-500 rounded-full mt-1"></span>
+//                   )}
+//                 </div>
+//               ))}
+
+//               {hasMore && (
+//                 <div className="text-center py-2">
+//                   <button
+//                     className="text-blue-600 hover:underline text-sm"
+//                     onClick={loadMore}
+//                   >
+//                     Xem thêm
+//                   </button>
+//                 </div>
+//               )}
+//             </>
+//           ) : (
+//             <div className="p-6 text-center text-gray-400">
+//               Không có thông báo nào
+//             </div>
+//           )}
+//         </div>
+//       );
+//     };
+
+//     return (
+//       <div className="max-h-96 w-92 bg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
+//         {groupNotifications.length > 0 && (
+//           <>
+//             <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
+//               Nhóm học tập
+//             </div>
+//             <div>{groupNotifications.map(renderNotificationItem)}</div>
+//           </>
+//         )}
+//         {generalNotifications.length > 0 && (
+//           <>
+//             <div className="text-lg font-bold px-4 pt-3 pb-1 text-black-400">
+//               Thông báo chung
+//             </div>
+//             <div>{generalNotifications.map(renderNotificationItem)}</div>
+//           </>
+//         )}
+//         {(groupNotifications.length > 0 || generalNotifications.length > 0) &&
+//           hasMore && (
+//             <div className="text-center py-2">
+//               <button
+//                 className="text-blue-600 hover:underline text-sm"
+//                 onClick={loadMore}
+//               >
+//                 Xem thêm
+//               </button>
+//             </div>
+//           )}
+//         {groupNotifications.length === 0 &&
+//           generalNotifications.length === 0 && (
+//             <div className="p-6 w-80 text-center text-gray-400">
+//               <p>Không có thông báo chưa đọc</p>
+//             </div>
+//           )}
+//       </div>
+//     );
+//   }
+// );

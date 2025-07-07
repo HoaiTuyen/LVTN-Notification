@@ -13,6 +13,7 @@ import {
   getListLecturerAccountExcel,
   listGroupByStudent,
   checkCourseSchedule,
+  listNotificationByStudent,
 } from "../servicers/AccountServicer";
 
 export const handleListUser = async (page = 0, pageSize = 1000) => {
@@ -268,5 +269,23 @@ export const handleCheckCourseSchedule = async (id, check) => {
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
     };
+  }
+};
+
+export const handleListNotificationByStudent = async (StudentId) => {
+  try {
+    const response = await listNotificationByStudent(StudentId);
+
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Lấy danh sách thông báo thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
   }
 };

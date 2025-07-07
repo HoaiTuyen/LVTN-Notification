@@ -85,6 +85,7 @@ const StudyModule = () => {
   const [classSectionList, setClassSectionList] = useState([]);
   const [openModalRegisterStudent, setOpenModalRegisterStudent] =
     useState(false);
+  const [selectedSection, setSelectedSection] = useState(null);
 
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [pagination, setPagination] = useState({
@@ -127,13 +128,15 @@ const StudyModule = () => {
         const courseMap = {};
 
         list.forEach((section) => {
+          const id = section.id;
           const subjectId = section.subjectId;
-          const groupId = section.id?.groupId;
+          const groupId = section.id.groupId;
           const teacher = section.teacherName || null;
 
           const classData =
             section.courseSchedules?.map((s, i) => ({
               id: `${s.id.subjectId}-${s.id.groupId}-${s.id.teacherId}-${i}`,
+              sectionId: id,
               name: `Nhóm học tập ${groupId}`,
               room: s.id.room || "Chưa có phòng",
               schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`,
@@ -145,6 +148,7 @@ const StudyModule = () => {
           if (!courseMap[subjectId]) {
             courseMap[subjectId] = {
               id: subjectId,
+              sectionId: id,
               name: section.subjectName,
               code: subjectId,
               startDate: section.startDate,
@@ -161,7 +165,7 @@ const StudyModule = () => {
             ? classData.length
             : 0;
         });
-
+        console.log(courseMap);
         const transformedData = Object.values(courseMap);
         setClassSectionList(transformedData);
       }
@@ -307,93 +311,115 @@ const StudyModule = () => {
                   {classSectionList.length === 0 ? (
                     <p className="text-center">Không có dữ liệu phù hợp</p>
                   ) : (
-                    classSectionList.map((course) => (
-                      <Card
-                        key={course.id}
-                        className="border-l-4 border-l-blue-500"
-                      >
-                        <CardHeader>
-                          <div className="flex items-start justify-between">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <CardTitle className="text-lg">
-                                  {course.name}
-                                </CardTitle>
-                                <div>
-                                  Thời gian bắt đầu:{" "}
-                                  {dayjs(course.startDate).format("DD/MM/YYYY")}
-                                  {" - "}
-                                  Thời gian kết thúc:{"  "}
-                                  {dayjs(course.endDate).format("DD/MM/YYYY")}
-                                </div>
-                              </div>
-                              <CardDescription>{course.code}</CardDescription>
-                            </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-
-                                <DropdownMenuItem className="text-red-600 cursor-pointer">
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Xóa
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <h4 className="text-sm font-medium">
-                              Danh sách lớp học:
-                            </h4>
-                            {course.classes.length === 0 ? (
-                              <div className="text-sm italic text-muted-foreground">
-                                <AlertCircle className="inline h-4 w-4 mr-1 text-red-500" />
-                                Chưa có lớp học nào
-                              </div>
-                            ) : (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {course.classes.map((classItem) => (
-                                  <div
-                                    key={classItem.id}
-                                    className="p-3 border rounded-lg"
-                                  >
-                                    <div className="flex items-center justify-between mb-2">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-medium">
-                                          {classItem.name}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <div className="grid gap-2 text-sm text-muted-foreground">
-                                      <div className="flex items-center gap-1">
-                                        <Users className="h-3 w-3" />
-                                        GV:{" "}
-                                        {classItem.instructor ||
-                                          "Chưa phân công"}
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <Calendar className="h-3 w-3" />
-                                        Phòng {classItem.room}
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <Clock className="h-3 w-3" />
-                                        {classItem.schedule}
-                                      </div>
+                    classSectionList.map(
+                      (course) => (
+                        console.log(course),
+                        (
+                          <Card
+                            key={course.id}
+                            className="border-l-4 border-l-blue-500"
+                          >
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <CardTitle className="text-lg">
+                                      {course.name}
+                                    </CardTitle>
+                                    <div>
+                                      Thời gian bắt đầu:{" "}
+                                      {dayjs(course.startDate).format(
+                                        "DD/MM/YYYY"
+                                      )}
+                                      {" - "}
+                                      Thời gian kết thúc:{"  "}
+                                      {dayjs(course.endDate).format(
+                                        "DD/MM/YYYY"
+                                      )}
                                     </div>
                                   </div>
-                                ))}
+                                  <CardDescription>
+                                    {course.code}
+                                  </CardDescription>
+                                </div>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger>
+                                    <Button
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>
+                                      Thao tác
+                                    </DropdownMenuLabel>
+
+                                    <DropdownMenuItem
+                                      className="text-red-600 cursor-pointer"
+                                      onClick={() => {
+                                        setSelectedSection(course.sectionId);
+                                        setOpenModalDelete(true);
+                                      }}
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Xóa
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                <h4 className="text-sm font-medium">
+                                  Danh sách lớp học:
+                                </h4>
+                                {course.classes.length === 0 ? (
+                                  <div className="text-sm italic text-muted-foreground">
+                                    <AlertCircle className="inline h-4 w-4 mr-1 text-red-500" />
+                                    Chưa có lớp học nào
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {course.classes.map((classItem) => (
+                                      <div
+                                        key={classItem.id}
+                                        className="p-3 border rounded-lg"
+                                      >
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">
+                                              {classItem.name}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="grid gap-2 text-sm text-muted-foreground">
+                                          <div className="flex items-center gap-1">
+                                            <Users className="h-3 w-3" />
+                                            GV:{" "}
+                                            {classItem.instructor ||
+                                              "Chưa phân công"}
+                                          </div>
+                                          <div className="flex items-center gap-1">
+                                            <Calendar className="h-3 w-3" />
+                                            Phòng {classItem.room}
+                                          </div>
+                                          <div className="flex items-center gap-1">
+                                            <Clock className="h-3 w-3" />
+                                            {classItem.schedule}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )
+                      )
+                    )
                   )}
                 </div>
               </CardContent>
