@@ -2,11 +2,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { handleDetailGroup } from "../../controller/GroupController";
 import { Users, BellRing } from "lucide-react";
 import dayjs from "dayjs";
 import isTodayPlugin from "dayjs/plugin/isToday";
 dayjs.extend(isTodayPlugin);
+import { jwtDecode } from "jwt-decode";
+import { handleDetailGroup } from "../../controller/GroupController";
+import {
+  handleMakeNotificationRead,
+  handleMakeAllNotificationRead,
+} from "../../controller/AccountController";
 const NotificationDropdown = ({
   notificationList,
   setNotificationList,
@@ -17,6 +22,9 @@ const NotificationDropdown = ({
   console.log(notificationList);
   const navigate = useNavigate();
   const [groupTeacherMap, setGroupTeacherMap] = useState({});
+
+  const token = localStorage.getItem("access_token");
+  const userId = jwtDecode(token).userId;
 
   useEffect(() => {
     const fetchTeacherNames = async () => {
@@ -33,7 +41,7 @@ const NotificationDropdown = ({
         const results = await Promise.all(
           newIds.map(async (id) => {
             const res = await handleDetailGroup(id);
-            console.log(res);
+
             return { id, userName: res?.data?.userName || "GV" };
           })
         );
@@ -52,17 +60,30 @@ const NotificationDropdown = ({
     fetchTeacherNames();
   }, [notificationList]);
 
-  const handleNotificationClick = (item) => {
+  const handleNotificationClick = async (item) => {
+    console.log(item);
     const groupId = !!item.groupId;
     const link = groupId
       ? `/sinh-vien/group-study/${item.groupId}`
       : `/sinh-vien/notification/${item.id}`;
-    navigate(link);
+    if (!item.isRead) {
+      const res = await handleMakeNotificationRead(userId, item.id, item.type);
+      console.log(res);
 
-    setNotificationList((prev) =>
-      prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n))
-    );
-    setNotificationCount((prev) => Math.max(0, prev - 1));
+      setNotificationList((prev) =>
+        prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n))
+      );
+      setNotificationCount((prev) => Math.max(0, prev - 1));
+    }
+    navigate(link);
+  };
+  const handleClickAllNotificationRead = async () => {
+    const res = await handleMakeAllNotificationRead(userId);
+    console.log(res);
+    if (res.status === 200) {
+      setNotificationList((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setNotificationCount(0);
+    }
   };
 
   const sortedList = [...notificationList].sort(
@@ -74,7 +95,7 @@ const NotificationDropdown = ({
   const olderNotifications = sortedList.filter(
     (n) => !latestIds.includes(n.id)
   );
-
+  const hasUnread = notificationList.some((n) => !n.isRead);
   const renderNotificationItem = (item) => {
     const groupId = !!item.groupId;
     console.log(item.groupId);
@@ -168,9 +189,18 @@ const NotificationDropdown = ({
         <>
           {latestNotifications.length > 0 && (
             <>
-              <div className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-50 sticky top-0 z-10">
-                Mới nhất
+              <div className="flex items-center justify-between px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-50 sticky top-0 z-10">
+                <span>Mới nhất</span>
+                {hasUnread && (
+                  <button
+                    onClick={handleClickAllNotificationRead}
+                    className="text-blue-600 hover:underline text-sm font-normal cursor-pointer"
+                  >
+                    Đánh dấu tất cả là đã đọc
+                  </button>
+                )}
               </div>
+
               {latestNotifications.map(renderNotificationItem)}
             </>
           )}
@@ -189,7 +219,7 @@ const NotificationDropdown = ({
       {hasMore && (
         <div className="text-center py-2">
           <button
-            className="border border-blue-500 text-blue-600 px-3 py-1 rounded-md hover:bg-blue-50 text-sm transition"
+            className="border cursor-pointer border-blue-500 text-blue-600 px-3 py-1 rounded-md hover:bg-blue-50 text-sm transition"
             onClick={loadMore}
           >
             Xem thêm

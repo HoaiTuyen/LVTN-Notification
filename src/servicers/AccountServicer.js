@@ -13,6 +13,20 @@ export const addUser = (data) => {
 export const lockUser = (userId) => {
   return api.post(`/user/lock/${userId}`);
 };
+export const changePassword = (
+  id,
+  oldPassword,
+  newPassword,
+  confirmPassword
+) => {
+  return api.post("/account/change-password", {
+    id: id,
+    oldPassword: oldPassword,
+    newPassword: newPassword,
+    confirmPassword: confirmPassword,
+  });
+};
+
 export const updateUser = (data) => {
   return api.put("/user/update", data);
 };
@@ -93,4 +107,21 @@ export const listNotificationByStudent = async (StudentId, page, pageSize) => {
       pageSize,
     },
   });
+};
+export const unreadCountNotificationUser = async (userId) => {
+  return api.post(`/account/count_all_notification/${userId}`);
+};
+export const makeNotificationRead = async (
+  userId,
+  notificationId,
+  notificationType
+) => {
+  return api.post("/account/make_a_notification", {
+    notificationId: notificationId,
+    notificationType: notificationType,
+    userId: userId,
+  });
+};
+export const makeAllNotificationRead = async (userId) => {
+  return api.post(`/account/make_all_notification/${userId}`);
 };

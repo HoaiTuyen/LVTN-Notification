@@ -234,7 +234,7 @@ export default function StudentCoursesPage() {
   const [notifyDisabled, setNotifyDisabled] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [studentId, setStudentId] = useState(null);
-
+  const [isCheckSend, setIsCheckSend] = useState(false);
   const filteredCourses = classSectionList.map((section, index) => {
     console.log();
 
@@ -266,6 +266,7 @@ export default function StudentCoursesPage() {
     try {
       const res = await handleCheckCourseSchedule(studentId, checked); // true = tắt, false = bật
       setNotifyDisabled(checked);
+      setIsCheckSend(checked);
       toast.success(res.message || "Cập nhật trạng thái thông báo thành công");
     } catch (err) {
       console.error("Lỗi khi cập nhật thông báo:", err);
@@ -275,6 +276,7 @@ export default function StudentCoursesPage() {
   const confirmDisableNotification = () => {
     setShowDialog(false);
     updateNotificationSetting(true);
+    setIsCheckSend(true);
   };
   useEffect(() => {
     const fetchSemester = async () => {
@@ -306,6 +308,7 @@ export default function StudentCoursesPage() {
       const userId = decoded?.userId;
       setStudentId(userId);
       const userRes = await handleGetDetailUser(userId);
+      setIsCheckSend(userRes?.data?.isCheck);
       const studentId = userRes?.data?.studentId;
 
       if (!studentId) return;
@@ -356,7 +359,7 @@ export default function StudentCoursesPage() {
                 <div className="flex items-center gap-2 py-2">
                   <Checkbox
                     id="notify-6am"
-                    checked={notifyDisabled}
+                    checked={isCheckSend}
                     onCheckedChange={handleToggleNotification}
                   />
                   <label
@@ -418,39 +421,6 @@ export default function StudentCoursesPage() {
                           </div>
                         </div>
                       </CardHeader>
-                      {/* <CardContent className="space-y-4">
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm">
-                              <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                              <span>{course.semester}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-medium">Lịch học:</h4>
-                          <div className="grid gap-2">
-                            {course.classes.map((schedule, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                                  <span>{schedule.schedule}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                  <Clock className="h-4 w-4" />
-                                  <span>{schedule.section}</span>
-                                  <MapPin className="h-4 w-4" />
-                                  <span>{schedule.room}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </CardContent> */}
                       <CardContent>
                         <div className="mt-4 space-y-2">
                           <div className="grid gap-2 md:grid-cols-2">

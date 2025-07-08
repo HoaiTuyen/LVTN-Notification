@@ -33,7 +33,7 @@ import StudentNotificationDetail from "../components/Student/Notification/Detail
 import DetailGroupStudent from "../components/Student/Group/DetailGroup";
 import HomePageStudent from "../components/Student/Home/HomePageStudent";
 import StudentSubject from "../components/Student/Subject/StudentSubject";
-import Test from "../components/Student/Test";
+import ChangePasswordPage from "../components/Student/ChangePassword";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
 import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
@@ -211,7 +211,7 @@ function AppRoutes() {
               path="group-study/:groupStudyId"
               element={<DetailGroupStudent />}
             />
-            <Route path="tester" element={<Test />} />
+            <Route path="change-password" element={<ChangePasswordPage />} />
           </Route>
         </Routes>
       </AnimatePresence>

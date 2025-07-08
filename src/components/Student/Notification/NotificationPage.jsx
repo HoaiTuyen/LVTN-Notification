@@ -124,7 +124,7 @@ const NotificationsPage = () => {
           {/* LEFT: Title + Badge + Date */}
           <div className="flex items-center gap-3 flex-wrap">
             <CardTitle
-              className="text-base cursor-pointer hover:text-blue-500"
+              className="text-base cursor-pointer hover:text-blue-500 max-w-[400px] truncate"
               onClick={(e) => {
                 handleViewDetail(notification.id, e);
               }}
@@ -139,7 +139,7 @@ const NotificationsPage = () => {
           </div>
 
           {/* RIGHT: Toggle read/unread */}
-          <div
+          {/* <div
             onClick={() => onToggleRead(notification.id)}
             className="cursor-pointer p-2 rounded-full hover:bg-muted transition"
           >
@@ -148,7 +148,7 @@ const NotificationsPage = () => {
             ) : (
               <Mail size={25} className="text-gray-700" />
             )}
-          </div>
+          </div> */}
         </div>
       </CardHeader>
 
@@ -227,8 +227,8 @@ const NotificationsPage = () => {
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList>
               <TabsTrigger value="all">Tất cả</TabsTrigger>
-              <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
-              <TabsTrigger value="read">Đã đọc</TabsTrigger>
+              {/* <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
+              <TabsTrigger value="read">Đã đọc</TabsTrigger> */}
             </TabsList>
 
             <TabsContent

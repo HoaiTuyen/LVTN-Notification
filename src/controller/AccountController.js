@@ -14,6 +14,10 @@ import {
   listGroupByStudent,
   checkCourseSchedule,
   listNotificationByStudent,
+  unreadCountNotificationUser,
+  makeNotificationRead,
+  makeAllNotificationRead,
+  changePassword,
 } from "../servicers/AccountServicer";
 
 export const handleListUser = async (page = 0, pageSize = 1000) => {
@@ -61,6 +65,31 @@ export const handleLockUser = async (userId) => {
     if (error) {
       const errMsg =
         error.response?.data?.message || "Khóa người dùng thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+export const handleChangePassword = async (
+  id,
+  oldPassword,
+  newPassword,
+  confirmPassword
+) => {
+  try {
+    const response = await changePassword(
+      id,
+      oldPassword,
+      newPassword,
+      confirmPassword
+    );
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg = error.response?.data?.message || "Đổi mật khẩu thất bại";
       const status = error.response?.status || 500;
       return {
         status,
@@ -285,6 +314,71 @@ export const handleListNotificationByStudent = async (
     if (error) {
       const errMsg =
         error.response?.data?.message || "Lấy danh sách thông báo thất bại";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+
+export const handleUnreadCountNotificationUser = async (userId) => {
+  try {
+    const response = await unreadCountNotificationUser(userId);
+
+    if (response?.data) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      data: [],
+    };
+  }
+};
+export const handleMakeNotificationRead = async (
+  StudentId,
+  notificationId,
+  notificationType
+) => {
+  try {
+    const response = await makeNotificationRead(
+      StudentId,
+      notificationId,
+      notificationType
+    );
+
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Đã xảy ra lỗi khi đánh dấu thông báo";
+      const status = error.response?.status || 500;
+      return {
+        status,
+        message: errMsg,
+      };
+    }
+  }
+};
+
+export const handleMakeAllNotificationRead = async (userId) => {
+  try {
+    const response = await makeAllNotificationRead(userId);
+
+    return response;
+  } catch (error) {
+    if (error) {
+      const errMsg =
+        error.response?.data?.message || "Đã xảy ra lỗi khi đánh dấu thông báo";
       const status = error.response?.status || 500;
       return {
         status,
