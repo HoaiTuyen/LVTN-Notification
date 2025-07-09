@@ -1,4 +1,3 @@
-// NotificationDropdown.jsx (hoặc trên cùng file)
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,6 +17,7 @@ const NotificationDropdown = ({
   setNotificationCount,
   loadMore,
   hasMore,
+  onClose,
 }) => {
   console.log(notificationList);
   const navigate = useNavigate();
@@ -66,9 +66,9 @@ const NotificationDropdown = ({
     const link = groupId
       ? `/sinh-vien/group-study/${item.groupId}`
       : `/sinh-vien/notification/${item.id}`;
+
     if (!item.isRead) {
       const res = await handleMakeNotificationRead(userId, item.id, item.type);
-      console.log(res);
 
       setNotificationList((prev) =>
         prev.map((n) => (n.id === item.id ? { ...n, isRead: true } : n))
@@ -76,10 +76,11 @@ const NotificationDropdown = ({
       setNotificationCount((prev) => Math.max(0, prev - 1));
     }
     navigate(link);
+    onClose();
   };
   const handleClickAllNotificationRead = async () => {
     const res = await handleMakeAllNotificationRead(userId);
-    console.log(res);
+    onClose();
     if (res.status === 200) {
       setNotificationList((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setNotificationCount(0);
@@ -98,7 +99,9 @@ const NotificationDropdown = ({
   const hasUnread = notificationList.some((n) => !n.isRead);
   const renderNotificationItem = (item) => {
     const groupId = !!item.groupId;
-    console.log(item.groupId);
+
+    const isTitleOnly = !item.type;
+
     const typeIcon = groupId ? <Users size={15} /> : <BellRing size={15} />;
     const getInitials = (name) => {
       if (!name) return "";
@@ -137,15 +140,23 @@ const NotificationDropdown = ({
         {/* Nội dung */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-semibold flex items-center gap-1 text-sm text-gray-900 line-clamp-2 overflow-hidden text-ellipsis">
-              <span className="block max-w-[200px] truncate">
-                {item.title || item.content?.slice(0, 50)}
+            <div className="flex items-start gap-1 text-sm text-gray-900">
+              <span
+                className={
+                  isTitleOnly
+                    ? "block whitespace-pre-line font-medium" // hiện đầy đủ, xuống dòng nếu có \n
+                    : "block max-w-[200px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
+                }
+              >
+                {item.title}
               </span>
-              <span className="text-xl shrink-0">{typeIcon}</span>
-            </span>
-            {!item?.isRead && (
-              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
-            )}
+              <div className="flex items-center gap-1 shrink-0 mt-[2px]">
+                <span className="text-xl shrink-0 mt-[2px]">{typeIcon}</span>
+                {!item?.isRead && (
+                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-1 mt-1">

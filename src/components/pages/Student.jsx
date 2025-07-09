@@ -59,6 +59,8 @@ const Student = () => {
 
   const [apiNotificationPage, setApiNotificationPage] = useState(0);
   const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] =
+    useState(false);
 
   const fetchListGroupById = async () => {
     const req = await handleListGroupByStudent(userId);
@@ -424,6 +426,7 @@ const Student = () => {
             />
           )}
           <Dropdown
+            open={notificationDropdownOpen}
             dropdownRender={() => (
               <NotificationDropdown
                 notificationList={notificationList}
@@ -431,6 +434,7 @@ const Student = () => {
                 setNotificationCount={setUnreadCount}
                 loadMore={loadMoreNotifications}
                 hasMore={hasMoreNotifications}
+                onClose={() => setNotificationDropdownOpen(false)}
               />
             )}
             trigger={["click"]}
@@ -442,6 +446,7 @@ const Student = () => {
               backgroundColor: "#fff",
             }}
             onOpenChange={(open) => {
+              setNotificationDropdownOpen(open);
               if (open) {
                 setUnreadCount(unreadCount);
               }

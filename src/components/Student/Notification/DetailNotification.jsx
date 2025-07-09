@@ -76,7 +76,7 @@ const StudentNotificationDetail = () => {
               <div>
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   {/* Tiêu đề */}
-                  <CardTitle className="text-xl whitespace-nowrap">
+                  <CardTitle className="text-xl whitespace-pre-line">
                     {notification.title || "Trống"}
                   </CardTitle>
 

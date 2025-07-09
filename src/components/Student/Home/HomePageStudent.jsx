@@ -33,16 +33,17 @@ import dayjs from "dayjs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
-
+import { handleUnreadCountNotificationUser } from "../../../controller/AccountController";
 const HomePageStudent = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
   const [stats, setStats] = useState({
-    totalCourses: 6,
-    totalGroups: 3,
-    notifications: 5,
+    totalCourses: 0,
+    totalGroups: 0,
+    notifications: 0,
+    unreadNotifications: 0,
   });
 
   const [notifications, setNotifications] = useState([]);
@@ -74,7 +75,17 @@ const HomePageStudent = () => {
       }
       setLoadingNotifications(false);
     };
+    const fetchUnreadNotification = async () => {
+      const res = await handleUnreadCountNotificationUser(userId);
+      if (res?.data) {
+        setStats((prev) => ({
+          ...prev,
+          unreadNotifications: res.data,
+        }));
+      }
+    };
     fetchNotifications();
+    fetchUnreadNotification();
   }, []);
 
   const [groups, setGroups] = useState([]);
@@ -147,17 +158,28 @@ const HomePageStudent = () => {
               <p className="text-sm text-gray-500">Nhóm</p>
             </CardContent>
           </Card>
-
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Thông báo mới
+                Thông báo đã đọc
               </CardTitle>
+              <Bell className="h-6 w-6 text-green-500" />
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <div className="text-3xl font-bold text-green-500">
+                {stats.notifications}
+              </div>
+              <p className="text-sm text-gray-500">Đã đọc</p>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Thông báo</CardTitle>
               <Bell className="h-6 w-6 text-red-500" />
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <div className="text-3xl font-bold text-red-500">
-                {stats.notifications}
+                {stats.unreadNotifications}
               </div>
               <p className="text-sm text-gray-500">Chưa đọc</p>
             </CardContent>

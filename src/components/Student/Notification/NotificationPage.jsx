@@ -138,17 +138,7 @@ const NotificationsPage = () => {
             </div>
           </div>
 
-          {/* RIGHT: Toggle read/unread */}
-          {/* <div
-            onClick={() => onToggleRead(notification.id)}
-            className="cursor-pointer p-2 rounded-full hover:bg-muted transition"
-          >
-            {notification.isRead ? (
-              <MailOpen size={25} className="text-gray-700" />
-            ) : (
-              <Mail size={25} className="text-gray-700" />
-            )}
-          </div> */}
+        
         </div>
       </CardHeader>
 

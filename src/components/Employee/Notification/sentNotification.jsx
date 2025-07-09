@@ -288,7 +288,7 @@ const EmployeeSentNotifications = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold">
+                            <h3 className="font-semibold line-clamp-2 whitespace-pre-line">
                               {notification.title}
                             </h3>
                             {notification.notificationType && (

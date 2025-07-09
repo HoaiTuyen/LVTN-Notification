@@ -194,7 +194,6 @@ const StudentProfilePage = () => {
           <Tabs defaultValue="personal" className="space-y-4">
             <TabsList>
               <TabsTrigger value="personal">Thông tin cá nhân</TabsTrigger>
-              <TabsTrigger value="academic">Thông tin học tập</TabsTrigger>
             </TabsList>
 
             <TabsContent

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -29,7 +31,10 @@ import {
   RadialBar,
 } from "recharts";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-
+import {
+  handleStatisticalShare,
+  handleStatisticalDepartmentStudent,
+} from "../../../controller/StatisticalController";
 const monthlyNotifications = [
   {
     month: "T1/2023",
@@ -140,14 +145,64 @@ const monthlyNotifications = [
     low: 32,
   },
 ];
-const departmentData = [
-  { name: "CNTT", value: 450, color: "#0088FE" },
-  { name: "Kinh tế", value: 320, color: "#00C49F" },
-  { name: "Ngoại ngữ", value: 280, color: "#FFBB28" },
-  { name: "Toán-TH", value: 200, color: "#FF8042" },
-  { name: "Vật lý", value: 150, color: "#8884D8" },
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#8884D8",
+  "#A28EFF",
 ];
+
+// const departmentData = [
+//   { name: "CNTT", value: 450, color: "#0088FE" },
+//   { name: "Kinh tế", value: 320, color: "#00C49F" },
+//   { name: "Ngoại ngữ", value: 280, color: "#FFBB28" },
+//   { name: "Toán-TH", value: 200, color: "#FF8042" },
+//   { name: "Vật lý", value: 150, color: "#8884D8" },
+// ];
+
 const HomeAdmin = () => {
+  const [countStudent, setCountStudent] = useState(0);
+  const [countLecturer, setCountLecturer] = useState(0);
+  const [countCourse, setCountCourse] = useState(0);
+  const [countAccount, setCountAccount] = useState(0);
+  const [departmentData, setDepartmentData] = useState([]);
+  const fetchStaticShare = async () => {
+    try {
+      const response = await handleStatisticalShare();
+      if (response?.data && response?.status === 200) {
+        setCountStudent(response?.data?.totalStudent);
+        setCountLecturer(response?.data?.totalTeacher);
+        setCountCourse(response?.data?.totalSubject);
+        setCountAccount(response?.data?.totalAccount);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Đã xảy ra lỗi khi thống kê");
+    }
+  };
+  const fetchDepartmentStudent = async () => {
+    try {
+      const response = await handleStatisticalDepartmentStudent();
+      if (response?.data && response?.status === 200) {
+        setDepartmentData(response?.data);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Đã xảy ra lỗi khi thống kê");
+    }
+  };
+  const transformedData = departmentData.map((item, index) => ({
+    id: item.departmentId,
+    name: item.departmentName,
+    value: item.totalStudent,
+    color: COLORS[index % COLORS.length],
+  }));
+  useEffect(() => {
+    fetchStaticShare();
+    fetchDepartmentStudent();
+  }, []);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 p-10">
@@ -159,7 +214,7 @@ const HomeAdmin = () => {
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,400</div>
+            <div className="text-2xl font-bold">{countStudent}</div>
             {/* <div className="flex items-center text-xs text-green-600">
               <TrendingUp className="mr-1 h-3 w-3" />
               +12% so với tháng trước
@@ -170,12 +225,12 @@ const HomeAdmin = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Tổng iảng viên
+              Tổng giảng viên
             </CardTitle>
             <GraduationCap className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">55</div>
+            <div className="text-2xl font-bold">{countLecturer}</div>
             {/* <div className="flex items-center text-xs text-green-600">
               <TrendingUp className="mr-1 h-3 w-3" />
               +3 giảng viên mới
@@ -189,19 +244,19 @@ const HomeAdmin = () => {
             <BookOpen className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">140</div>
+            <div className="text-2xl font-bold">{countCourse}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium">
-              Tổng số thông báo
+              Tổng số tài khoản
             </CardTitle>
             <Bell className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">99</div>
+            <div className="text-2xl font-bold">{countAccount}</div>
           </CardContent>
         </Card>
       </div>
@@ -265,18 +320,18 @@ const HomeAdmin = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={departmentData}
+                      data={transformedData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      outerRadius={100}
+                      outerRadius={110}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name} ${(percent * 100).toFixed(0)}%`
-                      }
+                      label={({ id, percent }) => {
+                        return `${id} ${(percent * 100).toFixed(0)}%`;
+                      }}
                     >
-                      {departmentData.map((entry, index) => (
+                      {transformedData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
