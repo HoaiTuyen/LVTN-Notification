@@ -16,35 +16,49 @@ import {
   Clock,
   MessageSquare,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  handleCountCourseSchedule,
+  handleCountGroupCreate,
+  handleCountSubjectCharge,
+} from "../../../controller/TeacherController";
+import { handleGetDetailUser } from "../../../controller/AccountController";
+import { handleListSemester } from "../../../controller/SemesterController";
+import { jwtDecode } from "jwt-decode";
 
 const HomeLecturerPage = () => {
+  const [statsData, setStatsData] = useState({
+    totalCourses: 0,
+    totalGroups: 0,
+    notifications: 0,
+    totalSubjects: 0,
+  });
   const stats = [
     {
       title: "Môn học phụ trách",
-      value: "5",
+      value: "2",
       description: "Học kỳ này",
       icon: BookOpen,
       color: "text-blue-600",
     },
     {
       title: "Lớp học",
-      value: "8",
-      description: "Đang giảng dạy",
+      value: statsData.totalCourses,
+      description: "Chủ nhiệm",
       icon: Users,
       color: "text-green-600",
     },
     {
-      title: "Sinh viên",
-      value: "245",
+      title: "Nhóm học tập",
+      value: statsData.totalGroups,
       description: "Tổng số",
       icon: TrendingUp,
       color: "text-purple-600",
     },
     {
-      title: "Thông báo gửi",
-      value: "12",
-      description: "Tuần này",
+      title: "Lớp học phần",
+      value: statsData.totalSubjects,
+      description: "Học kỳ này",
       icon: Bell,
       color: "text-orange-600",
     },
@@ -94,12 +108,66 @@ const HomeLecturerPage = () => {
       date: "Mai",
     },
   ];
-  const [statsData, setStatsData] = useState({
-    totalCourses: 0,
-    totalGroups: 0,
-    notifications: 0,
-  });
 
+  const [teacherId, setTeacherId] = useState("");
+  const [semesterId, setSemesterId] = useState("");
+  const token = localStorage.getItem("access_token");
+  const { userId } = jwtDecode(token);
+  const fetchInfo = async () => {
+    const response = await handleGetDetailUser(userId);
+    if (response?.data) {
+      console.log(response.data);
+      setTeacherId(response.data.teacherId);
+    }
+  };
+  const fetchSemester = async () => {
+    const response = await handleListSemester("des", 0, 10);
+    if (response?.data) {
+      console.log(response.data.semesters[0].id);
+      setSemesterId(response.data.semesters[0].id);
+    }
+  };
+  const fetchCountCourseSchedule = async () => {
+    //lớp
+    const response = await handleCountCourseSchedule(teacherId);
+    console.log(response);
+    if (response?.data && response?.status === 200) {
+      setStatsData((prev) => ({
+        ...prev,
+        totalCourses: response.data,
+      }));
+    }
+  };
+  const fetchCountGroupCreate = async () => {
+    const groupData = await handleCountGroupCreate(teacherId);
+    console.log(groupData);
+    if (groupData?.data && groupData?.status === 200) {
+      setStatsData((prev) => ({
+        ...prev,
+        totalGroups: groupData.data,
+      }));
+    }
+  };
+  const fetchCountSubjectCharge = async () => {
+    const subjectData = await handleCountSubjectCharge(teacherId, semesterId);
+    console.log(subjectData);
+    if (subjectData?.data && subjectData?.status === 200) {
+      setStatsData((prev) => ({
+        ...prev,
+        totalSubjects: subjectData.data,
+      }));
+    }
+  };
+  useEffect(() => {
+    const init = async () => {
+      await fetchInfo();
+      await fetchSemester();
+    };
+    init();
+    fetchCountCourseSchedule();
+    fetchCountGroupCreate();
+    fetchCountSubjectCharge();
+  }, [teacherId, semesterId]);
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="space-y-6 p-10">

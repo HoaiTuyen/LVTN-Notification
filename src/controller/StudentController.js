@@ -8,6 +8,8 @@ import {
   createStudentExcel,
   studentDetail,
   listClassSectionStudent,
+  totalGroup,
+  totalCourseSchedule,
 } from "../servicers/StudentServicer";
 export const handleListStudent = async (page = 0, pageSize = 10) => {
   try {
@@ -167,6 +169,40 @@ export const handleStudentDetail = async (id) => {
 export const handleListClassSectionStudent = async (studentId, semesterId) => {
   try {
     const response = await listClassSectionStudent(studentId, semesterId);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Đã xảy ra lỗi khi xử lý",
+    };
+  }
+};
+
+export const handleTotalGroup = async (studentId) => {
+  try {
+    const response = await totalGroup(studentId);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Đã xảy ra lỗi khi xử lý",
+    };
+  }
+};
+
+export const handleTotalCourseSchedule = async (studentId, semesterId) => {
+  try {
+    const response = await totalCourseSchedule(studentId, semesterId);
 
     return {
       status: response.status,

@@ -33,13 +33,19 @@ import dayjs from "dayjs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
-import { handleUnreadCountNotificationUser } from "../../../controller/AccountController";
+import {
+  handleUnreadCountNotificationUser,
+  handleGetDetailUser,
+} from "../../../controller/AccountController";
+import { handleTotalCourseSchedule } from "../../../controller/StudentController";
+import { handleListSemester } from "../../../controller/SemesterController";
 const HomePageStudent = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
   const [stats, setStats] = useState({
+    totalSubjects: 0,
     totalCourses: 0,
     totalGroups: 0,
     notifications: 0,
@@ -48,8 +54,25 @@ const HomePageStudent = () => {
 
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
-
+  const [groups, setGroups] = useState([]);
+  const [loadingGroups, setLoadingGroups] = useState(true);
+  const [studentId, setStudentId] = useState("");
+  const [semesterId, setSemesterId] = useState("");
   useEffect(() => {
+    const fetchInfo = async () => {
+      const res = await handleGetDetailUser(userId);
+      console.log(res.data.studentId);
+      if (res?.data) {
+        setStudentId(res.data.studentId);
+      }
+    };
+    const fetchSemester = async () => {
+      const res = await handleListSemester();
+      console.log(res.data.semesters[0].id);
+      if (res?.data) {
+        setSemesterId(res.data.semesters[0].id);
+      }
+    };
     const fetchNotifications = async () => {
       const pageSize = 10;
       let allNotification = [];
@@ -84,13 +107,26 @@ const HomePageStudent = () => {
         }));
       }
     };
+    const fetchTotalCourseSchedule = async () => {
+      const res = await handleTotalCourseSchedule(studentId, semesterId);
+      console.log(res.data);
+      if (res?.data) {
+        setStats((prev) => ({
+          ...prev,
+          totalCourses: res.data,
+        }));
+      }
+    };
+    const init = async () => {
+      await fetchInfo();
+      await fetchSemester();
+    };
+    init();
     fetchNotifications();
     fetchUnreadNotification();
+    fetchTotalCourseSchedule();
   }, []);
 
-  const [groups, setGroups] = useState([]);
-
-  const [loadingGroups, setLoadingGroups] = useState(true);
   useEffect(() => {
     const fetchGroups = async () => {
       const pageSize = 10;
@@ -105,7 +141,7 @@ const HomePageStudent = () => {
           totalPages = res.data.totalPages;
           page++;
         } else {
-          break; // stop if bad data
+          break;
         }
       } while (page < totalPages);
       if (allGroup) {
@@ -129,21 +165,6 @@ const HomePageStudent = () => {
           transition={{ delay: 0.2 }}
           className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         >
-          {/* <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Môn học đang theo
-              </CardTitle>
-              <BookOpen className="h-6 w-6 text-primary" />
-            </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <div className="text-3xl font-bold text-primary">
-                {stats.totalCourses}
-              </div>
-              <p className="text-sm text-gray-500">Môn học</p>
-            </CardContent>
-          </Card> */}
-
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -156,6 +177,20 @@ const HomePageStudent = () => {
                 {stats.totalGroups}
               </div>
               <p className="text-sm text-gray-500">Nhóm</p>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Lớp học phần
+              </CardTitle>
+              <BookOpen className="h-6 w-6 text-primary" />
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <div className="text-3xl font-bold text-primary">
+                {stats.totalCourses}
+              </div>
+              <p className="text-sm text-gray-500">Lớp học phần </p>
             </CardContent>
           </Card>
           <Card className="hover:shadow-lg transition-shadow">

@@ -27,11 +27,6 @@ export const searchStudent = (status, keyword, page = 0, pageSize = 10) => {
     },
   });
 };
-// export const getListStudentExcel = (file) => {
-//   const formData = new FormData();
-//   formData.append("file", file);
-//   return api.get("/student/review_students", formData);
-// };
 
 export const getListStudentExcel = (formData) => {
   return api.post("/student/preview_students", formData, {
@@ -44,7 +39,6 @@ export const createStudentExcel = (data) => {
   return api.post("/student/student_excel", data);
 };
 
-// student/student-detail?id
 export const studentDetail = (id) => {
   return api.post(`/student/student-detail?id=${id}`);
 };
@@ -55,5 +49,15 @@ export const listClassSectionStudent = (studentId, semesterId) => {
       studentId: studentId,
       semesterId: semesterId,
     },
+  });
+};
+export const totalGroup = (studentId) => {
+  return api.post(`/student/total_study_group?studentId=${studentId}`);
+};
+
+export const totalCourseSchedule = (studentId, semesterId) => {
+  return api.post("/student/count_course_schedule", {
+    studentId: studentId,
+    semesterId: semesterId,
   });
 };

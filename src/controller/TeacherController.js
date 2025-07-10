@@ -10,6 +10,9 @@ import {
   teacherDetail,
   listClassOfTeacher,
   listClassSectionTeacher,
+  countCourseSchedule,
+  countGroupCreate,
+  countSubjectCharge,
 } from "../servicers/TeacherServicer";
 
 export const handleAddTeacher = async (dataTeacher) => {
@@ -241,6 +244,57 @@ export const handleListClassOfTeacher = async (id) => {
 export const handleListClassSectionTeacher = async (teacherId, semesterId) => {
   try {
     const response = await listClassSectionTeacher(teacherId, semesterId);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Đã xảy ra lỗi khi xử lý",
+    };
+  }
+};
+
+export const handleCountCourseSchedule = async (teacherId) => {
+  try {
+    const response = await countCourseSchedule(teacherId);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Đã xảy ra lỗi khi xử lý",
+    };
+  }
+};
+
+export const handleCountGroupCreate = async (teacherId) => {
+  try {
+    const response = await countGroupCreate(teacherId);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: response.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Đã xảy ra lỗi khi xử lý",
+    };
+  }
+};
+
+export const handleCountSubjectCharge = async (teacherId, semesterId) => {
+  try {
+    const response = await countSubjectCharge(teacherId, semesterId);
 
     return {
       status: response.status,

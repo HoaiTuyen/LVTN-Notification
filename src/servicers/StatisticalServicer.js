@@ -6,3 +6,6 @@ export const statisticalShare = async () => {
 export const statisticalDepartmentStudent = async () => {
   return await api.get("/report/department_student");
 };
+export const statisticalNotificationDay = async () => {
+  return await api.get("/report/notification");
+};

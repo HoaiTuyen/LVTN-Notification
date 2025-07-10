@@ -34,117 +34,10 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   handleStatisticalShare,
   handleStatisticalDepartmentStudent,
+  handleStatisticalNotificationDay,
 } from "../../../controller/StatisticalController";
-const monthlyNotifications = [
-  {
-    month: "T1/2023",
-    total: 145,
-    read: 120,
-    unread: 25,
-    urgent: 15,
-    normal: 100,
-    low: 30,
-  },
-  {
-    month: "T2/2023",
-    total: 167,
-    read: 140,
-    unread: 27,
-    urgent: 18,
-    normal: 110,
-    low: 39,
-  },
-  {
-    month: "T3/2023",
-    total: 189,
-    read: 155,
-    unread: 34,
-    urgent: 22,
-    normal: 125,
-    low: 42,
-  },
-  {
-    month: "T4/2023",
-    total: 156,
-    read: 128,
-    unread: 28,
-    urgent: 16,
-    normal: 105,
-    low: 35,
-  },
-  {
-    month: "T5/2023",
-    total: 203,
-    read: 175,
-    unread: 28,
-    urgent: 25,
-    normal: 140,
-    low: 38,
-  },
-  {
-    month: "T6/2023",
-    total: 178,
-    read: 152,
-    unread: 26,
-    urgent: 20,
-    normal: 120,
-    low: 38,
-  },
-  {
-    month: "T7/2023",
-    total: 134,
-    read: 115,
-    unread: 19,
-    urgent: 12,
-    normal: 95,
-    low: 27,
-  },
-  {
-    month: "T8/2023",
-    total: 198,
-    read: 170,
-    unread: 28,
-    urgent: 23,
-    normal: 135,
-    low: 40,
-  },
-  {
-    month: "T9/2023",
-    total: 225,
-    read: 195,
-    unread: 30,
-    urgent: 28,
-    normal: 155,
-    low: 42,
-  },
-  {
-    month: "T10/2023",
-    total: 187,
-    read: 162,
-    unread: 25,
-    urgent: 21,
-    normal: 130,
-    low: 36,
-  },
-  {
-    month: "T11/2023",
-    total: 210,
-    read: 185,
-    unread: 25,
-    urgent: 26,
-    normal: 145,
-    low: 39,
-  },
-  {
-    month: "T12/2023",
-    total: 165,
-    read: 145,
-    unread: 20,
-    urgent: 18,
-    normal: 115,
-    low: 32,
-  },
-];
+import dayjs from "dayjs";
+
 const COLORS = [
   "#0088FE",
   "#00C49F",
@@ -154,18 +47,11 @@ const COLORS = [
   "#A28EFF",
 ];
 
-// const departmentData = [
-//   { name: "CNTT", value: 450, color: "#0088FE" },
-//   { name: "Kinh tế", value: 320, color: "#00C49F" },
-//   { name: "Ngoại ngữ", value: 280, color: "#FFBB28" },
-//   { name: "Toán-TH", value: 200, color: "#FF8042" },
-//   { name: "Vật lý", value: 150, color: "#8884D8" },
-// ];
-
 const HomeAdmin = () => {
   const [countStudent, setCountStudent] = useState(0);
   const [countLecturer, setCountLecturer] = useState(0);
   const [countCourse, setCountCourse] = useState(0);
+  const [notificationData, setNotificationData] = useState([]);
   const [countAccount, setCountAccount] = useState(0);
   const [departmentData, setDepartmentData] = useState([]);
   const fetchStaticShare = async () => {
@@ -193,15 +79,32 @@ const HomeAdmin = () => {
       toast.error("Đã xảy ra lỗi khi thống kê");
     }
   };
+  const fetchNotificationDay = async () => {
+    try {
+      const response = await handleStatisticalNotificationDay();
+      if (response?.data && response?.status === 200) {
+        setNotificationData(response?.data);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Đã xảy ra lỗi khi thống kê");
+    }
+  };
+  const dailyNotifications = notificationData.map((item) => ({
+    date: dayjs(item.date).format("DD/MM/YYYY"),
+    totalNotificationDay: item.totalNotificationDay,
+  }));
   const transformedData = departmentData.map((item, index) => ({
     id: item.departmentId,
     name: item.departmentName,
     value: item.totalStudent,
     color: COLORS[index % COLORS.length],
   }));
+
   useEffect(() => {
     fetchStaticShare();
     fetchDepartmentStudent();
+    fetchNotificationDay();
   }, []);
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
@@ -265,50 +168,29 @@ const HomeAdmin = () => {
           <div className="grid grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Xu hướng thông báo theo tháng</CardTitle>
+                <CardTitle>Xu hướng thông báo theo ngày</CardTitle>
                 <CardDescription>
-                  Thống kê số lượng và tỷ lệ đọc thông báo 12 tháng qua
+                  Thống kê số lượng thông báo mỗi ngày gần đây
                 </CardDescription>
               </CardHeader>
               <CardContent className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={monthlyNotifications}>
+                  <ComposedChart data={dailyNotifications}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
                     <Tooltip />
                     <Legend />
                     <Bar
-                      yAxisId="left"
-                      dataKey="total"
-                      name="Tổng TB"
+                      dataKey="totalNotificationDay"
+                      name="Tổng TB/ngày"
                       fill="#0088FE"
-                    />
-                    <Bar
-                      yAxisId="left"
-                      dataKey="read"
-                      name="Đã đọc"
-                      fill="#00C49F"
-                    />
-                    <Bar
-                      yAxisId="left"
-                      dataKey="unread"
-                      name="Chưa đọc"
-                      fill="#FF8042"
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="urgent"
-                      name="TB khẩn"
-                      stroke="#FF0000"
-                      strokeWidth={2}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+
             <Card className="col-span-1">
               <CardHeader>
                 <CardTitle>Phân bố sinh viên theo khoa</CardTitle>

@@ -147,11 +147,24 @@ const Student = () => {
       userInfo?.id
     ) {
       // Đăng ký các subscription
+      // const generalSub = stompClient.current.subscribe(
+      //   "/notification",
+      //   (message) => {
+      //     const parsedMessage = JSON.parse(message.body);
+      //     console.log(parsedMessage);
+
+      //     setNotificationList((prev) => {
+      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+      //       return [{ ...parsedMessage, isRead: false }, ...prev];
+      //     });
+      //     setUnreadCount((prev) => prev + 1);
+      //   }
+      // );
       const generalSub = stompClient.current.subscribe(
-        "/notification",
+        "/user/queue/notification",
         (message) => {
           const parsedMessage = JSON.parse(message.body);
-          console.log(parsedMessage);
+          console.log("Received general notification:", parsedMessage);
 
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
@@ -161,17 +174,17 @@ const Student = () => {
         }
       );
 
-      const departmentSub = stompClient.current.subscribe(
-        `/notification/department/${userInfo.departmentId}`,
-        (message) => {
-          const parsedMessage = JSON.parse(message.body);
-          setNotificationList((prev) => {
-            if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-            return [{ ...parsedMessage, isRead: false }, ...prev];
-          });
-          setUnreadCount((prev) => prev + 1);
-        }
-      );
+      // const departmentSub = stompClient.current.subscribe(
+      //   `/notification/department/${userInfo.departmentId}`,
+      //   (message) => {
+      //     const parsedMessage = JSON.parse(message.body);
+      //     setNotificationList((prev) => {
+      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
+      //       return [{ ...parsedMessage, isRead: false }, ...prev];
+      //     });
+      //     setUnreadCount((prev) => prev + 1);
+      //   }
+      // );
 
       const groupSubs = groupStudents.map((groupId) => {
         const groupTopic = `/notification/group/${groupId}`;
@@ -239,14 +252,7 @@ const Student = () => {
         }
       );
 
-      subscriptions = [
-        generalSub,
-        departmentSub,
-
-        scheduleSub,
-        personalSub,
-        ...groupSubs,
-      ];
+      subscriptions = [generalSub, scheduleSub, personalSub, ...groupSubs];
     }
 
     return () => {
