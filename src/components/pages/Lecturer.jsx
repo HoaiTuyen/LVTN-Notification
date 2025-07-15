@@ -194,11 +194,7 @@ const LecturerDashboard = () => {
                       </div>
                     ),
                   },
-                  {
-                    key: "settings",
-                    label: "Cài đặt",
-                    icon: <SettingOutlined />,
-                  },
+
                   {
                     key: "logout",
                     label: "Đăng xuất",

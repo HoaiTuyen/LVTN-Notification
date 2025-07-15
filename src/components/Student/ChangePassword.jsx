@@ -153,7 +153,7 @@ export default function ChangePasswordPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
                       onClick={() => togglePasswordVisibility("current")}
                     >
                       {showPasswords.current ? (
@@ -187,7 +187,7 @@ export default function ChangePasswordPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
                       onClick={() => togglePasswordVisibility("new")}
                     >
                       {showPasswords.new ? (
@@ -223,7 +223,7 @@ export default function ChangePasswordPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
                       onClick={() => togglePasswordVisibility("confirm")}
                     >
                       {showPasswords.confirm ? (
@@ -248,7 +248,6 @@ export default function ChangePasswordPage() {
                       <li>Không chia sẻ mật khẩu với bất kỳ ai</li>
                       <li>Sử dụng mật khẩu mạnh và duy nhất</li>
                       <li>Thay đổi mật khẩu định kỳ</li>
-                      <li>Đăng xuất khỏi các thiết bị công cộng</li>
                     </ul>
                   </AlertDescription>
                 </Alert>
@@ -261,7 +260,7 @@ export default function ChangePasswordPage() {
                   >
                     {isLoading ? "Đang cập nhật..." : "Đổi mật khẩu"}
                   </Button>
-                  <Button
+                  {/* <Button
                     type="button"
                     variant="outline"
                     onClick={() => {
@@ -275,7 +274,7 @@ export default function ChangePasswordPage() {
                     }}
                   >
                     Hủy
-                  </Button>
+                  </Button> */}
                 </div>
               </form>
             </CardContent>

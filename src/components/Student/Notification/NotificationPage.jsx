@@ -32,7 +32,9 @@ import {
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import useDebounce from "../../../hooks/useDebounce";
 import { motion } from "framer-motion";
+import { useLoading } from "../../../context/LoadingProvider";
 const NotificationsPage = () => {
+  const { setLoading } = useLoading();
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -62,10 +64,9 @@ const NotificationsPage = () => {
 
   const fetchNotifications = async (page = 1) => {
     const type = selectedType === "all" ? null : selectedType;
-
     const keyword = debouncedSearchTerm.trim();
     let res;
-
+    setLoading(true);
     if (keyword) {
       res = await handleSearchNotification(
         keyword,
@@ -81,7 +82,7 @@ const NotificationsPage = () => {
         type
       );
     }
-
+    setLoading(false);
     if (res?.data) {
       setNotifications(res.data.notifications || []);
       setPagination({
@@ -93,7 +94,9 @@ const NotificationsPage = () => {
   };
 
   const fetchNotificationTypes = async () => {
+    setLoading(true);
     const res = await handleListNotificationType();
+    setLoading(false);
     setNotificationTypes(res?.data?.notificationTypes || []);
   };
 
@@ -117,7 +120,7 @@ const NotificationsPage = () => {
     fetchNotificationTypes();
   }, [searchParams]);
 
-  const NotificationCard = ({ notification, onToggleRead, onViewDetail }) => (
+  const NotificationCard = ({ notification }) => (
     <Card className="p-0">
       <CardHeader className="pt-5">
         <div className="flex items-center justify-between gap-2 pb-0">
@@ -137,8 +140,6 @@ const NotificationsPage = () => {
               {dayjs(notification.createdAt).format("DD/MM/YYYY")}
             </div>
           </div>
-
-        
         </div>
       </CardHeader>
 
@@ -162,15 +163,6 @@ const NotificationsPage = () => {
               <p className="text-muted-foreground">
                 Theo dõi các thông báo từ giảng viên và nhóm học tập
               </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-blue-600">
-                chưa đọc
-              </Badge>
-              <Button variant="outline" size="sm">
-                <Bell className="h-4 w-4 mr-2" />
-                Đánh dấu tất cả đã đọc
-              </Button>
             </div>
           </div>
 
@@ -213,12 +205,9 @@ const NotificationsPage = () => {
             </CardContent>
           </Card>
 
-          {/* Danh sách */}
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList>
               <TabsTrigger value="all">Tất cả</TabsTrigger>
-              {/* <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
-              <TabsTrigger value="read">Đã đọc</TabsTrigger> */}
             </TabsList>
 
             <TabsContent
@@ -238,22 +227,16 @@ const NotificationsPage = () => {
                   </CardContent>
                 </Card>
               ) : (
-                notifications.map(
-                  (notification) => (
-                    console.log(notification),
-                    (
-                      <NotificationCard
-                        key={notification.id}
-                        notification={notification}
-                      />
-                    )
-                  )
-                )
+                notifications.map((notification) => (
+                  <NotificationCard
+                    key={notification.id}
+                    notification={notification}
+                  />
+                ))
               )}
             </TabsContent>
           </Tabs>
 
-          {/* Phân trang */}
           {pagination.total > pagination.pageSize && (
             <div className="flex justify-center mt-4">
               <Pagination

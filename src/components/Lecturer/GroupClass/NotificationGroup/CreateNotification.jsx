@@ -262,7 +262,7 @@ const LecturerCreateGroupNotification = ({ open, onClose, onSuccess }) => {
               disabled={submitting}
               className="cursor-pointer"
             >
-              {submitting ? "Đang gửi..." : "Gửi thông báo"}
+              {submitting ? "Đang gửi..." : "Tạo thông báo"}
             </Button>
           </div>
         </div>

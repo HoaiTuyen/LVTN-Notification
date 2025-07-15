@@ -331,6 +331,7 @@ const EmployeeAccount = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
+            showSizeChanger={false}
             onChange={(page) => {
               const params = new URLSearchParams({
                 search: debouncedSearchTerm,

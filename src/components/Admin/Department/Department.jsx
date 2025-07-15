@@ -236,15 +236,7 @@ const Department = () => {
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link to="">
-                                  <FileText className="h-4 w-4" />
-                                  Xem chi tiết
-                                </Link>
-                              </DropdownMenuItem>
+
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => openEditDepartment(department)}

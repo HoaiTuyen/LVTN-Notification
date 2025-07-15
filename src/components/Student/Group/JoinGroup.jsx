@@ -21,6 +21,7 @@ import { ArrowRight, Check, X } from "lucide-react";
 import { handleJoinStudentInGroup } from "../../../controller/GroupController";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
+import { useLoading } from "../../../context/LoadingProvider";
 const JoinGroup = ({ open, onClose, onSuccess }) => {
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
@@ -30,15 +31,25 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
     userId: userId,
     code: "",
   });
+  const { setLoading } = useLoading();
   const handleSubmitJoin = async () => {
-    setError("");
-    const joinStudent = await handleJoinStudentInGroup(form);
-    if (joinStudent?.status === 200) {
-      toast.success(joinStudent.message);
-      onSuccess();
-      onClose();
-    } else {
-      toast.error(joinStudent.message);
+    try {
+      setLoading(true);
+      setError("");
+      const joinStudent = await handleJoinStudentInGroup(form);
+      setLoading(false);
+      if (joinStudent?.status === 200) {
+        toast.success(joinStudent.message);
+        onSuccess();
+        onClose();
+      } else {
+        toast.error(joinStudent.message);
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -64,7 +75,7 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
                   onChange={(e) => setForm({ ...form, code: e.target.value })}
                 />
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
                   onClick={() => handleSubmitJoin()}
                 >
                   <ArrowRight className="h-4 w-4" />

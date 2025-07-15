@@ -161,7 +161,7 @@ const Subject = () => {
               <div className="relative flex-1 border border-gray-100 rounded-md">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm khoa..."
+                  placeholder="Tìm kiếm môn học..."
                   className="pl-8 border-none shadow-none focus:ring-0"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -232,15 +232,7 @@ const Subject = () => {
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link to="">
-                                  <FileText className="h-4 w-4" />
-                                  Xem chi tiết
-                                </Link>
-                              </DropdownMenuItem>
+
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => openModalEdit(subject)}

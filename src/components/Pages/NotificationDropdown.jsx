@@ -31,17 +31,17 @@ const NotificationDropdown = ({
       const groupIds = notificationList
         .filter((n) => n.groupId)
         .map((n) => n.groupId);
-
+      console.log(groupIds);
       const uniqueIds = [...new Set(groupIds)];
       console.log(uniqueIds);
       const newIds = uniqueIds.filter((id) => !groupTeacherMap[id]);
       if (!newIds.length) return;
-
+      console.log(newIds);
       try {
         const results = await Promise.all(
           newIds.map(async (id) => {
             const res = await handleDetailGroup(id);
-
+            console.log(res);
             return { id, userName: res?.data?.userName || "GV" };
           })
         );
@@ -98,7 +98,8 @@ const NotificationDropdown = ({
   );
   const hasUnread = notificationList.some((n) => !n.isRead);
   const renderNotificationItem = (item) => {
-    const groupId = !!item.groupId;
+    console.log(item);
+    const groupId = !!item.groupId || !!item.studyGroupId;
 
     const isTitleOnly = !item.type;
 
@@ -110,7 +111,18 @@ const NotificationDropdown = ({
         ? parts[0][0].toUpperCase()
         : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     };
-
+    const removeDuplicateLines = (text) => {
+      const seen = new Set();
+      return text
+        .split("\n")
+        .filter((line) => {
+          const trimmed = line.trim();
+          if (seen.has(trimmed)) return false;
+          seen.add(trimmed);
+          return true;
+        })
+        .join("\n");
+    };
     return (
       <div
         key={item.id || item.content}
@@ -121,7 +133,7 @@ const NotificationDropdown = ({
         {groupId ? (
           <Avatar className="w-12 h-12 rounded-full bg-white shadow-sm ring-1 ring-gray-200 overflow-hidden transition-transform hover:scale-105">
             <AvatarFallback className="bg-blue-500 text-white text-base font-semibold flex items-center justify-center">
-              {getInitials(groupTeacherMap[item.groupId])}
+              {getInitials(groupTeacherMap[item.groupId || item.studyGroupId])}
             </AvatarFallback>
           </Avatar>
         ) : (
@@ -148,7 +160,7 @@ const NotificationDropdown = ({
                     : "block max-w-[200px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
                 }
               >
-                {item.title}
+                {removeDuplicateLines(item.title)}
               </span>
               <div className="flex items-center gap-1 shrink-0 mt-[2px]">
                 <span className="text-xl shrink-0 mt-[2px]">{typeIcon}</span>

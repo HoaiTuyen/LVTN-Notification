@@ -229,28 +229,13 @@ const Semester = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer"
-                              >
-                                <Link to="">
-                                  <FileText className="h-4 w-4" />
-                                  Xem chi tiết
-                                </Link>
-                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => openEditSemester(semester)}
                               >
                                 <Pencil className="h-4 w-4" /> Chỉnh sửa
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Link to="" className="flex items-center">
-                                  <Users className="mr-2 h-4 w-4" /> Danh sách
-                                  sinh viên
-                                </Link>
-                              </DropdownMenuItem>
+
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-red-600 cursor-pointer"

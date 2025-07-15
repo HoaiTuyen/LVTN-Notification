@@ -114,8 +114,8 @@ const AdminDashboard = () => {
     {
       key: "register-class",
       icon: <img src="/img/menu/notification.png" alt="icon" width={16} />,
-      label: "Quản lý  đăng ký lớp học phần",
-      title: "Quản lý đăng ký lớp học phần",
+      label: "Quản lý lớp học phần",
+      title: "Quản lý lớp học phần",
     },
     {
       key: "setting",
@@ -224,11 +224,7 @@ const AdminDashboard = () => {
                         </div>
                       ),
                     },
-                    {
-                      key: "settings",
-                      label: "Cài đặt",
-                      icon: <SettingOutlined />,
-                    },
+
                     {
                       key: "logout",
                       label: "Đăng xuất",

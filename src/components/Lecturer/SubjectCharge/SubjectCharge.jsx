@@ -45,207 +45,48 @@ import { handleListSemester } from "../../../controller/SemesterController";
 import { handleListClassSectionTeacher } from "../../../controller/TeacherController";
 import { jwtDecode } from "jwt-decode";
 import { handleGetDetailUser } from "../../../controller/AccountController";
-import TimetableLecturer from "./Timetable";
+import { useLoading } from "../../../context/LoadingProvider";
 import dayjs from "dayjs";
 const SubjectCharge = () => {
   const [selectedSemester, setSelectedSemester] = useState("");
   const [semesterList, setSemesterList] = useState([]);
   const [classSectionList, setClassSectionList] = useState([]);
+  const { setLoading } = useLoading();
 
-  // const teacherCourses = [
-  //   {
-  //     id: 1,
-  //     code: "CS101",
-  //     name: "Nhập môn lập trình",
-  //     semester: "Học kỳ 1, 2023-2024",
-  //     credits: 3,
-  //     classes: [
-  //       {
-  //         id: 1,
-  //         name: "CNTT-K19A",
-  //         students: 45,
-  //         maxStudents: 50,
-  //         schedule: "Thứ 2, 4, 6 - 07:00-09:00",
-  //         room: "A101",
-  //       },
-  //       {
-  //         id: 2,
-  //         name: "CNTT-K19B",
-  //         students: 42,
-  //         maxStudents: 50,
-  //         schedule: "Thứ 3, 5, 7 - 09:00-11:00",
-  //         room: "A102",
-  //       },
-  //     ],
-  //     totalStudents: 87,
-  //     assignments: 12,
-  //     completedAssignments: 8,
-  //     avgGrade: 7.8,
-  //     status: "Đang giảng dạy",
-  //   },
-  //   {
-  //     id: 2,
-  //     code: "CS201",
-  //     name: "Cấu trúc dữ liệu và giải thuật",
-  //     semester: "Học kỳ 1, 2023-2024",
-  //     credits: 4,
-  //     classes: [
-  //       {
-  //         id: 3,
-  //         name: "CNTT-K18A",
-  //         students: 38,
-  //         maxStudents: 40,
-  //         schedule: "Thứ 2, 4 - 13:00-16:00",
-  //         room: "B201",
-  //       },
-  //     ],
-  //     totalStudents: 38,
-  //     assignments: 15,
-  //     completedAssignments: 12,
-  //     avgGrade: 8.2,
-  //     status: "Đang giảng dạy",
-  //   },
-  //   {
-  //     id: 3,
-  //     code: "CS301",
-  //     name: "Cơ sở dữ liệu",
-  //     semester: "Học kỳ 1, 2023-2024",
-  //     credits: 4,
-  //     classes: [
-  //       {
-  //         id: 4,
-  //         name: "CNTT-K17A",
-  //         students: 35,
-  //         maxStudents: 40,
-  //         schedule: "Thứ 3, 5 - 07:00-10:00",
-  //         room: "C301",
-  //       },
-  //     ],
-  //     totalStudents: 35,
-  //     assignments: 10,
-  //     completedAssignments: 10,
-  //     avgGrade: 8.5,
-  //     status: "Hoàn thành",
-  //   },
-  // ];
+  const groupedCoursesMap = new Map();
+  classSectionList.forEach((section) => {
+    const key = `${section.subjectId}-${section.teacherId}-${section.semesterId}`;
 
-  // const upcomingClasses = [
-  //   {
-  //     course: "Nhập môn lập trình",
-  //     class: "CNTT-K19A",
-  //     time: "07:00 - 09:00",
-  //     room: "A101",
-  //     date: "Hôm nay",
-  //     students: 45,
-  //   },
-  //   {
-  //     course: "Cấu trúc dữ liệu và giải thuật",
-  //     class: "CNTT-K18A",
-  //     time: "13:00 - 16:00",
-  //     room: "B201",
-  //     date: "Hôm nay",
-  //     students: 38,
-  //   },
-  //   {
-  //     course: "Cơ sở dữ liệu",
-  //     class: "CNTT-K17A",
-  //     time: "07:00 - 10:00",
-  //     room: "C301",
-  //     date: "Mai",
-  //     students: 35,
-  //   },
-  // ];
+    if (!groupedCoursesMap.has(key)) {
+      groupedCoursesMap.set(key, {
+        id: key,
+        code: section.subjectId,
+        name: section.subjectName,
+        semester: section.semesterName,
+        date: `Thời gian bắt đầu: ${dayjs(section.startDate).format(
+          "DD/MM/YYYY"
+        )} - Thời gian kết thúc: ${dayjs(section.endDate).format(
+          "DD/MM/YYYY"
+        )}`,
+        classes: [],
+      });
+    }
 
-  // const recentActivities = [
-  //   {
-  //     type: "assignment",
-  //     title: "Tạo bài tập mới",
-  //     description: "Bài tập 5: Thuật toán sắp xếp - CS201",
-  //     time: "2 giờ trước",
-  //     icon: FileText,
-  //   },
-  //   {
-  //     type: "grade",
-  //     title: "Chấm điểm hoàn thành",
-  //     description: "Bài kiểm tra giữa kỳ - CS101 (45 bài)",
-  //     time: "5 giờ trước",
-  //     icon: CheckCircle,
-  //   },
-  //   {
-  //     type: "message",
-  //     title: "Phản hồi sinh viên",
-  //     description: "Trả lời 3 câu hỏi trong CS301",
-  //     time: "1 ngày trước",
-  //     icon: MessageSquare,
-  //   },
-  // ];
-
-  // const stats = [
-  //   {
-  //     title: "Môn học phụ trách",
-  //     value: teacherCourses
-  //       .filter((c) => c.status === "Đang giảng dạy")
-  //       .length.toString(),
-  //     description: "Học kỳ này",
-  //     icon: BookOpen,
-  //     color: "text-blue-600",
-  //   },
-  //   {
-  //     title: "Tổng sinh viên",
-  //     value: teacherCourses
-  //       .reduce((sum, course) => sum + course.totalStudents, 0)
-  //       .toString(),
-  //     description: "Tất cả lớp học",
-  //     icon: Users,
-  //     color: "text-green-600",
-  //   },
-  //   {
-  //     title: "Bài tập đã giao",
-  //     value: teacherCourses
-  //       .reduce((sum, course) => sum + course.assignments, 0)
-  //       .toString(),
-  //     description: "Học kỳ này",
-  //     icon: FileText,
-  //     color: "text-purple-600",
-  //   },
-  //   {
-  //     title: "Điểm trung bình",
-  //     value: (
-  //       teacherCourses.reduce((sum, course) => sum + course.avgGrade, 0) /
-  //       teacherCourses.length
-  //     ).toFixed(1),
-  //     description: "Tất cả môn học",
-  //     icon: TrendingUp,
-  //     color: "text-orange-600",
-  //   },
-  // ];
-
-  // const filteredCourses = teacherCourses.filter((course) => {
-  //   const matchesSearch =
-  //     course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     course.code.toLowerCase().includes(searchTerm.toLowerCase());
-  //   const matchesSemester =
-  //     selectedSemester === "all" ||
-  //     (selectedSemester === "current" && course.status === "Đang giảng dạy");
-  //   return matchesSearch && matchesSemester;
-  // });
-  const filteredCourses = classSectionList.map((section, index) => {
-    return {
-      id: `${section.subjectId}-${section.id.groupId}`,
-      code: section.subjectId,
-      name: section.subjectName,
-      semester: section.semesterName,
-      date: `Thời gian bắt đầu: ${dayjs(section.startDate).format(
-        "DD/MM/YYYY"
-      )} - Thời gian kết thúc: ${dayjs(section.endDate).format("DD/MM/YYYY")}`,
-      classes: section.courseSchedules.map((s, i) => ({
+    // Lấy thông tin môn học đã lưu
+    const courseData = groupedCoursesMap.get(key);
+    console.log(courseData);
+    // Thêm các lớp nhóm vào mảng `classes`
+    section.courseSchedules.forEach((s, i) => {
+      courseData.classes.push({
         id: `${section.subjectId}-${section.id.groupId}-${i}`,
         name: `Nhóm môn học ${section.id.groupId.toString().padStart(2, "0")}`,
         schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
         room: s.id.room || "Trống",
-      })),
-    };
+      });
+    });
   });
+
+  const filteredCourses = Array.from(groupedCoursesMap.values());
 
   const handleSemesterChange = async (value) => {
     setSelectedSemester(value); // Cập nhật select
@@ -271,6 +112,7 @@ const SubjectCharge = () => {
   }, []);
   const fetchClassOfTeacher = async (semesterId) => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("access_token");
       const decoded = jwtDecode(token);
       const userId = decoded?.userId;
@@ -286,6 +128,8 @@ const SubjectCharge = () => {
       }
     } catch (err) {
       console.error("Lỗi khi fetch lớp học phần:", err);
+    } finally {
+      setLoading(false);
     }
   };
 

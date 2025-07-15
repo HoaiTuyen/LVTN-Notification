@@ -30,6 +30,7 @@ import {
   BookOpen,
   BriefcaseBusiness,
   Info,
+  Camera,
 } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
@@ -42,18 +43,18 @@ import {
   handleUpdateTeacher,
   handleTeacherDetail,
 } from "../../controller/TeacherController";
-
+import { useLoading } from "../../context/LoadingProvider";
 const TeacherProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userImage, setUserImage] = useState("");
   const [userId, setUserId] = useState(null);
   const [file, setFile] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null);
   const [initialProfileData, setInitialProfileData] = useState(null); // Lưu dữ liệu ban đầu
   const [initialUserImage, setInitialUserImage] = useState(null);
   const [infoCheck, setInfoCheck] = useState(false);
+  const { setLoading } = useLoading();
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
       ...prev,
@@ -77,7 +78,7 @@ const TeacherProfile = () => {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      setIsLoading(true);
+      setLoading(true);
       const res = await handleUploadImage(userId, formData);
 
       if (res?.data) {
@@ -87,12 +88,12 @@ const TeacherProfile = () => {
     } catch (error) {
       toast.error(error.message || "Lỗi khi tải ảnh lên.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const handleSave = async () => {
-    setIsLoading(true);
+    setLoading(true);
     await handleImageUpload();
     try {
       await handleUpdateTeacher(profileData);
@@ -100,7 +101,7 @@ const TeacherProfile = () => {
     } catch (error) {
       toast.error(error || "Lỗi khi cập nhật thông tin");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
       setIsEditing(false);
     }
   };
@@ -109,6 +110,10 @@ const TeacherProfile = () => {
     setProfileData(initialProfileData);
     setUserImage(initialUserImage);
     setIsEditing(false);
+    setFile(null);
+    if (inputRef.current) {
+      inputRef.current.value = null;
+    }
   };
 
   const fetchUser = async () => {
@@ -158,17 +163,23 @@ const TeacherProfile = () => {
               <>
                 <Button
                   variant="outline"
+                  className="cursor-pointer"
                   onClick={() => {
                     handleCancel();
                   }}
                 >
                   Hủy
                 </Button>
-                <Button onClick={handleSave}>Lưu thay đổi</Button>
+                <Button
+                  className="bg-green-600 hover:bg-green-700 cursor-pointer"
+                  onClick={handleSave}
+                >
+                  Lưu thay đổi
+                </Button>
               </>
             ) : (
               <Button
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
                 onClick={() => setIsEditing(true)}
               >
                 Chỉnh sửa
@@ -192,21 +203,33 @@ const TeacherProfile = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center space-x-4">
-                  <Avatar
-                    className="h-20 w-20 cursor-pointer"
-                    onClick={() => inputRef.current.click()}
-                  >
-                    <AvatarImage src={userImage} />
-                    <AvatarFallback>NVA</AvatarFallback>
-                  </Avatar>
-                  <input
-                    ref={inputRef}
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    disabled={!isEditing}
-                  />
+                  <div className="flex flex-col items-center space-y-2">
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage src={userImage} />
+                      <AvatarFallback>NVA</AvatarFallback>
+                    </Avatar>
+
+                    {isEditing && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center space-x-1"
+                        onClick={() => inputRef.current.click()}
+                      >
+                        <Camera className="w-4 h-4 mr-1" />
+                        <span>Thay đổi ảnh</span>
+                      </Button>
+                    )}
+
+                    <input
+                      ref={inputRef}
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </div>
+
                   <div>
                     <h3 className="text-lg font-semibold">
                       {profileData.firstName} {profileData.lastName}
@@ -308,11 +331,6 @@ const TeacherProfile = () => {
                     </Select>
                   </div>
                 </div>
-                {isLoading && (
-                  <div className="flex justify-center mt-4">
-                    <Spin />
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -323,149 +341,3 @@ const TeacherProfile = () => {
 };
 
 export default TeacherProfile;
-
-/* <TabsContent value="academic" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Thông tin học thuật
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="department">Khoa/Bộ môn</Label>
-                    <Input
-                      id="department"
-                      value={profileData.department}
-                      onChange={(e) =>
-                        handleInputChange("department", e.target.value)
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="position">Chức danh</Label>
-                    <Input
-                      id="position"
-                      value={profileData.position}
-                      onChange={(e) =>
-                        handleInputChange("position", e.target.value)
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="specialization">Chuyên môn</Label>
-                    <Input
-                      id="specialization"
-                      value={profileData.specialization}
-                      onChange={(e) =>
-                        handleInputChange("specialization", e.target.value)
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="experience">Kinh nghiệm</Label>
-                    <Input
-                      id="experience"
-                      value={profileData.experience}
-                      onChange={(e) =>
-                        handleInputChange("experience", e.target.value)
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="bio">Giới thiệu</Label>
-                    <Textarea
-                      id="bio"
-                      value={profileData.bio}
-                      onChange={(e) => handleInputChange("bio", e.target.value)}
-                      disabled={!isEditing}
-                      rows={4}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="teaching" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Môn học đang giảng dạy</CardTitle>
-                <CardDescription>
-                  Danh sách các môn học bạn đang phụ trách trong học kỳ này
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {teachingSubjects.map((subject, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div>
-                        <h4 className="font-medium">{subject.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Mã môn: {subject.code}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant="secondary">
-                          {subject.students} sinh viên
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="achievements" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Thành tích và Giải thưởng
-                </CardTitle>
-                <CardDescription>
-                  Các thành tích, giải thưởng và công trình nghiên cứu
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {achievements.map((achievement, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-primary rounded-full"></div>
-                        <div>
-                          <h4 className="font-medium">{achievement.title}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Năm {achievement.date}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant="outline">
-                        {achievement.type === "award" && "Giải thưởng"}
-                        {achievement.type === "research" && "Nghiên cứu"}
-                        {achievement.type === "publication" && "Công bố"}
-                        {achievement.type === "guidance" && "Hướng dẫn"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent> */

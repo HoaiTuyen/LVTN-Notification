@@ -321,7 +321,7 @@ const LecturerSentNotifications = () => {
             <UpdateNotification
               open={openModalUpdate}
               onClose={() => setOpenModalUpdate(false)}
-              onSuccess={() => fetchListNotification(pageFromUrl)}
+              onSuccess={() => fetchNotifications(pageFromUrl)}
               notify={selectNotify}
             />
           )}

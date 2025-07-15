@@ -24,7 +24,7 @@ import AdminProfilePage from "../components/Admin/Account/AccountSetting";
 import EmployeeAccount from "../components/Admin/Account/Employee/AccountEmployee";
 import LecturerAccount from "../components/Admin/Account/Lecturer/LecturerAccount";
 import StudentAccount from "../components/Admin/Account/Student/StudentAccount";
-import RegistrationClass from "../components/Admin/RegisterClass/RegisterClass";
+import StudyModuleAdmin from "../components/Admin/Section/StudyModule";
 //student
 import NotificationsPage from "../components/Student/Notification/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
@@ -58,6 +58,10 @@ import EmployeeSemester from "../components/Employee/Semester/EmployeeSemester";
 import EmployeeSubject from "../components/Employee/Subject/EmployeeSubject";
 import EmployeeCreateNotificationStudent from "../components/Employee/Notification/createNotificationStudent";
 import StudyModule from "../components/Employee/Section/StudyModule";
+import HomePageEmployee from "../components/Employee/Home/HomePageEmployee";
+import DepartmentEmployee from "../components/Employee/Department/Department";
+import StudentEmployee from "../components/Employee/Student/Student";
+import LecturerEmployee from "../components/Employee/Lecturer/Lecturer";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -106,7 +110,7 @@ function AppRoutes() {
               />
             </Route>
 
-            <Route path="register-class" element={<RegistrationClass />} />
+            <Route path="register-class" element={<StudyModuleAdmin />} />
 
             <Route path="setting" element={<AdminProfilePage />} />
           </Route>
@@ -152,6 +156,8 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<HomePageEmployee />} />
             <Route path="profile" element={<EmployeeProfilePage />} />
             <Route
               path="notification-all"
@@ -187,6 +193,9 @@ function AppRoutes() {
             </Route>
             <Route path="semester" element={<EmployeeSemester />} />
             <Route path="subject" element={<EmployeeSubject />} />
+            <Route path="department" element={<DepartmentEmployee />} />
+            <Route path="student-employee" element={<StudentEmployee />} />
+            <Route path="lecturer-employee" element={<LecturerEmployee />} />
           </Route>
 
           <Route

@@ -114,7 +114,6 @@ const StudyModule = () => {
           page - 1,
           pagination.pageSize
         );
-        console.log(res);
       }
       if (res?.data?.classSections) {
         setPagination({
@@ -128,81 +127,123 @@ const StudyModule = () => {
 
         const courseMap = {};
 
+        // list.forEach((section) => {
+        //   const id = section.id;
+        //   const subjectId = section.subjectId;
+        //   const groupId = section.id.groupId;
+        //   const teacher = section.teacherName || null;
+        //   const groupedClassesMap = {};
+
+        //   section.courseSchedules?.forEach((s) => {
+        //     // const key = `${groupId}_${teacher}`;
+        //     const key = `${subjectId}`;
+        //     const scheduleStr = `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`;
+        //     const roomStr = s.id.room || "Chưa có phòng";
+
+        //     if (!groupedClassesMap[key]) {
+        //       groupedClassesMap[key] = {
+        //         id: `${subjectId}-${groupId}`,
+        //         sectionId: id,
+        //         name: `Nhóm môn học ${groupId.toString().padStart(2, "0")}`,
+        //         instructor: teacher,
+        //         schedules: [],
+        //         rooms: new Set(),
+        //         startDate: section.startDate,
+        //         endDate: section.endDate,
+        //       };
+        //     }
+
+        //     groupedClassesMap[key].scheduleRooms =
+        //       groupedClassesMap[key].scheduleRooms || [];
+        //     groupedClassesMap[key].scheduleRooms.push({
+        //       schedule: scheduleStr,
+        //       room: roomStr,
+        //     });
+        //   });
+
+        //   if (!courseMap[subjectId]) {
+        //     courseMap[subjectId] = {
+        //       id: subjectId,
+        //       sectionId: id,
+        //       name: section.subjectName,
+        //       code: subjectId,
+        //       startDate: section.startDate,
+        //       endDate: section.endDate,
+        //       totalClasses: 0,
+        //       assignedClasses: 0,
+        //       classes: [],
+        //     };
+        //   }
+
+        //   const groupedClassList = Object.values(groupedClassesMap).map(
+        //     (item) => ({
+        //       ...item,
+        //       rooms: Array.from(item.rooms), // convert Set to Array
+        //     })
+        //   );
+        //   courseMap[subjectId].classes.push(...groupedClassList);
+        //   courseMap[subjectId].totalClasses += groupedClassList.length;
+        //   courseMap[subjectId].assignedClasses += teacher
+        //     ? groupedClassList.length
+        //     : 0;
+        // });
+        // console.log(courseMap);
+        // const transformedData = Object.values(courseMap);
+        // setClassSectionList(transformedData);
+
         list.forEach((section) => {
-          const id = section.id;
-          const subjectId = section.subjectId;
-          const groupId = section.id.groupId;
-          const teacher = section.teacherName || null;
-          const groupedClassesMap = {};
-          // const classData =
-          //   section.courseSchedules?.map((s, i) => ({
-          //     id: `${s.id.subjectId}-${s.id.groupId}-${s.id.teacherId}-${i}`,
-          //     sectionId: id,
-          //     name: `Nhóm môn học ${groupId.toString().padStart(2, "0")}`,
-          //     room: s.id.room || "Chưa có phòng",
-          //     schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`,
-          //     instructor: teacher,
-          //     startDate: section.startDate,
-          //     endDate: section.endDate,
-          //   })) || [];
-          section.courseSchedules?.forEach((s) => {
-            const key = `${groupId}_${teacher}`; // gộp theo group + giáo viên
-            const scheduleStr = `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`;
-            const roomStr = s.id.room || "Chưa có phòng";
+          const {
+            id: sectionId,
+            subjectName,
+            subjectId,
+            subjectCode,
+            teacherName,
+            startDate,
+            endDate,
+            courseSchedules,
+            id: { groupId },
+          } = section;
 
-            if (!groupedClassesMap[key]) {
-              groupedClassesMap[key] = {
-                id: `${subjectId}-${groupId}-${teacher}`,
-                sectionId: id,
-                name: `Nhóm môn học ${groupId.toString().padStart(2, "0")}`,
-                instructor: teacher,
-                schedules: [],
-                rooms: new Set(),
-                startDate: section.startDate,
-                endDate: section.endDate,
-              };
-            }
-
-            groupedClassesMap[key].scheduleRooms =
-              groupedClassesMap[key].scheduleRooms || [];
-            groupedClassesMap[key].scheduleRooms.push({
-              schedule: scheduleStr,
-              room: roomStr,
-            });
-          });
-
-          if (!courseMap[subjectId]) {
-            courseMap[subjectId] = {
+          // Tạo khóa gộp theo tên môn học
+          if (!courseMap[subjectName]) {
+            courseMap[subjectName] = {
               id: subjectId,
-              sectionId: id,
-              name: section.subjectName,
-              code: subjectId,
-              startDate: section.startDate,
-              endDate: section.endDate,
+              name: subjectName,
+              code: subjectId, // hoặc dùng subjectCode nếu có
+              sectionId: sectionId,
+              startDate,
+              endDate,
               totalClasses: 0,
               assignedClasses: 0,
               classes: [],
             };
           }
 
-          // courseMap[subjectId].classes.push(...classData);
-          // courseMap[subjectId].totalClasses += classData.length;
-          // courseMap[subjectId].assignedClasses += teacher
-          //   ? classData.length
-          //   : 0;
-          const groupedClassList = Object.values(groupedClassesMap).map(
-            (item) => ({
-              ...item,
-              rooms: Array.from(item.rooms), // convert Set to Array
-            })
-          );
-          courseMap[subjectId].classes.push(...groupedClassList);
-          courseMap[subjectId].totalClasses += groupedClassList.length;
-          courseMap[subjectId].assignedClasses += teacher
-            ? groupedClassList.length
-            : 0;
+          const classItem = {
+            id: `${subjectId}-${groupId}-${teacherName || "no-teacher"}`,
+            sectionId: sectionId,
+            name: `Nhóm môn học ${groupId.toString().padStart(2, "0")}`,
+            instructor: teacherName || null,
+            scheduleRooms: [],
+            startDate,
+            endDate,
+          };
+
+          courseSchedules?.forEach((s) => {
+            const scheduleStr = `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`;
+            const roomStr = s.id.room || "Chưa có phòng";
+
+            classItem.scheduleRooms.push({
+              schedule: scheduleStr,
+              room: roomStr,
+            });
+          });
+
+          courseMap[subjectName].classes.push(classItem);
+          courseMap[subjectName].totalClasses += 1;
+          courseMap[subjectName].assignedClasses += teacherName ? 1 : 0;
         });
-        console.log(courseMap);
+
         const transformedData = Object.values(courseMap);
         setClassSectionList(transformedData);
       }
@@ -478,7 +519,7 @@ const StudyModule = () => {
           onOpen={openModalDelete}
           onClose={() => setOpenModalDelete(false)}
           section={selectedSection}
-          onSuccess={() => setOpenModalDelete(false)}
+          onSuccess={() => fetchListRegisterStudent(selectedSemester)}
         />
       )}
     </div>

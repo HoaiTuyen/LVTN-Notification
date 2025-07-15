@@ -14,29 +14,82 @@ import {
   Calendar,
   TrendingUp,
   Clock,
-  MessageSquare,
+  School,
+  Shapes,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import {
   handleCountCourseSchedule,
   handleCountGroupCreate,
   handleCountSubjectCharge,
+  handleListClassSectionTeacher,
+  handleListClassOfTeacher,
 } from "../../../controller/TeacherController";
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { handleListSemester } from "../../../controller/SemesterController";
-import { jwtDecode } from "jwt-decode";
 
 const HomeLecturerPage = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("access_token") || "";
+  const { userId } = jwtDecode(token);
+  const [teacherId, setTeacherId] = useState("");
+  const [semesterId, setSemesterId] = useState("");
   const [statsData, setStatsData] = useState({
     totalCourses: 0,
     totalGroups: 0,
-    notifications: 0,
     totalSubjects: 0,
   });
+  const [classSectionList, setClassSectionList] = useState([]);
+  const [classes, setClasses] = useState([]);
+
+  const fetchInitialData = async () => {
+    try {
+      const userRes = await handleGetDetailUser(userId);
+      const teacherId = userRes?.data?.teacherId;
+      if (!teacherId) return;
+
+      setTeacherId(teacherId);
+
+      const semesterRes = await handleListSemester("desc", 0, 10);
+      const semesters = semesterRes?.data?.semesters || [];
+      if (!semesters.length) return;
+
+      const currentSemesterId = semesters[0].id;
+      setSemesterId(currentSemesterId);
+      const classRes = await handleListClassOfTeacher(teacherId);
+      // Gọi song song 3 API
+      const [
+        classSectionsRes,
+        totalCoursesRes,
+        totalGroupsRes,
+        totalSubjectsRes,
+      ] = await Promise.all([
+        handleListClassSectionTeacher(teacherId, currentSemesterId),
+        handleCountCourseSchedule(teacherId),
+        handleCountGroupCreate(teacherId),
+        handleCountSubjectCharge(teacherId, currentSemesterId),
+      ]);
+
+      if (classSectionsRes?.data?.classSections)
+        setClassSectionList(classSectionsRes.data.classSections);
+
+      setStatsData({
+        totalCourses: totalCoursesRes?.data || 0,
+        totalGroups: totalGroupsRes?.data || 0,
+        totalSubjects: totalSubjectsRes?.data || 0,
+      });
+      setClasses(classRes.data);
+    } catch (err) {
+      console.error("Lỗi khi fetch dữ liệu giảng viên:", err);
+    }
+  };
+
   const stats = [
     {
       title: "Môn học phụ trách",
-      value: "2",
+      value: statsData.totalSubjects,
       description: "Học kỳ này",
       icon: BookOpen,
       color: "text-blue-600",
@@ -45,242 +98,180 @@ const HomeLecturerPage = () => {
       title: "Lớp học",
       value: statsData.totalCourses,
       description: "Chủ nhiệm",
-      icon: Users,
+      icon: School,
       color: "text-green-600",
     },
     {
       title: "Nhóm học tập",
       value: statsData.totalGroups,
       description: "Tổng số",
-      icon: TrendingUp,
+      icon: Users,
       color: "text-purple-600",
     },
     {
       title: "Lớp học phần",
       value: statsData.totalSubjects,
       description: "Học kỳ này",
-      icon: Bell,
+      icon: Shapes,
       color: "text-orange-600",
     },
   ];
+
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
 
   const recentActivities = [
     {
       title: "Tạo thông báo mới",
       description: "Thông báo về bài kiểm tra giữa kỳ môn Lập trình Web",
       time: "2 giờ trước",
-      type: "notification",
     },
     {
       title: "Cập nhật nhóm học tập",
       description: 'Chỉnh sửa thông tin nhóm "React Advanced"',
       time: "5 giờ trước",
-      type: "group",
     },
     {
       title: "Phản hồi sinh viên",
       description: 'Trả lời câu hỏi trong nhóm "JavaScript Fundamentals"',
       time: "1 ngày trước",
-      type: "message",
     },
   ];
 
-  const upcomingClasses = [
-    {
-      subject: "Lập trình Web",
-      class: "CNTT-K19A",
-      time: "08:00 - 10:00",
-      room: "A101",
-      date: "Hôm nay",
-    },
-    {
-      subject: "Cơ sở dữ liệu",
-      class: "CNTT-K19B",
-      time: "14:00 - 16:00",
-      room: "B205",
-      date: "Hôm nay",
-    },
-    {
-      subject: "Phân tích thiết kế hệ thống",
-      class: "CNTT-K18A",
-      time: "08:00 - 10:00",
-      room: "C301",
-      date: "Mai",
-    },
-  ];
-
-  const [teacherId, setTeacherId] = useState("");
-  const [semesterId, setSemesterId] = useState("");
-  const token = localStorage.getItem("access_token");
-  const { userId } = jwtDecode(token);
-  const fetchInfo = async () => {
-    const response = await handleGetDetailUser(userId);
-    if (response?.data) {
-      console.log(response.data);
-      setTeacherId(response.data.teacherId);
-    }
-  };
-  const fetchSemester = async () => {
-    const response = await handleListSemester("des", 0, 10);
-    if (response?.data) {
-      console.log(response.data.semesters[0].id);
-      setSemesterId(response.data.semesters[0].id);
-    }
-  };
-  const fetchCountCourseSchedule = async () => {
-    //lớp
-    const response = await handleCountCourseSchedule(teacherId);
-    console.log(response);
-    if (response?.data && response?.status === 200) {
-      setStatsData((prev) => ({
-        ...prev,
-        totalCourses: response.data,
-      }));
-    }
-  };
-  const fetchCountGroupCreate = async () => {
-    const groupData = await handleCountGroupCreate(teacherId);
-    console.log(groupData);
-    if (groupData?.data && groupData?.status === 200) {
-      setStatsData((prev) => ({
-        ...prev,
-        totalGroups: groupData.data,
-      }));
-    }
-  };
-  const fetchCountSubjectCharge = async () => {
-    const subjectData = await handleCountSubjectCharge(teacherId, semesterId);
-    console.log(subjectData);
-    if (subjectData?.data && subjectData?.status === 200) {
-      setStatsData((prev) => ({
-        ...prev,
-        totalSubjects: subjectData.data,
-      }));
-    }
-  };
-  useEffect(() => {
-    const init = async () => {
-      await fetchInfo();
-      await fetchSemester();
+  const filteredCourses = classSectionList.map((section, index) => {
+    return {
+      id: `${section.subjectId}-${section.id.groupId}`,
+      code: section.subjectId,
+      name: section.subjectName,
+      semester: section.semesterName,
+      classes: section.courseSchedules.map((s, i) => ({
+        id: `${section.subjectId}-${section.id.groupId}-${i}`,
+        name: `Nhóm môn học ${section.id.groupId.toString().padStart(2, "0")}`,
+        schedule: `Thứ ${s.id.day}, tiết ${s.id.startPeriod}-${s.id.endPeriod}`,
+        room: s.id.room || "Trống",
+      })),
     };
-    init();
-    fetchCountCourseSchedule();
-    fetchCountGroupCreate();
-    fetchCountSubjectCharge();
-  }, [teacherId, semesterId]);
+  });
+  console.log(filteredCourses.length);
+
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="space-y-6 p-10">
-        {/* <div>
-          <h1 className="text-3xl font-bold">Dashboard Giảng viên</h1>
-          <p className="text-muted-foreground">
-            Chào mừng trở lại! Đây là tổng quan về hoạt động giảng dạy của bạn.
-          </p>
-        </div> */}
-
-        {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stat.description}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {stats.map(({ title, value, description, icon: Icon, color }) => (
+            <Card key={title} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+                <Icon className={`h-4 w-4 ${color}`} />
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold ${color}`}>{value}</div>
+                <p className="text-xs text-muted-foreground">{description}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Lịch giảng dạy hôm nay */}
+          {/* Lịch giảng dạy */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-blue-600">
                 <Calendar className="h-5 w-5" />
                 Lịch giảng dạy
               </CardTitle>
-              <CardDescription>Các lớp học sắp tới</CardDescription>
+              <CardDescription>Các lớp học được phân công</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {upcomingClasses.map((classItem, index) => (
+            <CardContent className="flex flex-col h-full">
+              <div className="space-y-4 flex-1 pb-3">
+                {filteredCourses.map((item, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3 border rounded-lg"
                   >
                     <div className="space-y-1">
-                      <p className="font-medium">{classItem.subject}</p>
+                      <p className="font-medium text-sm text-primary">
+                        {item.name}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {classItem.class} • Phòng {classItem.room}
+                        {item.code} - {item.classes[0].room}
                       </p>
                     </div>
                     <div className="text-right">
                       <Badge
                         variant={
-                          classItem.date === "Hôm nay" ? "default" : "secondary"
+                          item.classes[0].schedule ===
+                          "Thứ 2, 4, 6 - 07:00-09:00"
+                            ? "default"
+                            : "secondary"
                         }
                       >
-                        {classItem.date}
+                        {item.semester}
                       </Badge>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {classItem.time}
+                        {item.classes[0].schedule}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-              <Button className="w-full mt-4" variant="outline">
-                Xem lịch đầy đủ
-              </Button>
+              {filteredCourses.length != 0 && (
+                <Button
+                  className="w-full mt-auto cursor-pointer"
+                  variant="outline"
+                  onClick={() => navigate("/giang-vien/subject-charge")}
+                >
+                  Xem chi tiết
+                </Button>
+              )}
             </CardContent>
           </Card>
 
           {/* Hoạt động gần đây */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Hoạt động gần đây
+              <CardTitle className="flex items-center gap-2 text-green-600">
+                <School className="h-5 w-5" />
+                Lớp chủ nhiệm
               </CardTitle>
-              <CardDescription>Các hoạt động mới nhất của bạn</CardDescription>
+              <CardDescription>Lớp học được chủ nhiệm</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                    <div className="flex-1 space-y-1">
-                      <p className="font-medium text-sm">{activity.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.description}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.time}
-                      </p>
+            <CardContent className="flex flex-col h-full">
+              <div className="space-y-4 flex-1 pb-3">
+                {classes.length === 0 ? (
+                  <p className="text-center text-gray-500">
+                    Không có lớp học nào
+                  </p>
+                ) : (
+                  classes.map((item, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                      <div className="flex-1 space-y-1">
+                        <p className="font-medium text-sm">{item.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Khoa: {item.departmentName}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
-              <Button className="w-full mt-4" variant="outline">
-                Xem tất cả hoạt động
-              </Button>
+              {classes.length != 0 && (
+                <Button
+                  className="w-full mt-auto cursor-pointer"
+                  variant="outline"
+                  onClick={() => navigate("/giang-vien/class-charge")}
+                >
+                  Xem chi tiết
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Quick Actions */}
       </div>
     </div>
   );
 };
+
 export default HomeLecturerPage;

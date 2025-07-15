@@ -45,49 +45,35 @@ import {
 import { handleListClassOfTeacher } from "../../../controller/TeacherController";
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { jwtDecode } from "jwt-decode";
-import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 const ClassCharge = () => {
   const navigate = useNavigate();
 
   const [classes, setClasses] = useState([]);
+  const { setLoading } = useLoading();
   const fetchClass = async () => {
-    const token = localStorage.getItem("access_token");
-    const data = jwtDecode(token);
-    const req = await handleGetDetailUser(data.userId);
-    if (req?.data && req?.status === 200) {
-      const teacherDetail = await handleListClassOfTeacher(req.data.teacherId);
-      setClasses(teacherDetail.data);
-    } else {
-      setClasses([]);
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
+      const data = jwtDecode(token);
+      const req = await handleGetDetailUser(data.userId);
+      if (req?.data && req?.status === 200) {
+        const teacherDetail = await handleListClassOfTeacher(
+          req.data.teacherId
+        );
+        setClasses(teacherDetail.data);
+      } else {
+        setClasses([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi fetch lớp học:", err);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     fetchClass();
   }, []);
-
-  const stats = [
-    {
-      title: "Lớp chủ nhiệm",
-      value: "1",
-      description: "CNTT-K19A",
-      icon: Users,
-      color: "text-blue-600",
-    },
-    {
-      title: "Tổng sinh viên",
-      value: "10",
-      description: "Tất cả lớp",
-      icon: GraduationCap,
-      color: "text-purple-600",
-    },
-    {
-      title: "GPA trung bình",
-      value: "8.1",
-      description: "Lớp chủ nhiệm",
-      icon: TrendingUp,
-      color: "text-orange-600",
-    },
-  ];
 
   return (
     <div className="w-full bg-white overflow-y-auto max-h-[700px] p-10">
@@ -107,7 +93,10 @@ const ClassCharge = () => {
           {/* Lớp chủ nhiệm */}
           <TabsContent value="homeroom" className="space-y-4">
             {classes.length === 0 ? (
-              <p>Không có lớp</p>
+              <div className="text-center py-8 text-muted-foreground">
+                <School className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Chưa được phân công</p>
+              </div>
             ) : (
               classes.map((cls) => (
                 <Card className="pb-0">

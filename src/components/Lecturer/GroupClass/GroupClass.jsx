@@ -174,7 +174,7 @@ const GroupClassTeacher = () => {
                               asChild
                               className="cursor-pointer"
                             >
-                              <Link to="">
+                              <Link to={`/giang-vien/group-class/${group.id}`}>
                                 <FileText className="h-4 w-4" />
                                 Xem chi tiết
                               </Link>
@@ -212,14 +212,14 @@ const GroupClassTeacher = () => {
                           {group.code}
                         </code>
                       </div>
-                      <div className="flex gap-4">
+                      {/* <div className="flex gap-4">
                         <button className="hover:text-blue-600">
                           <User className="w-5 h-5" />
                         </button>
                         <button className="hover:text-blue-600">
                           <Folder className="w-5 h-5" />
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                   </Card>
                 ))

@@ -332,6 +332,7 @@ const EmployeeLecturerAccount = () => {
             current={pagination.current}
             pageSize={pagination.pageSize}
             total={pagination.total}
+            showSizeChanger={false}
             onChange={(page) => {
               setSearchParams({
                 search: debouncedSearchTerm,

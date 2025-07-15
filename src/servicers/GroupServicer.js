@@ -43,5 +43,5 @@ export const joinStudentInClass = async (data) => {
   return await api.post("/studygroup/add_student_studygroup", data);
 };
 export const detailGroup = async (id) => {
-  return await api.get(`/studygroup/list_study_group_detail?id=${id}`);
+  return await api.get(`/studygroup/study_group_detail?id=${id}`);
 };

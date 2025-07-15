@@ -21,10 +21,19 @@ export default function CheckCourseSchedule({ open, onClose, onConfirm }) {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={onClose}
+          >
             Hủy
           </Button>
-          <Button onClick={onConfirm}>Đồng ý</Button>
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            onClick={onConfirm}
+          >
+            Đồng ý
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

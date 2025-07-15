@@ -63,9 +63,11 @@ const EmployeeProfilePage = () => {
   const fetchUserDetail = async () => {
     const token = localStorage.getItem("access_token");
     const data = jwtDecode(token);
+    console.log(data);
     const userId = data.userId;
+    console.log(userId);
     const req = await handleGetDetailUser(userId);
-
+    console.log(req);
     if (req?.data) {
       setUserImage(req.data.image);
       setUserImageId(req.data.id);
@@ -147,12 +149,20 @@ const EmployeeProfilePage = () => {
 
       case "CHUYỂN_CÔNG_TÁC":
         return {
-          label: "CHUYỂN_CÔNG_TÁC",
+          label: "Chuyển công tác",
           className: "bg-red-100 text-red-800 mt-2",
+        };
+      case "NGHỈ_HƯU":
+        return {
+          label: "Nghỉ hưu",
+          className: "bg-yellow-100 text-yellow-800 mt-2",
         };
 
       default:
-        break;
+        return {
+          label: "Không xác định",
+          className: "bg-gray-100 text-gray-800 mt-2",
+        };
     }
   }
   return (
@@ -257,11 +267,8 @@ const EmployeeProfilePage = () => {
                       {profileData.firstName} {profileData.lastName}
                     </h3>
 
-                    <Badge
-                      variant="success"
-                      className={filterStudents(profileData.status).className}
-                    >
-                      {filterStudents(profileData.status).label}
+                    <Badge variant="success">
+                      {filterStudents(profileData?.status).label}
                     </Badge>
                   </div>
                 </CardContent>

@@ -46,6 +46,8 @@ import {
   hashColorFromString,
 } from "../../../config/color";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useLoading } from "../../../context/LoadingProvider";
+import { encryptId } from "../../../util/SercurityUrl";
 const GroupStudyStudent = () => {
   const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
@@ -63,13 +65,16 @@ const GroupStudyStudent = () => {
   const data = jwtDecode(token);
   const userId = data.userId;
 
+  const { setLoading } = useLoading();
   const fetchListGroup = async (page = 1) => {
+    setLoading(true);
     const listGroup = await handleListGroupByStudent(
       userId,
       page - 1,
       pagination.pageSize
     );
-    console.log(listGroup);
+
+    setLoading(false);
 
     if (listGroup?.data || listGroup?.status === 200) {
       setGroups(listGroup.data);
@@ -109,7 +114,7 @@ const GroupStudyStudent = () => {
               <h1 className="text-3xl font-bold text-gray-800">Nhóm học tập</h1>
               <Dialog>
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 flex items-center gap-2"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 flex items-center gap-2 cursor-pointer"
                   onClick={() => setOpenModal(true)}
                 >
                   <Plus className="h-4 w-4" />
@@ -155,7 +160,11 @@ const GroupStudyStudent = () => {
                           className="text-lg font-semibold truncate cursor-pointer"
                           title={group.groupName}
                           onClick={() => {
-                            navigate(`/sinh-vien/group-study/${group.groupId}`);
+                            navigate(
+                              `/sinh-vien/group-study/${encodeURIComponent(
+                                encryptId(group.groupId)
+                              )}`
+                            );
                           }}
                         >
                           {group.groupName}
@@ -177,18 +186,7 @@ const GroupStudyStudent = () => {
                       </div>
                     </div>
 
-                    {/* Body trống hoặc nội dung khác nếu có */}
                     <div className="flex-grow px-4 pt-6"></div>
-
-                    {/* Footer: Icon điều hướng */}
-                    <div className="border-t flex justify-end gap-8 py-2 text-gray-700">
-                      <button className="hover:text-blue-600">
-                        <User className="w-5 h-5" />
-                      </button>
-                      <button className="hover:text-blue-600 pr-4">
-                        <Folder className="w-5 h-5" />
-                      </button>
-                    </div>
                   </Card>
                 ))
               )}

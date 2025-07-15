@@ -41,6 +41,7 @@ const DetailGroupLecturer = () => {
   const navigate = useNavigate();
   const { groupId } = useParams();
   const [groupDetail, setGroupDetail] = useState({});
+  const [selectTabs, setSelectTabs] = useState("home");
   const [members, setMembers] = useState([]);
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
@@ -132,16 +133,24 @@ const DetailGroupLecturer = () => {
           </div>
         </div>
         <div className="min-h-screen ">
-          <Tabs defaultValue="home" className="px-6 pt-8 pb-3">
+          <Tabs
+            value={selectTabs}
+            onValueChange={setSelectTabs}
+            className="px-6 pt-8 pb-3"
+          >
             <TabsList>
               <TabsTrigger
                 value="home"
-                className="data-[state=active]:text-blue-600"
+                className="data-[state=active]:text-blue-600 cursor-pointer"
               >
                 Bảng tin
               </TabsTrigger>
-              <TabsTrigger value="notification">Thông báo</TabsTrigger>
-              <TabsTrigger value="member">Mọi người</TabsTrigger>
+              <TabsTrigger value="notification" className="cursor-pointer">
+                Thông báo
+              </TabsTrigger>
+              <TabsTrigger value="member" className="cursor-pointer">
+                Mọi người
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="home">
               <div
@@ -156,9 +165,6 @@ const DetailGroupLecturer = () => {
                   <h1 className="text-3xl font-bold">{groupDetail.name}</h1>
                   <p className="text-lg">{groupDetail.userName}</p>
                 </div>
-                {/* <button className="bg-white text-black rounded px-3 py-1 text-sm font-medium shadow">
-                  Customize
-                </button> */}
               </div>
               <div className="flex gap-4 mt-6">
                 {/* Class code */}
@@ -188,32 +194,15 @@ const DetailGroupLecturer = () => {
                     </Avatar>
                     <Input
                       placeholder="Thông báo gì đó đến lớp của bạn..."
-                      className="flex-1"
+                      className="flex-1 cursor-pointer border-0"
+                      readOnly
+                      onClick={() => setSelectTabs("notification")}
                     />
                   </div>
                   {notificationGroups.length === 0 ? (
                     <></>
                   ) : (
                     notificationGroups.map((notify, index) => (
-                      // <div
-                      //   key={index}
-                      //   className="p-4 bg-white border rounded shadow-sm"
-                      // >
-                      //   <div className="flex items-center space-x-2">
-                      //     <div className="bg-pink-500 p-2 rounded-full text-white">
-                      //       <NotepadText size={22} />
-                      //     </div>
-                      //     <div>
-                      //       <p className="font-medium">
-                      //         {groupDetail.userName} thông báo: {notify.title}
-                      //       </p>
-                      //       <p className="text-sm text-gray-500">
-                      //         {dayjs(notify.createdAt).format("DD/MM/YYYY")}
-                      //       </p>
-                      //     </div>
-                      //   </div>
-                      // </div>
-
                       <div
                         key={index}
                         className="bg-white border rounded-xl shadow-sm overflow-hidden cursor-pointer"
@@ -234,9 +223,6 @@ const DetailGroupLecturer = () => {
                               {dayjs(notify.createdAt).format("DD [thg] M")}
                             </p>
                             <p className="mt-2">{notify.title}</p>
-                          </div>
-                          <div className="text-gray-400 cursor-pointer">
-                            <MoreVertical size={16} />
                           </div>
                         </div>
 
@@ -269,21 +255,6 @@ const DetailGroupLecturer = () => {
                             ))}
                           </div>
                         )}
-
-                        {/* Comment box */}
-                        {/* <div className="border-t px-4 py-3 flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm text-white">
-                            T
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Thêm nhận xét trong lớp học..."
-                            className="flex-1 rounded-full border px-4 py-2 text-sm focus:outline-none"
-                          />
-                          <button className="text-gray-400 hover:text-blue-600">
-                            <Send size={18} />
-                          </button>
-                        </div> */}
                       </div>
                     ))
                   )}
@@ -299,7 +270,7 @@ const DetailGroupLecturer = () => {
                     onClick={() => setOpenModalCreate(true)}
                   >
                     <span className="font-light">＋</span>
-                    Create
+                    Tạo thông báo
                   </button>
                   {openModalCreate && (
                     <LecturerCreateGroupNotification

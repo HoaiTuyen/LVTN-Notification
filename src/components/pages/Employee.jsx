@@ -97,6 +97,16 @@ const EmployeeDashboard = () => {
       ],
     },
     {
+      key: "student-employee",
+      icon: <img src="/img/menu/student.png" alt="icon" width={16} />,
+      label: "Quản lý  sinh viên",
+    },
+    {
+      key: "lecturer-employee",
+      icon: <img src="/img/menu/lecturer.png" alt="icon" width={16} />,
+      label: "Quản lý  giảng viên",
+    },
+    {
       key: "class",
       icon: <img src="/img/menu/class.png" alt="icon" width={16} />,
       label: "Quản lý lớp",
@@ -110,6 +120,11 @@ const EmployeeDashboard = () => {
       key: "subject",
       icon: <BookOutlined />,
       label: "Quản lý môn học",
+    },
+    {
+      key: "department",
+      icon: <img src="/img/menu/department.png" alt="icon" width={16} />,
+      label: "Quản lý khoa",
     },
     {
       key: "logout",
@@ -219,11 +234,7 @@ const EmployeeDashboard = () => {
                       </div>
                     ),
                   },
-                  {
-                    key: "settings",
-                    label: "Cài đặt",
-                    icon: <SettingOutlined />,
-                  },
+
                   {
                     key: "logout",
                     label: "Đăng xuất",

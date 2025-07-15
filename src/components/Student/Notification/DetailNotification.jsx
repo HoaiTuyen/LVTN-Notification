@@ -15,10 +15,10 @@ import { ArrowLeft, FileText, Calendar, User, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { handleDetailNotification } from "../../../controller/NotificationController";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const StudentNotificationDetail = () => {
   const { notificationId } = useParams();
-
+  const { setLoading } = useLoading();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -28,26 +28,23 @@ const StudentNotificationDetail = () => {
   console.log(type, search, page);
   const [notification, setNotification] = useState(null);
 
-  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetch = async () => {
-      const res = await handleDetailNotification(notificationId);
-      console.log(res);
-
-      if (res?.data) {
-        setNotification(res.data);
+      try {
+        setLoading(true);
+        const res = await handleDetailNotification(notificationId);
+        setLoading(false);
+        if (res?.data) {
+          setNotification(res.data);
+        }
+      } catch (error) {
+        console.log(error.message || "Lỗi khi tải thông tin.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetch();
   }, [notificationId]);
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <Spin size="large" tip="Đang tải dữ liệu..." />
-      </div>
-    );
-  }
 
   return (
     <motion.div
@@ -77,22 +74,22 @@ const StudentNotificationDetail = () => {
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   {/* Tiêu đề */}
                   <CardTitle className="text-xl whitespace-pre-line">
-                    {notification.title || "Trống"}
+                    {notification?.title || "Trống"}
                   </CardTitle>
 
                   {/* Badge container */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    {notification.notificationType && (
+                    {notification?.notificationType && (
                       <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
                         {notification.notificationType}
                       </span>
                     )}
-                    {notification.departmentName && (
+                    {notification?.departmentName && (
                       <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
                         {notification.departmentName}
                       </span>
                     )}
-                    {!notification.notificationType &&
+                    {!notification?.notificationType &&
                       !notification.departmentName && (
                         <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
                           Phòng Đào tạo
@@ -113,12 +110,12 @@ const StudentNotificationDetail = () => {
 
           <CardContent className="space-y-6">
             <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {notification.content || "Không có nội dung chi tiết."}
+              {notification?.content || "Không có nội dung chi tiết."}
             </div>
 
-            {notification.fileNotifications?.length > 0 && (
+            {notification?.fileNotifications?.length > 0 && (
               <div className="space-y-2">
-                {notification.fileNotifications.map((file, idx) => (
+                {notification?.fileNotifications?.map((file, idx) => (
                   <a
                     key={idx}
                     href={file.fileName}

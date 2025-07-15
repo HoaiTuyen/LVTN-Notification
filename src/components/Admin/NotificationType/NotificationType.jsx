@@ -225,7 +225,7 @@ const NotificationType = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                               <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
+
                               {/* <DropdownMenuItem
                                 asChild
                                 className="cursor-pointer"

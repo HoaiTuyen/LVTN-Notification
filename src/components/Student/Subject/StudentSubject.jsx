@@ -46,6 +46,7 @@ import CheckCourseSchedule from "./CheckCourseSchedule";
 import dayjs from "dayjs";
 import { handleCheckCourseSchedule } from "../../../controller/AccountController";
 import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 // Mock data for student courses
 const studentCourses = [
   {
@@ -235,9 +236,8 @@ export default function StudentCoursesPage() {
   const [showDialog, setShowDialog] = useState(false);
   const [studentId, setStudentId] = useState(null);
   const [isCheckSend, setIsCheckSend] = useState(false);
+  const { setLoading } = useLoading();
   const filteredCourses = classSectionList.map((section, index) => {
-    console.log();
-
     return {
       id: `${section.subjectId}-${section.id.groupId}`,
       code: section.subjectId,
@@ -264,7 +264,9 @@ export default function StudentCoursesPage() {
   };
   const updateNotificationSetting = async (checked) => {
     try {
+      setLoading(true);
       const res = await handleCheckCourseSchedule(studentId, checked); // true = tắt, false = bật
+      setLoading(false);
       setNotifyDisabled(checked);
       setIsCheckSend(checked);
       toast.success(res.message || "Cập nhật trạng thái thông báo thành công");
@@ -302,8 +304,8 @@ export default function StudentCoursesPage() {
   };
   const fetchClassOfStudent = async (semesterId) => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("access_token");
-      console.log(token);
       const decoded = jwtDecode(token);
       const userId = decoded?.userId;
       setStudentId(userId);
@@ -313,7 +315,6 @@ export default function StudentCoursesPage() {
 
       if (!studentId) return;
       const res = await handleListClassSectionStudent(studentId, semesterId);
-      console.log(res);
       if (res?.data?.classSections) {
         const list = res?.data?.classSections || [];
         setClassSectionList(list);
@@ -322,6 +323,8 @@ export default function StudentCoursesPage() {
       }
     } catch (err) {
       console.error("Lỗi khi fetch lớp học phần:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -424,33 +427,28 @@ export default function StudentCoursesPage() {
                       <CardContent>
                         <div className="mt-4 space-y-2">
                           <div className="grid gap-2 md:grid-cols-2">
-                            {course.classes.map(
-                              (classItem) => (
-                                console.log(classItem),
-                                (
-                                  <div
-                                    key={classItem.id}
-                                    className="p-3 border rounded-lg bg-muted/50"
-                                  >
-                                    <div className="flex items-center justify-between mb-1">
-                                      <span className="font-medium text-sm">
-                                        {classItem.name}
-                                      </span>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground space-y-1">
-                                      <div className="flex items-center gap-1">
-                                        <Clock className="h-3 w-3" />
-                                        {classItem.schedule}
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <Calendar className="h-3 w-3" />
-                                        Phòng {classItem.room}
-                                      </div>
-                                    </div>
+                            {course.classes.map((classItem) => (
+                              <div
+                                key={classItem.id}
+                                className="p-3 border rounded-lg bg-muted/50"
+                              >
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="font-medium text-sm">
+                                    {classItem.name}
+                                  </span>
+                                </div>
+                                <div className="text-xs text-muted-foreground space-y-1">
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {classItem.schedule}
                                   </div>
-                                )
-                              )
-                            )}
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    Phòng {classItem.room}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </CardContent>

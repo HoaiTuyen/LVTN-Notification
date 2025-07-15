@@ -30,6 +30,7 @@ import {
 import dayjs from "dayjs";
 import useWebSocket from "@/config/Websorket";
 
+import { decryptId } from "../../../util/SercurityUrl";
 const DetailGroupStudent = () => {
   const { connected } = useWebSocket();
 
@@ -41,24 +42,31 @@ const DetailGroupStudent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { groupStudyId } = useParams();
+  const realId = decryptId(groupStudyId || "");
   const [groupDetail, setGroupDetail] = useState({});
   const [members, setMembers] = useState([]);
   const [notificationGroups, setNotificationGroups] = useState([]);
-
+  const [authorized, setAuthorized] = useState(false);
+  const [loadingPage, setLoadingPage] = useState(true);
   const backUrl = location.state?.from || "/sinh-vien/group-study";
   const fetchDetailGroup = async () => {
-    const detailGroup = await handleDetailGroup(groupStudyId);
+    setLoadingPage(true);
+    const detailGroup = await handleDetailGroup(realId);
 
     if (detailGroup?.data && detailGroup.status === 200) {
       setGroupDetail(detailGroup.data);
       setMembers(detailGroup.data.members);
+      setAuthorized(true);
+    } else {
+      toast.error(detailGroup.message);
+      navigate(backUrl);
     }
+    setLoadingPage(false);
   };
   const fetchListNotificationGroup = async () => {
-    const listNotificationGroup = await handleListNotificationGroup(
-      groupStudyId
-    );
-    console.log(listNotificationGroup);
+    setLoadingPage(true);
+    const listNotificationGroup = await handleListNotificationGroup(realId);
+    setLoadingPage(false);
     if (listNotificationGroup?.data || listNotificationGroup?.status === 200) {
       const sorted = [...listNotificationGroup.data].sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
@@ -74,21 +82,30 @@ const DetailGroupStudent = () => {
     if (parts.length === 1) return parts[0][0].toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
-
   useEffect(() => {
     fetchDetailGroup();
-    fetchListNotificationGroup();
-    const handleRefresh = () => {
-      fetchListNotificationGroup();
-    };
-
-    window.addEventListener("notification-sent", handleRefresh);
-
-    return () => {
-      window.removeEventListener("notification-sent", handleRefresh);
-    };
   }, []);
+  useEffect(() => {
+    if (authorized) {
+      fetchListNotificationGroup();
+      const handleRefresh = () => {
+        fetchListNotificationGroup();
+      };
+      window.addEventListener("notification-sent", handleRefresh);
+      return () => {
+        window.removeEventListener("notification-sent", handleRefresh);
+      };
+    }
+  }, [authorized]);
+  if (loadingPage) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
+  if (!authorized) return null;
   return (
     <motion.div
       layout
@@ -120,12 +137,14 @@ const DetailGroupStudent = () => {
             <TabsList>
               <TabsTrigger
                 value="home"
-                className="data-[state=active]:text-blue-600"
+                className="data-[state=active]:text-blue-600 cursor-pointer"
               >
                 Bảng tin
               </TabsTrigger>
 
-              <TabsTrigger value="member">Mọi người</TabsTrigger>
+              <TabsTrigger value="member" className="cursor-pointer">
+                Mọi người
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="home">
               <div
@@ -141,8 +160,8 @@ const DetailGroupStudent = () => {
                   <p className="text-lg">{groupDetail.userName}</p>
                 </div>
                 {/* <button className="bg-white text-black rounded px-3 py-1 text-sm font-medium shadow">
-                  Customize
-                </button> */}
+                    Customize
+                  </button> */}
               </div>
               <div className="flex gap-4 mt-6">
                 {/* Class code */}
@@ -160,17 +179,6 @@ const DetailGroupStudent = () => {
 
                 {/* Announcement + Activity */}
                 <div className="flex-1 space-y-4">
-                  <div className="flex items-center space-x-3 p-4 bg-white border rounded shadow-sm">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-blue-500 text-white">
-                        {getInitials(groupDetail.userName) || groupDetail.image}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Input
-                      placeholder="Thông báo gì đó đến lớp của bạn..."
-                      className="flex-1"
-                    />
-                  </div>
                   {notificationGroups.length === 0 ? (
                     <></>
                   ) : (
@@ -181,34 +189,34 @@ const DetailGroupStudent = () => {
                       >
                         {/* Header */}
                         {/* <div className="p-4 flex space-x-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-blue-500 text-white">
-                              {getInitials(groupDetail.userName) ||
-                                groupDetail.image}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <p className="font-semibold">
-                              {groupDetail.userName}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {dayjs(notify.createdAt).format("DD [thg] M")}
-                            </p>
-                            <div className="mt-2 space-y-1">
-                              <p className="text-base font-semibold text-gray-800">
-                                {notify.title}
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-blue-500 text-white">
+                                {getInitials(groupDetail.userName) ||
+                                  groupDetail.image}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <p className="font-semibold">
+                                {groupDetail.userName}
                               </p>
-                              {notify.content && (
-                                <p className="text-sm text-gray-600 whitespace-pre-line">
-                                  {notify.content}
+                              <p className="text-sm text-gray-500">
+                                {dayjs(notify.createdAt).format("DD [thg] M")}
+                              </p>
+                              <div className="mt-2 space-y-1">
+                                <p className="text-base font-semibold text-gray-800">
+                                  {notify.title}
                                 </p>
-                              )}
+                                {notify.content && (
+                                  <p className="text-sm text-gray-600 whitespace-pre-line">
+                                    {notify.content}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          <div className="text-gray-400 cursor-pointer">
-                            <MoreVertical size={16} />
-                          </div>
-                        </div> */}
+                            <div className="text-gray-400 cursor-pointer">
+                              <MoreVertical size={16} />
+                            </div>
+                          </div> */}
                         <div className="p-4">
                           {/* Header row: Avatar + name + date */}
                           <div className="flex items-start space-x-3 mb-2">
@@ -227,9 +235,9 @@ const DetailGroupStudent = () => {
                                 {dayjs(notify.createdAt).format("DD [thg] M")}
                               </p>
                             </div>
-                            <div className="text-gray-400 cursor-pointer">
-                              <MoreVertical size={16} />
-                            </div>
+                            {/* <div className="text-gray-400 cursor-pointer">
+                                <MoreVertical size={16} />
+                              </div> */}
                           </div>
 
                           {/* Title + Content full width, sát trái */}

@@ -48,7 +48,7 @@ const Student = () => {
   const isMobile = !screens.md;
   // const [notificationCount, setNotificationCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
-  console.log(unreadCount);
+
   const [notificationList, setNotificationList] = useState([]);
 
   const [groupStudents, setGroupStudents] = useState([]);
@@ -89,77 +89,9 @@ const Student = () => {
     fetchUnreadCount();
   }, [userId]);
 
-  // useEffect(() => {
-  //   let groupSubscriptions = [];
-  //   if (connected && stompClient.current && userInfo && userInfo.departmentId) {
-  //     // Đăng ký nhận tin nhắn từ server
-  //     stompClient.current.subscribe("/notification", (message) => {
-  //       const parsedMessage = JSON.parse(message.body);
-  //       setNotificationList((prev) => [parsedMessage, ...prev]);
-  //       setNotificationCount((prev) => prev + 1);
-  //     });
-  //     //Gửi thông báo cho khoa
-  //     const departmentTopic = `/notification/department/${userInfo.departmentId}`;
-  //     stompClient.current.subscribe(departmentTopic, (message) => {
-  //       const parsedMessage = JSON.parse(message.body);
-  //       setNotificationList((prev) => [parsedMessage, ...prev]);
-  //       setNotificationCount((prev) => prev + 1);
-  //     });
-  //     //Gửi cho 1 sinh viên
-  //     const studentMail = `/user/${userInfo.id}/notification`;
-
-  //     stompClient.current.subscribe(studentMail, (message) => {
-  //       const parsedMessage = JSON.parse(message.body);
-  //       console.log(parsedMessage);
-
-  //       setNotificationList((prev) => [parsedMessage, ...prev]);
-  //       setNotificationCount((prev) => prev + 1);
-  //     });
-  //     // Sub group:
-  //     groupStudents.forEach((groupId) => {
-  //       const groupTopic = `/notification/group/${groupId}`;
-  //       const sub = stompClient.current.subscribe(groupTopic, (message) => {
-  //         const parsedMessage = JSON.parse(message.body);
-  //         setNotificationList((prev) => [parsedMessage, ...prev]);
-  //         setNotificationCount((prev) => prev + 1);
-  //       });
-  //       groupSubscriptions.push(sub);
-  //     });
-  //   }
-  //   return () => {
-  //     // Unsubscribe group topics
-  //     groupSubscriptions.forEach((sub) => {
-  //       if (sub && typeof sub.unsubscribe === "function") sub.unsubscribe();
-  //     });
-  //   };
-  // }, [
-  //   connected,
-  //   stompClient,
-  //   userInfo.departmentId,
-  //   JSON.stringify(groupStudents),
-  // ]);
   useEffect(() => {
     let subscriptions = [];
-    if (
-      connected &&
-      stompClient.current &&
-      userInfo?.departmentId &&
-      userInfo?.id
-    ) {
-      // Đăng ký các subscription
-      // const generalSub = stompClient.current.subscribe(
-      //   "/notification",
-      //   (message) => {
-      //     const parsedMessage = JSON.parse(message.body);
-      //     console.log(parsedMessage);
-
-      //     setNotificationList((prev) => {
-      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-      //       return [{ ...parsedMessage, isRead: false }, ...prev];
-      //     });
-      //     setUnreadCount((prev) => prev + 1);
-      //   }
-      // );
+    if (connected && stompClient.current) {
       const generalSub = stompClient.current.subscribe(
         "/user/queue/notification",
         (message) => {
@@ -174,49 +106,20 @@ const Student = () => {
         }
       );
 
-      // const departmentSub = stompClient.current.subscribe(
-      //   `/notification/department/${userInfo.departmentId}`,
-      //   (message) => {
-      //     const parsedMessage = JSON.parse(message.body);
-      //     setNotificationList((prev) => {
-      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-      //       return [{ ...parsedMessage, isRead: false }, ...prev];
-      //     });
-      //     setUnreadCount((prev) => prev + 1);
-      //   }
-      // );
-
-      const groupSubs = groupStudents.map((groupId) => {
-        const groupTopic = `/notification/group/${groupId}`;
-        const sub = stompClient.current.subscribe(groupTopic, (message) => {
+      const groupSub = stompClient.current.subscribe(
+        "/user/queue/group",
+        (message) => {
+          console.log(message.body);
           const parsedMessage = JSON.parse(message.body);
-          console.log(
-            `Received group notification for ${groupId}:`,
-            parsedMessage
-          );
+          console.log(parsedMessage);
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
             return [{ ...parsedMessage, isRead: false }, ...prev];
           });
-          setUnreadCount((prev) => prev + 1);
-        });
-        return sub;
-      });
-      // const scheduleSub = stompClient.current.subscribe(
-      //   "/user/queue/schedule",
-      //   (message) => {
-      //     console.log(message.body);
-      //     const parsedMessage = JSON.stringify(message.body);
-      //     console.log("Received schedule notification:", parsedMessage);
-      //     setNotificationList((prev) => {
-      //       console.log(prev);
 
-      //       if (prev.some((item) => item.id === parsedMessage.id)) return prev;
-      //       return [{ ...parsedMessage, isRead: false }, ...prev];
-      //     });
-      //     setNotificationCount((prev) => prev + 1);
-      //   }
-      // );
+          setUnreadCount((prev) => prev + 1);
+        }
+      );
 
       const scheduleSub = stompClient.current.subscribe(
         "/user/queue/schedule",
@@ -252,7 +155,7 @@ const Student = () => {
         }
       );
 
-      subscriptions = [generalSub, scheduleSub, personalSub, ...groupSubs];
+      subscriptions = [generalSub, scheduleSub, personalSub, groupSub];
     }
 
     return () => {
@@ -262,13 +165,7 @@ const Student = () => {
         }
       });
     };
-  }, [
-    connected,
-    stompClient,
-    userInfo.departmentId,
-    userInfo.id,
-    groupStudents,
-  ]);
+  }, [connected, stompClient]);
 
   const handleLogoutUser = () => {
     handleLogout(navigate);
@@ -485,16 +382,20 @@ const Student = () => {
                       </div>
                     ),
                   },
-                  {
-                    key: "settings",
-                    label: "Cài đặt",
-                    icon: <SettingOutlined />,
-                  },
+                  // {
+                  //   key: "settings",
+                  //   label: "Cài đặt",
+                  //   icon: <SettingOutlined />,
+                  // },
                   {
                     key: "logout",
                     label: "Đăng xuất",
                     icon: <LogOut size={16} />,
-                    style: { color: "red", fontWeight: "bold" },
+                    style: {
+                      color: "red",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    },
                   },
                 ]}
                 onClick={(e) => {

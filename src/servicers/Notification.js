@@ -8,7 +8,7 @@ export const createNotification = (formData) => {
   });
 };
 export const createUserNotification = (formData) => {
-  return api.post("/notification/create_user", formData, {
+  return api.post("/notification/create_notification_user", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

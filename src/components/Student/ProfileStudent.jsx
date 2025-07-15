@@ -34,6 +34,7 @@ import {
   Award,
   User,
   School,
+  Pencil,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
@@ -45,11 +46,13 @@ import {
   handleUpdateStudent,
   handleStudentDetail,
 } from "../../controller/StudentController";
+import { useLoading } from "../../context/LoadingProvider";
 const StudentProfilePage = () => {
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useLoading();
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState([]);
+  const [userId, setUserId] = useState("");
   const [userImage, setUserImage] = useState("");
   const [tempImage, setTempImage] = useState(null);
   const [file, setFile] = useState(null);
@@ -59,6 +62,7 @@ const StudentProfilePage = () => {
     const token = localStorage.getItem("access_token");
     const data = jwtDecode(token);
     const userId = data.userId;
+    setUserId(userId);
     const req = await handleGetDetailUser(userId);
 
     if (req?.data) {
@@ -84,9 +88,10 @@ const StudentProfilePage = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-
+    console.log(userId);
+    console.log(formData);
     try {
-      const res = await handleUploadImage(userImage.data.id, formData);
+      const res = await handleUploadImage(userId, formData);
       console.log(res);
 
       if (res?.data) {
@@ -104,33 +109,41 @@ const StudentProfilePage = () => {
     setTempImage(URL.createObjectURL(selectedFile));
   };
 
-  const handleCancel = () => {
-    setIsEditing(false); // Exit editing mode
-    setTempImage(null); // Clear selected image
-    setFile(null); // Clear file state
-  };
+  // const handleCancel = () => {
+  //   setIsEditing(false); // Exit editing mode
+  //   setTempImage(null); // Clear selected image
+  //   setFile(null); // Clear file state
+  // };
   const handleSave = async () => {
-    if (file) {
-      await handleImageUpload(); // Only upload image if there's a new one selected
-    }
+    try {
+      setLoading(true);
+      if (file) {
+        await handleImageUpload(); // Only upload image if there's a new one selected
+      }
 
-    // Save other updated information (like name, email, etc.)
-    const res = await handleUpdateStudent(profileData);
-    if (res?.data || res?.status === 204) {
-      toast.success("Thông tin cá nhân đã được cập nhật.");
-    } else {
-      toast.error(res.message || "Lỗi khi cập nhật thông tin.");
-    }
+      // Save other updated information (like name, email, etc.)
+      const res = await handleUpdateStudent(profileData);
+      console.log(res);
+      if (res?.data || res?.status === 204) {
+        toast.success("Thông tin cá nhân đã được cập nhật.");
+      } else {
+        toast.error(res.message || "Lỗi khi cập nhật thông tin.");
+      }
 
-    setIsEditing(false); // Disable editing after saving
+      setIsEditing(false); // Disable editing after saving
+    } catch (error) {
+      toast.error("Lỗi khi cập nhật thông tin.");
+    } finally {
+      setLoading(false);
+    }
   };
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <Spin size="large" tip="Đang tải dữ liệu..." />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen bg-white">
+  //       <Spin size="large" tip="Đang tải dữ liệu..." />
+  //     </div>
+  //   );
+  // }
   function filterStudents(status) {
     switch (status) {
       case "ĐANG_HỌC":
@@ -177,8 +190,8 @@ const StudentProfilePage = () => {
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
               className={
                 isEditing
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-green-600 hover:bg-green-700 cursor-pointer"
+                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
               }
             >
               {isEditing ? (
@@ -218,6 +231,7 @@ const StudentProfilePage = () => {
                         <Button
                           variant="outline"
                           size="sm"
+                          className="cursor-pointer"
                           onClick={() => inputRef.current.click()}
                         >
                           <Camera className="mr-2 h-4 w-4" />
@@ -230,7 +244,7 @@ const StudentProfilePage = () => {
                           style={{ display: "none" }}
                           onChange={handleFileSelect}
                         />
-                        {file && (
+                        {/* {file && (
                           <div className="flex">
                             <Button
                               className="mr-2"
@@ -249,7 +263,7 @@ const StudentProfilePage = () => {
                               Hủy
                             </Button>
                           </div>
-                        )}
+                        )} */}
                       </>
                     )}
                     <div className="text-center">
@@ -259,12 +273,17 @@ const StudentProfilePage = () => {
                       <p className="text-sm text-muted-foreground">
                         Khoa: {profileData.departmentName}
                       </p>
-                      <Badge
-                        variant="success"
-                        className={filterStudents(profileData.status).className}
-                      >
-                        {filterStudents(profileData.status).label}
-                      </Badge>
+                      {profileData?.status &&
+                      filterStudents(profileData.status) ? (
+                        <Badge
+                          variant="success"
+                          className={
+                            filterStudents(profileData.status).className
+                          }
+                        >
+                          {filterStudents(profileData.status).label}
+                        </Badge>
+                      ) : null}
                     </div>
                   </CardContent>
                 </Card>
@@ -425,115 +444,3 @@ const StudentProfilePage = () => {
 };
 
 export default StudentProfilePage;
-
-/* <TabsContent value="academic" className="space-y-4 ]">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <GraduationCap className="mr-2 h-5 w-5" />
-                    Thông tin học tập
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">Khoa</Label>
-                      <p className="text-sm">{profileData.department}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Ngành</Label>
-                      <p className="text-sm">{profileData.major}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        Năm nhập học
-                      </Label>
-                      <p className="text-sm">{profileData.enrollmentYear}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Trạng thái</Label>
-                      <Badge variant="success">{profileData.status}</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Award className="mr-2 h-5 w-5" />
-                    Kết quả học tập
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        GPA hiện tại
-                      </Label>
-                      <p className="text-2xl font-bold">{profileData.gpa}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Xếp loại</Label>
-                      <p className="text-sm">
-                        {profileData.gpa >= 3.6
-                          ? "Xuất sắc"
-                          : profileData.gpa >= 3.2
-                          ? "Giỏi"
-                          : "Khá"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Tiến độ học tập</span>
-                      <span>{profileData.credits}/150 tín chỉ</span>
-                    </div>
-                    <Progress value={progressPercentage} className="h-2" />
-                    <p className="text-xs text-muted-foreground">
-                      Hoàn thành {progressPercentage}% chương trình
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="overflow-x-auto max-h-[300px]">
-              <CardHeader>
-                <CardTitle>Lịch sử học tập</CardTitle>
-                <CardDescription>
-                  Kết quả học tập qua các học kỳ
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {academicHistory.map((semester, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{semester.semester}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {semester.credits} tín chỉ
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">GPA: {semester.gpa}</p>
-                        <Badge
-                          variant={
-                            semester.status === "Đạt" ? "success" : "outline"
-                          }
-                        >
-                          {semester.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent> */
