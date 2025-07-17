@@ -36,13 +36,10 @@ const HomePageStudent = () => {
     notifications: 0,
     unreadNotifications: 0,
   });
-
+  
   const [notifications, setNotifications] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState({
-    notifications: true,
-    groups: true,
-  });
+  const [isLoading, setIsLoading] = useState(true);
 
   const [studentId, setStudentId] = useState("");
   const [semesterId, setSemesterId] = useState("");
@@ -50,6 +47,7 @@ const HomePageStudent = () => {
   // Fetch studentId and semester first
   useEffect(() => {
     const init = async () => {
+      setIsLoading(true);
       try {
         const [userRes, semesterRes] = await Promise.all([
           handleGetDetailUser(userId),
@@ -68,6 +66,8 @@ const HomePageStudent = () => {
         }
       } catch (err) {
         console.error("Lỗi khi fetch thông tin sinh viên:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
     init();
@@ -92,6 +92,7 @@ const HomePageStudent = () => {
 
     const fetchAllData = async () => {
       try {
+        setIsLoading(true);
         const [notificationsData, unreadRes, groupsData] = await Promise.all([
           fetchPaginatedData(handleListNotification, "notifications"),
           handleUnreadCountNotificationUser(userId),
@@ -113,12 +114,19 @@ const HomePageStudent = () => {
       } catch (err) {
         console.error("Lỗi khi fetch dữ liệu:", err);
       } finally {
-        setLoading({ notifications: false, groups: false });
+        setIsLoading(false);
       }
     };
 
     fetchAllData();
   }, [userId]);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-white to-gray-50">
@@ -176,9 +184,7 @@ const HomePageStudent = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {loading.notifications ? (
-                  <Spinner />
-                ) : notifications.length === 0 ? (
+                {notifications.length === 0 ? (
                   <EmptyState message="Không có thông báo" />
                 ) : (
                   notifications
@@ -206,9 +212,7 @@ const HomePageStudent = () => {
             </CardHeader>
             <CardContent className="flex flex-col h-full">
               <div className="flex-1 space-y-4">
-                {loading.groups ? (
-                  <Spinner />
-                ) : groups.length === 0 ? (
+                {groups.length === 0 ? (
                   <EmptyState message="Không có nhóm học tập" />
                 ) : (
                   groups
@@ -231,7 +235,6 @@ const HomePageStudent = () => {
 
 export default HomePageStudent;
 
-// Components
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <Card className="hover:shadow-lg transition-shadow">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -243,12 +246,6 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
       <p className="text-sm text-gray-500">{title}</p>
     </CardContent>
   </Card>
-);
-
-const Spinner = () => (
-  <div className="flex items-center justify-center py-4">
-    <Spin size="large" />
-  </div>
 );
 
 const EmptyState = ({ message }) => (

@@ -54,7 +54,9 @@ import { toast } from "react-toastify";
 import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportSubjectModal from "./ImportSubjectModal";
+import { Spin } from "antd";
 const EmployeeSubject = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -77,28 +79,35 @@ const EmployeeSubject = () => {
     setOpenModal(true);
   };
   const fetchListSubject = async (page = 1) => {
-    let res;
-    const keyword = debouncedSearchTerm.trim();
-    console.log(keyword);
+    try {
+      setLoading(true);
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      console.log(keyword);
 
-    if (keyword.trim() === "") {
-      res = await handleListSubject(page - 1, pagination.pageSize);
-    } else {
-      res = await handleSearchSubject(keyword, page - 1, pagination.pageSize);
-      console.log(res);
-    }
+      if (keyword.trim() === "") {
+        res = await handleListSubject(page - 1, pagination.pageSize);
+      } else {
+        res = await handleSearchSubject(keyword, page - 1, pagination.pageSize);
+        console.log(res);
+      }
 
-    if (res?.data) {
-      setSubjects(res.data.subjects);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-        totalElements: res.data.totalElements,
-      });
-    } else {
-      toast.error(res.data.message || "Lỗi");
+      if (res?.data) {
+        setSubjects(res.data.subjects);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+        });
+      } else {
+        toast.error(res.data.message || "Lỗi");
+      }
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -193,7 +202,13 @@ const EmployeeSubject = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {subjects.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={4}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : subjects.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={4}

@@ -46,7 +46,9 @@ import {
 import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportTeacherModal from "./ImportTeacherModal";
+import { Spin } from "antd";
 const LecturerEmployee = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -84,6 +86,7 @@ const LecturerEmployee = () => {
   };
   const fetchListTeacher = async (page = 1) => {
     try {
+      setLoading(true);
       let result;
       let keyword = [
         debouncedSearchTerm,
@@ -119,6 +122,8 @@ const LecturerEmployee = () => {
       }
     } catch (error) {
       console.error("Error fetching teachers:", error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -248,7 +253,13 @@ const LecturerEmployee = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {teachers.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={7}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : teachers.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={7}

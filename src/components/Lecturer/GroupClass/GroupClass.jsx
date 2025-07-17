@@ -44,7 +44,7 @@ import { Badge } from "@/components/ui/badge";
 import { handleListGroupByUserId } from "../../../controller/GroupController";
 import LecturerAddGroup from "./CreateGroup";
 import LecturerDeleteGroup from "./DeleteGroup";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import { jwtDecode } from "jwt-decode";
 import {
   gradientBackgroundFromString,
@@ -57,7 +57,7 @@ const GroupClassTeacher = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectGroup, setSelectGroup] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -70,35 +70,49 @@ const GroupClassTeacher = () => {
   const userId = data.userId;
 
   const fetchListGroup = async (page = 1) => {
-    const listGroup = await handleListGroupByUserId(
-      userId,
-      page - 1,
-      pagination.pageSize
-    );
+    try {
+      const listGroup = await handleListGroupByUserId(
+        userId,
+        page - 1,
+        pagination.pageSize
+      );
 
-    if (listGroup?.data?.studyGroups || listGroup?.status === 200) {
-      setGroups(listGroup.data.studyGroups);
-      setPagination({
-        current: page,
-        pageSize: listGroup.data.pageSize,
-        total: listGroup.data.totalElements,
-        totalPages: listGroup.data.totalPages,
-        totalElements: listGroup.data.totalElements,
-      });
-    } else {
-      setGroups([]);
-      setPagination({
-        current: 1,
-        pageSize: 10,
-        total: 0,
-        totalPages: 0,
-      });
+      if (listGroup?.data?.studyGroups || listGroup?.status === 200) {
+        setGroups(listGroup.data.studyGroups);
+        setPagination({
+          current: page,
+          pageSize: listGroup.data.pageSize,
+          total: listGroup.data.totalElements,
+          totalPages: listGroup.data.totalPages,
+          totalElements: listGroup.data.totalElements,
+        });
+      } else {
+        setGroups([]);
+        setPagination({
+          current: 1,
+          pageSize: 10,
+          total: 0,
+          totalPages: 0,
+        });
+      }
+    } catch (e) {
+      console.error("Lỗi khi fetch nhóm học tập:", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchListGroup();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -115,7 +129,7 @@ const GroupClassTeacher = () => {
               <h1 className="text-2xl font-bold">Nhóm học tập</h1>
               <Dialog>
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
                   onClick={() => setOpenModal(true)}
                 >
                   <Plus className=" h-4 w-4" />
@@ -253,57 +267,3 @@ const GroupClassTeacher = () => {
 };
 
 export default GroupClassTeacher;
-// <Card
-//   key={group.id}
-//   className="relative rounded-xl shadow hover:shadow-lg overflow-hidden transition-all bg-white p-0 pb-5 h-[240px]"
-// >
-//   {/* BG 1/3 + tên nhóm */}
-//   <div
-//     className="relative w-full h-24 flex items-start justify-between p-3 text-white"
-//     style={{
-//       backgroundColor: hashColorFromString(group.id),
-//     }}
-//   >
-//     <h2 className="text-lg font-semibold">{group.name}</h2>
-
-// <DropdownMenu asChild>
-//   <DropdownMenuTrigger>
-//     <Button
-//       variant="ghost"
-//       className="h-8 w-8 p-0 cursor-pointer"
-//     >
-//       <Ellipsis className="h-4 w-4" />
-//     </Button>
-//   </DropdownMenuTrigger>
-//   <DropdownMenuContent>
-//     <DropdownMenuItem asChild className="cursor-pointer">
-//       <Link to="">
-//         <FileText className="h-4 w-4" />
-//         Xem chi tiết
-//       </Link>
-//     </DropdownMenuItem>
-//     <DropdownMenuItem
-//       className="text-red-600 cursor-pointer "
-//       onClick={() => {
-//         setSelectGroup(group);
-//         setOpenModalDelete(true);
-//       }}
-//     >
-//       <Trash2 className="mr-2 h-4 w-4" /> Xóa
-//     </DropdownMenuItem>
-//   </DropdownMenuContent>
-// </DropdownMenu>
-//   </div>
-
-//   {/* Nội dung dưới 2/3 */}
-//   <CardContent className="text-sm text-muted-foreground space-y-2 px-4 mt-auto pb-4">
-//     <div>
-//       <span className="font-medium text-gray-700">
-//         Mã nhóm:
-//       </span>
-//       <code className="bg-gray-100 px-4 py-1 rounded ml-2 inline-block min-w-[120px] text-center">
-//         {group.code}
-//       </code>
-//     </div>
-//   </CardContent>
-// </Card>

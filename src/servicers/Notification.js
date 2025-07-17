@@ -30,18 +30,13 @@ export const deleteNotification = (id) => {
 export const detailNotification = (id) => {
   return api.get(`/notification/detail_notification/${id}`);
 };
-export const searchNotification = async (
-  keyword,
-  page = 0,
-  pageSize = 10,
-  type
-) => {
+export const searchNotification = async (keyword, type, page, pageSize) => {
   const req = await api.get("/notification/list_notifications", {
     params: {
       keyword: keyword,
+      notificationType: type,
       page: page,
       pageSize: pageSize,
-      notificationType: type,
     },
   });
   return req;

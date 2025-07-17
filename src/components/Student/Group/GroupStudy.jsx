@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import { jwtDecode } from "jwt-decode";
 import {
   Plus,
@@ -46,14 +46,13 @@ import {
   hashColorFromString,
 } from "../../../config/color";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useLoading } from "../../../context/LoadingProvider";
+
 import { encryptId } from "../../../util/SercurityUrl";
 const GroupStudyStudent = () => {
   const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
-
   const [openModal, setOpenModal] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -65,33 +64,36 @@ const GroupStudyStudent = () => {
   const data = jwtDecode(token);
   const userId = data.userId;
 
-  const { setLoading } = useLoading();
   const fetchListGroup = async (page = 1) => {
-    setLoading(true);
-    const listGroup = await handleListGroupByStudent(
-      userId,
-      page - 1,
-      pagination.pageSize
-    );
+    try {
+      setLoading(true);
+      const listGroup = await handleListGroupByStudent(
+        userId,
+        page - 1,
+        pagination.pageSize
+      );
 
-    setLoading(false);
+      if (listGroup?.data || listGroup?.status === 200) {
+        setGroups(listGroup.data);
 
-    if (listGroup?.data || listGroup?.status === 200) {
-      setGroups(listGroup.data);
-
-      setPagination({
-        current: page,
-        pageSize: listGroup.data.pageSize,
-        total: listGroup.data.totalElements,
-        totalPages: listGroup.data.totalPages,
-        totalElements: listGroup.data.totalElements,
-      });
+        setPagination({
+          current: page,
+          pageSize: listGroup.data.pageSize,
+          total: listGroup.data.totalElements,
+          totalPages: listGroup.data.totalPages,
+          totalElements: listGroup.data.totalElements,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchListGroup();
-  }, []);
+    fetchListGroup(pagination.current);
+  }, [pagination.current]);
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(" ");
@@ -99,6 +101,13 @@ const GroupStudyStudent = () => {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

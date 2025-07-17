@@ -45,7 +45,9 @@ import {
 import { Pagination } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportStudentModal from "./ImportStudentModal";
+import { Spin } from "antd";
 const StudentEmployee = () => {
+  const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -66,36 +68,43 @@ const StudentEmployee = () => {
     totalElements: 0,
   });
   const fetchStudents = async (page = 1) => {
-    let response;
-    let keyword = [
-      debouncedSearchTerm,
-      selectStatus !== "all" ? selectStatus : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-    if (keyword.trim() === "") {
-      response = await handleListStudent(page - 1, pagination.pageSize);
-    } else {
-      const searchTerm = debouncedSearchTerm.trim();
-      const status = selectStatus !== "all" ? selectStatus : "";
-      response = await handleSearchStudent(
-        status,
-        searchTerm,
-        page - 1,
-        pagination.pageSize
-      );
-    }
+    try {
+      setLoading(true);
+      let response;
+      let keyword = [
+        debouncedSearchTerm,
+        selectStatus !== "all" ? selectStatus : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      if (keyword.trim() === "") {
+        response = await handleListStudent(page - 1, pagination.pageSize);
+      } else {
+        const searchTerm = debouncedSearchTerm.trim();
+        const status = selectStatus !== "all" ? selectStatus : "";
+        response = await handleSearchStudent(
+          status,
+          searchTerm,
+          page - 1,
+          pagination.pageSize
+        );
+      }
 
-    if (response?.data) {
-      setStudents(response.data.students);
-      setPagination({
-        current: page,
-        pageSize: response.data.pageSize,
-        total: response.data.totalElements,
-        totalPages: response.data.totalPages,
-      });
-    } else {
-      setStudents([]);
+      if (response?.data) {
+        setStudents(response.data.students);
+        setPagination({
+          current: page,
+          pageSize: response.data.pageSize,
+          total: response.data.totalElements,
+          totalPages: response.data.totalPages,
+        });
+      } else {
+        setStudents([]);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -144,6 +153,7 @@ const StudentEmployee = () => {
     setSelectedStudent(student);
     setShowModal(true);
   };
+
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -245,7 +255,13 @@ const StudentEmployee = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-6">
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : students.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center">
                         Không có dữ liệu sinh viên phù hợp

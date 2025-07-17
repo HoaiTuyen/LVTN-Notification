@@ -110,12 +110,12 @@ export const handleDeleteNotification = async (id) => {
 };
 export const handleSearchNotification = async (
   keyword,
+  type,
   page,
-  pageSize = 10,
-  type
+  pageSize
 ) => {
   try {
-    const response = await searchNotification(keyword, page, pageSize, type);
+    const response = await searchNotification(keyword, type, page, pageSize);
 
     return {
       status: response.status,

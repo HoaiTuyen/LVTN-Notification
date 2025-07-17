@@ -53,9 +53,10 @@ import {
 import useDebounce from "../../../hooks/useDebounce";
 import DeleteClass from "./DeleteClass";
 import ImportClassModal from "./ImportClassModal";
-
+import { Spin } from "antd";
 const EmployeeClassName = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -79,21 +80,28 @@ const EmployeeClassName = () => {
     totalPages: 0,
   });
   const fetchListClass = async (page = 1) => {
-    let res;
-    const keyword = debouncedSearchTerm.trim();
-    if (keyword) {
-      res = await handleSearchClass(keyword, page - 1, pagination.pageSize);
-    } else {
-      res = await handleListClass(page - 1, pagination.pageSize);
-    }
-    if (res?.data && res?.status === 200) {
-      setClasses(res.data.classes);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-      });
+    try {
+      setLoading(true);
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      if (keyword) {
+        res = await handleSearchClass(keyword, page - 1, pagination.pageSize);
+      } else {
+        res = await handleListClass(page - 1, pagination.pageSize);
+      }
+      if (res?.data && res?.status === 200) {
+        setClasses(res.data.classes);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -191,7 +199,13 @@ const EmployeeClassName = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {classRoom.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={6}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : classRoom.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}

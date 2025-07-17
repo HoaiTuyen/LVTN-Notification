@@ -55,8 +55,10 @@ import AddAccountLecturer from "./AddAccountLecturer";
 import DetailAccount from "./DetailAccount";
 import { toast } from "react-toastify";
 import ImportLecturerModal from "./ImportLecturer";
+import { Spin } from "antd";
 
 const EmployeeLecturerAccount = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -89,6 +91,7 @@ const EmployeeLecturerAccount = () => {
 
   const fetchListUser = async (page = 1) => {
     try {
+      setLoading(true);
       let response;
       const searchTerm = debouncedSearchTerm.trim();
 
@@ -127,6 +130,8 @@ const EmployeeLecturerAccount = () => {
       }
     } catch (error) {
       toast.error("Không thể tải danh sách người dùng");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -244,7 +249,13 @@ const EmployeeLecturerAccount = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={5}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : users.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}

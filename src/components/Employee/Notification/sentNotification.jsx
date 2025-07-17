@@ -39,13 +39,14 @@ import {
   handleSearchNotification,
 } from "../../../controller/NotificationController";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import dayjs from "dayjs";
 import DeleteNotification from "./deleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
 import UpdateNotification from "./updateNotification";
 const EmployeeSentNotifications = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const searchFromUrl = searchParams.get("search") || "";
@@ -60,6 +61,7 @@ const EmployeeSentNotifications = () => {
   const [selectNotify, setSelectNotify] = useState([]);
   const [totalSent, setTotalSent] = useState(0);
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  console.log(pageFromUrl);
   const [forceReload, setForceReload] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -68,95 +70,61 @@ const EmployeeSentNotifications = () => {
     totalPages: 0,
     totalElements: 0,
   });
-  // const fetchListNotification = async (page = 1) => {
-  //   const keyword = debouncedSearchTerm.trim();
-  //   const isKeywordEmpty = keyword === "";
-  //   const isTypeAll = selectType === "all";
 
-  //   let response;
-
-  //   if (isKeywordEmpty && isTypeAll) {
-  //     response = await handleListNotification(
-  //       "desc",
-  //       page - 1,
-  //       pagination.pageSize
-  //     );
-  //     console.log(response);
-
-  //     if (page === 1 && response?.data?.totalElements) {
-  //       setTotalSent(response.data.totalElements);
-  //     }
-  //   } else {
-  //     const keywordParam = keyword;
-  //     const typeParam = isTypeAll ? "" : selectType;
-
-  //     response = await handleSearchNotification(
-  //       keywordParam,
-  //       typeParam,
-  //       page - 1,
-  //       pagination.pageSize
-  //     );
-  //   }
-
-  //   if (response?.data) {
-  //     setDataNotify(response.data.notifications);
-  //     setPagination({
-  //       current: page,
-  //       pageSize: response.data.pageSize,
-  //       total: response.data.totalElements,
-  //       totalPages: response.data.totalPages,
-  //       totalElements: response.data.totalElements,
-  //     });
-  //   }
-  // };
-  // employeeSentNotifications.jsx
   const fetchListNotification = async (page = 1) => {
-    const keyword = debouncedSearchTerm.trim();
-    const isKeywordEmpty = keyword === "";
-    const isTypeAll = selectType === "all";
+    try {
+      setLoading(true);
+      const keyword = debouncedSearchTerm.trim();
+      const isKeywordEmpty = keyword === "";
+      const isTypeAll = selectType === "all";
 
-    let response;
+      let response;
 
-    if (isKeywordEmpty && isTypeAll) {
-      response = await handleListNotification(
-        "desc",
-        page - 1,
-        pagination.pageSize
-      );
-      console.log(response);
-    } else {
-      const keywordParam = keyword;
-      const typeParam = isTypeAll ? "" : selectType;
+      if (isKeywordEmpty && isTypeAll) {
+        response = await handleListNotification(
+          "desc",
+          page - 1,
+          pagination.pageSize
+        );
+      } else {
+        const keywordParam = keyword;
+        const typeParam = isTypeAll ? "" : selectType;
 
-      response = await handleSearchNotification(
-        keywordParam,
-        typeParam,
-        page - 1,
-        pagination.pageSize
-      );
-    }
+        response = await handleSearchNotification(
+          keywordParam,
+          typeParam,
+          page - 1,
+          pagination.pageSize
+        );
+        console.log(response);
+      }
 
-    if (response?.data) {
-      setDataNotify(response.data.notifications);
-      setPagination({
-        current: page,
-        pageSize: response.data.pageSize,
-        total: response.data.totalElements,
-        totalPages: response.data.totalPages,
-        totalElements: response.data.totalElements,
-      });
+      if (response?.data) {
+        setDataNotify(response.data.notifications);
+        setPagination({
+          current: page,
+          pageSize: response.data.pageSize,
+          total: response.data.totalElements,
+          totalPages: response.data.totalPages,
+          totalElements: response.data.totalElements,
+        });
 
-      setTotalSent(response.data.totalElements);
-    } else {
-      setDataNotify([]);
-      setPagination({
-        current: 1,
-        pageSize: 10,
-        total: 0,
-        totalPages: 0,
-        totalElements: 0,
-      });
-      setTotalSent(0);
+        setTotalSent(response.data.totalElements);
+      } else {
+        setDataNotify([]);
+        setPagination({
+          current: 1,
+          pageSize: 10,
+          total: 0,
+          totalPages: 0,
+          totalElements: 0,
+        });
+        setTotalSent(0);
+      }
+    } catch (e) {
+      toast.error("Đã xảy ra lỗi khi tải thông báo");
+    } finally {
+      setLoading(false);
     }
   };
   const fetchNotifyType = async () => {
@@ -169,7 +137,7 @@ const EmployeeSentNotifications = () => {
     setSearchParams({
       search: debouncedSearchTerm,
       type: selectType,
-      page: pageFromUrl.toString(), // Sử dụng pageFromUrl đảm bảo đồng bộ với useEffect dưới
+      page: pageFromUrl,
     });
   }, [debouncedSearchTerm, selectType, pageFromUrl]);
 
@@ -278,70 +246,80 @@ const EmployeeSentNotifications = () => {
             </CardHeader>
             <CardContent className="overflow-x-auto max-h-[400px]">
               <div className="space-y-4 cursor-pointer">
-                {dataNotify.map((notification) => {
-                  return (
-                    <div
-                      key={notification.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                      onClick={(e) => handleWapper(notification.id, e)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold line-clamp-2 whitespace-pre-line">
-                              {notification.title}
-                            </h3>
-                            {notification.notificationType && (
-                              <Badge className="bg-slate-200	text-slate-800">
-                                {notification.notificationType || ""}
-                              </Badge>
-                            )}
-                            {notification.departmentName && (
-                              <Badge className="bg-blue-100 text-blue-700">
-                                {notification.departmentName || ""}
-                              </Badge>
-                            )}
-                          </div>
+                {loading ? (
+                  <div className="flex justify-center items-center h-[300px]">
+                    <Spin size="large" />
+                  </div>
+                ) : dataNotify.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Không có thông báo nào
+                  </div>
+                ) : (
+                  dataNotify.map((notification) => {
+                    return (
+                      <div
+                        key={notification.id}
+                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                        onClick={(e) => handleWapper(notification.id, e)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold line-clamp-2 whitespace-pre-line">
+                                {notification.title}
+                              </h3>
+                              {notification.notificationType && (
+                                <Badge className="bg-slate-200	text-slate-800">
+                                  {notification.notificationType || ""}
+                                </Badge>
+                              )}
+                              {notification.departmentName && (
+                                <Badge className="bg-blue-100 text-blue-700">
+                                  {notification.departmentName || ""}
+                                </Badge>
+                              )}
+                            </div>
 
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>
-                                {dayjs(notification.createdAt).format(
-                                  "DD/MM/YYYY HH:mm"
-                                )}
-                              </span>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>
+                                  {dayjs(notification.createdAt).format(
+                                    "DD/MM/YYYY HH:mm"
+                                  )}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-2 ml-4">
-                          <Button
-                            className="cursor-pointer"
+                          <div className="flex items-center gap-2 ml-4">
+                            <Button
+                              className="cursor-pointer"
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewDetail(notification.id, e);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectNotify(notification);
+                                setOpenModalUpdate(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            {/* <Button
                             size="sm"
                             variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewDetail(notification.id, e);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectNotify(notification);
-                              setOpenModalUpdate(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectNotify(notification);
@@ -349,12 +327,13 @@ const EmployeeSentNotifications = () => {
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
-                          </Button>
+                          </Button> */}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
 
                 {dataNotify.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">

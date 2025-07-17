@@ -36,6 +36,7 @@ import {
 
 import DeleteNotificationGroup from "./NotificationGroup/DeleteNotificationGroup";
 import UpdateNotificationGroup from "./NotificationGroup/UpdateNotificationGroup";
+import { Spin } from "antd";
 const DetailGroupLecturer = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -49,28 +50,43 @@ const DetailGroupLecturer = () => {
   const [selectNotificationGroup, setSelectNotificationGroup] = useState(null);
   const [notificationGroups, setNotificationGroups] = useState([]);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [detailNotify, setDetailNotify] = useState([]);
 
   const backUrl = location.state?.from || "/giang-vien/group-class";
   const fetchDetailGroup = async () => {
-    const detailGroup = await handleDetailGroup(groupId);
+    try {
+      const detailGroup = await handleDetailGroup(groupId);
 
-    if (detailGroup?.data && detailGroup.status === 200) {
-      setGroupDetail(detailGroup.data);
-      setMembers(detailGroup.data.members);
+      if (detailGroup?.data && detailGroup.status === 200) {
+        setGroupDetail(detailGroup.data);
+        setMembers(detailGroup.data.members);
+      }
+    } catch (e) {
+      console.error("Lỗi khi fetch chi tiết nhóm học tập:", e);
+    } finally {
+      setLoading(false);
     }
   };
   const fetchListNotificationGroup = async () => {
-    const listNotificationGroup = await handleListNotificationGroup(groupId);
-    if (listNotificationGroup?.data || listNotificationGroup?.status === 200) {
-      const sorted = [...listNotificationGroup.data].sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      });
-      setNotificationGroups(sorted);
-    } else {
-      setNotificationGroups([]);
+    try {
+      const listNotificationGroup = await handleListNotificationGroup(groupId);
+      if (
+        listNotificationGroup?.data ||
+        listNotificationGroup?.status === 200
+      ) {
+        const sorted = [...listNotificationGroup.data].sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        setNotificationGroups(sorted);
+      } else {
+        setNotificationGroups([]);
+      }
+    } catch (e) {
+      console.error("Lỗi khi fetch thông báo nhóm học tập:", e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,6 +122,14 @@ const DetailGroupLecturer = () => {
     fetchDetailGroup();
     fetchListNotificationGroup();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <motion.div

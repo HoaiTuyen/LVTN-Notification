@@ -53,8 +53,10 @@ import AddAccountStudent from "./AddAcountStudent";
 import DetailAccount from "./DetailAccount";
 import { toast } from "react-toastify";
 import ImportStudentModal from "./ImportStudent";
+import { Spin } from "antd";
 
 const EmployeeStudentAccount = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -87,6 +89,7 @@ const EmployeeStudentAccount = () => {
 
   const fetchListUser = async (page = 1) => {
     try {
+      setLoading(true);
       let response;
       const searchTerm = debouncedSearchTerm.trim();
 
@@ -126,6 +129,8 @@ const EmployeeStudentAccount = () => {
     } catch (error) {
       console.error("Error fetching user list:", error);
       toast.error("Không thể tải danh sách người dùng");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -244,7 +249,13 @@ const EmployeeStudentAccount = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={5}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : users.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}

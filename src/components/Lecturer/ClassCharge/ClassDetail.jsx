@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 
 import {
   Card,
@@ -31,6 +31,7 @@ const ClassDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   // const searchFromUrl = searchParams.get("search") || "";
+  const [loading, setLoading] = useState(true);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectStudent, setSelectStudent] = useState(null);
   const navigate = useNavigate();
@@ -44,30 +45,37 @@ const ClassDetail = () => {
     totalElements: 0,
   });
   const fetchStudent = async (page = 1) => {
-    const req = await handleListStudentByClass(
-      classId,
-      page - 1,
-      pagination.pageSize
-    );
+    try {
+      setLoading(true);
+      const req = await handleListStudentByClass(
+        classId,
+        page - 1,
+        pagination.pageSize
+      );
 
-    if (req?.data && req?.status === 200) {
-      setStudents(req.data.students);
-      setPagination({
-        current: page,
-        pageSize: req.data.pageSize,
-        total: req.data.totalElements,
-        totalPages: req.data.totalPages,
-        totalElements: req.data.totalElements,
-      });
-    } else {
-      setStudents([]);
-      setPagination({
-        current: 1,
-        pageSize: 10,
-        total: 0,
-        totalPages: 0,
-        totalElements: 0,
-      });
+      if (req?.data && req?.status === 200) {
+        setStudents(req.data.students);
+        setPagination({
+          current: page,
+          pageSize: req.data.pageSize,
+          total: req.data.totalElements,
+          totalPages: req.data.totalPages,
+          totalElements: req.data.totalElements,
+        });
+      } else {
+        setStudents([]);
+        setPagination({
+          current: 1,
+          pageSize: 10,
+          total: 0,
+          totalPages: 0,
+          totalElements: 0,
+        });
+      }
+    } catch (err) {
+      console.error("Lỗi khi fetch sinh viên:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,6 +83,13 @@ const ClassDetail = () => {
     fetchStudent(pageFromUrl);
   }, [pageFromUrl]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="w-full bg-white overflow-y-auto max-h-[700px] p-10">
       <div className="space-y-4">

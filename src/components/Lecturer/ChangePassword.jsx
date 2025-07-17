@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import { handleChangePassword } from "../../controller/AccountController";
 import { jwtDecode } from "jwt-decode";
 import { useLoading } from "../../context/LoadingProvider";
-export default function ChangePasswordPage() {
+const ChangePasswordLecturer = () => {
   const { setLoading } = useLoading();
   const token = localStorage.getItem("access_token");
   const userId = jwtDecode(token).userId;
@@ -289,4 +289,5 @@ export default function ChangePasswordPage() {
       </div>
     </div>
   );
-}
+};
+export default ChangePasswordLecturer;

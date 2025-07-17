@@ -29,6 +29,7 @@ import {
 } from "../../../controller/TeacherController";
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { handleListSemester } from "../../../controller/SemesterController";
+import { Spin } from "antd";
 
 const HomeLecturerPage = () => {
   const navigate = useNavigate();
@@ -43,9 +44,10 @@ const HomeLecturerPage = () => {
   });
   const [classSectionList, setClassSectionList] = useState([]);
   const [classes, setClasses] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const fetchInitialData = async () => {
     try {
+      setLoading(true);
       const userRes = await handleGetDetailUser(userId);
       const teacherId = userRes?.data?.teacherId;
       if (!teacherId) return;
@@ -83,6 +85,8 @@ const HomeLecturerPage = () => {
       setClasses(classRes.data);
     } catch (err) {
       console.error("Lỗi khi fetch dữ liệu giảng viên:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -153,8 +157,13 @@ const HomeLecturerPage = () => {
       })),
     };
   });
-  console.log(filteredCourses.length);
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="space-y-6 p-10">

@@ -23,6 +23,7 @@ import { toast } from "react-toastify";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { handleListDepartment } from "../../../controller/DepartmentController";
 import { handleUpdateNotification } from "../../../controller/NotificationController";
+import { useLoading } from "../../../context/LoadingProvider";
 const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
   const [formData, setFormData] = useState({
     id: notify?.id || "",
@@ -37,6 +38,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [notificationTypes, setNotificationTypes] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const { setLoading } = useLoading();
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -55,7 +57,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
     if (!validate()) return;
 
     try {
-      setIsLoading(true);
+      setLoading(true);
 
       const form = new FormData();
       form.append("id", formData.id);
@@ -110,7 +112,7 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
       console.error("Update error:", error);
       toast.error(error?.message || "Có lỗi xảy ra.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -332,10 +334,18 @@ const UpdateNotification = ({ open, onClose, onSuccess, notify }) => {
         </div>
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="cursor-pointer"
+          >
             Hủy
           </Button>
-          <Button onClick={handleSubmit} disabled={isLoading}>
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="cursor-pointer"
+          >
             {isLoading ? "Đang cập nhật..." : "Cập nhật thông báo"}
           </Button>
         </DialogFooter>

@@ -62,6 +62,7 @@ import HomePageEmployee from "../components/Employee/Home/HomePageEmployee";
 import DepartmentEmployee from "../components/Employee/Department/Department";
 import StudentEmployee from "../components/Employee/Student/Student";
 import LecturerEmployee from "../components/Employee/Lecturer/Lecturer";
+import ChangePasswordLecturer from "../components/Lecturer/ChangePassword";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -145,6 +146,10 @@ function AppRoutes() {
             <Route
               path="sentNotification/:notificationId"
               element={<LecturerNotificationDetail />}
+            />
+            <Route
+              path="change-password"
+              element={<ChangePasswordLecturer />}
             />
           </Route>
 

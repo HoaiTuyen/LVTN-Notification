@@ -48,8 +48,7 @@ import {
 } from "../../controller/StudentController";
 import { useLoading } from "../../context/LoadingProvider";
 const StudentProfilePage = () => {
-  const { setLoading } = useLoading();
-
+  const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userId, setUserId] = useState("");
@@ -59,24 +58,29 @@ const StudentProfilePage = () => {
   const inputRef = useRef(null);
 
   const fetchUserDetail = async () => {
-    const token = localStorage.getItem("access_token");
-    const data = jwtDecode(token);
-    const userId = data.userId;
-    setUserId(userId);
-    const req = await handleGetDetailUser(userId);
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("access_token");
+      const data = jwtDecode(token);
+      const userId = data.userId;
+      setUserId(userId);
+      const req = await handleGetDetailUser(userId);
 
-    if (req?.data) {
-      setUserImage(req.data.image);
-      const studentDetail = await handleStudentDetail(req.data.studentId);
-      console.log(studentDetail);
-      setProfileData(studentDetail.data);
+      if (req?.data) {
+        setUserImage(req.data.image);
+        const studentDetail = await handleStudentDetail(req.data.studentId);
+        setProfileData(studentDetail.data);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       await fetchUserDetail();
-      setLoading(false);
     };
     fetchData();
   }, []);
@@ -88,11 +92,8 @@ const StudentProfilePage = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    console.log(userId);
-    console.log(formData);
     try {
       const res = await handleUploadImage(userId, formData);
-      console.log(res);
 
       if (res?.data) {
         setUserImage(res.data.image); // Update image preview
@@ -109,41 +110,33 @@ const StudentProfilePage = () => {
     setTempImage(URL.createObjectURL(selectedFile));
   };
 
-  // const handleCancel = () => {
-  //   setIsEditing(false); // Exit editing mode
-  //   setTempImage(null); // Clear selected image
-  //   setFile(null); // Clear file state
-  // };
   const handleSave = async () => {
     try {
       setLoading(true);
       if (file) {
-        await handleImageUpload(); // Only upload image if there's a new one selected
+        await handleImageUpload();
       }
-
-      // Save other updated information (like name, email, etc.)
       const res = await handleUpdateStudent(profileData);
-      console.log(res);
       if (res?.data || res?.status === 204) {
         toast.success("Thông tin cá nhân đã được cập nhật.");
       } else {
         toast.error(res.message || "Lỗi khi cập nhật thông tin.");
       }
 
-      setIsEditing(false); // Disable editing after saving
+      setIsEditing(false);
     } catch (error) {
       toast.error("Lỗi khi cập nhật thông tin.");
     } finally {
       setLoading(false);
     }
   };
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen bg-white">
-  //       <Spin size="large" tip="Đang tải dữ liệu..." />
-  //     </div>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <Spin size="large" tip="Đang tải dữ liệu..." />
+      </div>
+    );
+  }
   function filterStudents(status) {
     switch (status) {
       case "ĐANG_HỌC":

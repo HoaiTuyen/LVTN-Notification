@@ -51,6 +51,7 @@ import {
 import { handleListNotification } from "../../../controller/NotificationController";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import { Spin } from "antd";
 
 const COLORS = [
   "#0088FE",
@@ -65,15 +66,16 @@ const HomePageEmployee = () => {
   const [totalNotification, setTotalNotification] = useState(0);
   const [countStudent, setCountStudent] = useState(0);
   const [countLecturer, setCountLecturer] = useState(0);
-
+  const [loading, setLoading] = useState(true);
   const [notificationData, setNotificationData] = useState([]);
   const [countAccount, setCountAccount] = useState(0);
   const [departmentData, setDepartmentData] = useState([]);
-  console.log(departmentData);
+
   const [notificationTypeStats, setNotificationTypeStats] = useState([]);
 
   const fetchStaticShare = async () => {
     try {
+      setLoading(true);
       const response = await handleStatisticalShare();
       if (response?.data && response?.status === 200) {
         setCountStudent(response?.data?.totalStudent);
@@ -84,6 +86,8 @@ const HomePageEmployee = () => {
     } catch (e) {
       console.log(e);
       toast.error("Đã xảy ra lỗi khi thống kê");
+    } finally {
+      setLoading(false);
     }
   };
   const fetchDepartmentStudent = async () => {
@@ -168,25 +172,19 @@ const HomePageEmployee = () => {
     totalNotificationDay: item.totalNotificationDay,
   }));
 
-  const transformedData = departmentData.map((item, index) => ({
-    id: item.departmentId,
-    name: item.departmentName,
-    value: item.totalStudent,
-    color: COLORS[index % COLORS.length],
-  }));
-  const notificationTypes = [
-    { name: "Thông báo", value: totalNotification, color: "#0088FE" },
-    { name: "Sự kiện", value: 25, color: "#00C49F" },
-    { name: "Nhiệm vụ", value: 20, color: "#FFBB28" },
-    { name: "Nhắc nhở", value: 10, color: "#FF8042" },
-  ];
-
   useEffect(() => {
     fetchStaticShare();
     fetchDepartmentStudent();
     fetchNotificationDay();
     fetchTotalNotification();
   }, []);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 p-10">

@@ -28,8 +28,9 @@ import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import { AwardIcon } from "lucide-react";
 const DEFAULT_COLOR = "#4CAF50";
-import { hashColorFromString } from "../../../config/color";
+import { useLoading } from "../../../context/LoadingProvider";
 const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
+  const { setLoading } = useLoading();
   const checkEdit = !!group?.id;
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
@@ -44,6 +45,7 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
   });
 
   const handleSubmit = async () => {
+    setLoading(true);
     const submitData = {
       ...form,
       color: form.color || DEFAULT_COLOR,
@@ -63,26 +65,14 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
     } else {
       const res = await handleAddGroup(submitData);
       if (res?.data && res?.status === 201) {
-        // if (onCreateWithColor) {
-        //   const generatedColor = hashColorFromString(res.data.id);
-        //   onCreateWithColor(res.data.id, generatedColor); // chỉ callback, không lưu
-        // }
         toast.success(res.message || "Tạo nhóm thành công");
         onSuccess();
-        //if (onCreateWithColor) {
-        // onCreateWithColor(res.data.id, form.color || DEFAULT_COLOR);
-        // const existingColors = JSON.parse(
-        //   localStorage.getItem("groupColors") || "{}"
-        // );
-        // existingColors[res.data.id] = form.color || DEFAULT_COLOR;
-        // localStorage.setItem("groupColors", JSON.stringify(existingColors));
-        //}
-
         onClose();
       } else {
         toast.error(res.message);
       }
     }
+    setLoading(false);
   };
   useEffect(() => {
     if (open && group?.id) {
@@ -105,6 +95,7 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
   }, [group, open]);
 
   useEffect(() => {}, []);
+
   return (
     <>
       <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
@@ -149,27 +140,6 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </div>
-              {/* <div className="grid gap-2">
-                <Label>Chọn màu nhóm</Label>
-                <BlockPicker
-                  color={form.color}
-                  onChangeComplete={(color) =>
-                    setForm({ ...form, color: color.hex })
-                  }
-                  colors={[
-                    "#4CAF50",
-                    "#2196F3",
-                    "#FF9800",
-                    "#E91E63",
-                    "#9C27B0",
-                    "#03A9F4",
-                    "#FFC107",
-                    "#00BCD4",
-                    "#795548",
-                    "#607D8B",
-                  ]}
-                />
-              </div> */}
             </div>
           </div>
 
@@ -181,7 +151,7 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
               className="bg-blue-600 hover:bg-blue-700"
               onClick={() => handleSubmit()}
             >
-              {checkEdit ? "Cập nhật" : "Thêm nhóm"}
+              Thêm nhóm
             </Button>
           </DialogFooter>
         </DialogContent>

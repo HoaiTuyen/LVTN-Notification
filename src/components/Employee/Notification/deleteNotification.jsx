@@ -9,15 +9,25 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "react-toastify";
 import { handleDeleteNotification } from "../../../controller/NotificationController";
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteNotification = ({ onOpen, onClose, notify, onSuccess }) => {
+  const { setLoading } = useLoading();
+  console.log(notify);
   const handleDelete = async () => {
-    const response = await handleDeleteNotification(notify.id);
-    if (response?.status === 204) {
-      toast.success(response.message || "Xóa lớp thành công");
-      await onSuccess();
-      onClose();
-    } else {
-      toast.error(response?.message || "Xóa lớp thất bại");
+    try {
+      setLoading(true);
+      const response = await handleDeleteNotification(notify.id);
+      if (response?.status === 204) {
+        toast.success(response.message || "Xóa thông báo thành công");
+        await onSuccess();
+        onClose();
+      } else {
+        toast.error("Không thể xoá thông báo");
+      }
+    } catch (e) {
+      console.log(e?.message || "Xóa thông báo thất bại");
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -45,12 +45,13 @@ import {
 import { handleListClassOfTeacher } from "../../../controller/TeacherController";
 import { handleGetDetailUser } from "../../../controller/AccountController";
 import { jwtDecode } from "jwt-decode";
-import { useLoading } from "../../../context/LoadingProvider";
+
+import { Spin } from "antd";
 const ClassCharge = () => {
   const navigate = useNavigate();
 
   const [classes, setClasses] = useState([]);
-  const { setLoading } = useLoading();
+  const [loading, setLoading] = useState(true);
   const fetchClass = async () => {
     try {
       setLoading(true);
@@ -74,7 +75,13 @@ const ClassCharge = () => {
   useEffect(() => {
     fetchClass();
   }, []);
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="w-full bg-white overflow-y-auto max-h-[700px] p-10">
       <div className="space-y-6">

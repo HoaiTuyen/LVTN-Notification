@@ -11,6 +11,7 @@ import {
   handleMakeNotificationRead,
   handleMakeAllNotificationRead,
 } from "../../controller/AccountController";
+import { Spin } from "antd";
 const NotificationDropdown = ({
   notificationList,
   setNotificationList,
@@ -21,12 +22,14 @@ const NotificationDropdown = ({
 }) => {
   console.log(notificationList);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [groupTeacherMap, setGroupTeacherMap] = useState({});
 
   const token = localStorage.getItem("access_token");
   const userId = jwtDecode(token).userId;
 
   useEffect(() => {
+    setLoading(true);
     const fetchTeacherNames = async () => {
       const groupIds = notificationList
         .filter((n) => n.groupId)
@@ -35,8 +38,10 @@ const NotificationDropdown = ({
       const uniqueIds = [...new Set(groupIds)];
       console.log(uniqueIds);
       const newIds = uniqueIds.filter((id) => !groupTeacherMap[id]);
-      if (!newIds.length) return;
-      console.log(newIds);
+      if (!newIds.length) {
+        setLoading(false);
+        return;
+      }
       try {
         const results = await Promise.all(
           newIds.map(async (id) => {
@@ -54,6 +59,8 @@ const NotificationDropdown = ({
         }));
       } catch (err) {
         console.error("Lỗi lấy thông tin nhóm:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -123,6 +130,7 @@ const NotificationDropdown = ({
         })
         .join("\n");
     };
+
     return (
       <div
         key={item.id || item.content}
@@ -204,7 +212,9 @@ const NotificationDropdown = ({
 
   return (
     <div className="max-h-96 w-92 bg-white rounded-2xl shadow-2xl overflow-y-auto border border-gray-200">
-      {notificationList.length === 0 ? (
+      {loading ? (
+        <Spin size="large" />
+      ) : notificationList.length === 0 ? (
         <div className="p-6 w-80 text-center text-gray-400">
           <p>Không có thông báo nào</p>
         </div>

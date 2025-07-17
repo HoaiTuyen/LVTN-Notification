@@ -45,6 +45,7 @@ import {
 } from "../../controller/TeacherController";
 import { useLoading } from "../../context/LoadingProvider";
 const TeacherProfile = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userImage, setUserImage] = useState("");
@@ -102,6 +103,7 @@ const TeacherProfile = () => {
       toast.error(error || "Lỗi khi cập nhật thông tin");
     } finally {
       setLoading(false);
+
       setIsEditing(false);
     }
   };
@@ -117,21 +119,28 @@ const TeacherProfile = () => {
   };
 
   const fetchUser = async () => {
-    const token = localStorage.getItem("access_token");
-    const data = jwtDecode(token);
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("access_token");
+      const data = jwtDecode(token);
 
-    const req = await handleGetDetailUser(data.userId);
-    if (req?.data) {
-      const teacherDetail = await handleTeacherDetail(req.data.teacherId);
+      const req = await handleGetDetailUser(data.userId);
+      if (req?.data) {
+        const teacherDetail = await handleTeacherDetail(req.data.teacherId);
 
-      // const userData = req.data;
-      setUserId(req.data.id);
-      setUserImage(req.data.image);
-      setInitialUserImage(req.data.image); // Lưu ảnh ban đầu
-      setProfileData(teacherDetail.data);
-      setInitialProfileData(teacherDetail.data);
-    } else {
-      setInfoCheck(true);
+        // const userData = req.data;
+        setUserId(req.data.id);
+        setUserImage(req.data.image);
+        setInitialUserImage(req.data.image); // Lưu ảnh ban đầu
+        setProfileData(teacherDetail.data);
+        setInitialProfileData(teacherDetail.data);
+      } else {
+        setInfoCheck(true);
+      }
+    } catch (e) {
+      console.error("Lỗi khi fetch dữ liệu:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -145,6 +154,13 @@ const TeacherProfile = () => {
           <Info className="w-8 h-8 mb-2" />
           <p className="font-medium">Không tìm thấy thông tin</p>
         </div>
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
       </div>
     );
   }
@@ -213,7 +229,7 @@ const TeacherProfile = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex items-center space-x-1"
+                        className="flex items-center space-x-1 cursor-pointer"
                         onClick={() => inputRef.current.click()}
                       >
                         <Camera className="w-4 h-4 mr-1" />

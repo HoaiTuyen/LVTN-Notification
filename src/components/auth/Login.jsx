@@ -4,13 +4,16 @@ import { handleLogin } from "../../controller/AuthController";
 
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 // import registerPush from "@/config/RegisterPush";
+import { Spin } from "antd";
 import { toast } from "react-toastify";
 const Login = () => {
+  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
   const onLogin = async (e) => {
+    setLoading(true);
     e.preventDefault();
 
     const res = await handleLogin(username, password, navigate);
@@ -21,7 +24,15 @@ const Login = () => {
     } else {
       toast.error(res.message);
     }
+    setLoading(false);
   };
+  if (loading) {
+    return (
+      <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -33,7 +44,7 @@ const Login = () => {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={onLogin}>
+        <form className="space-y-6" onSubmit={onLogin} disabled={loading}>
           <div>
             <label
               htmlFor="email"

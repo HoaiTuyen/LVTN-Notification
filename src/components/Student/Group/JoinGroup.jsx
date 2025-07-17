@@ -52,6 +52,7 @@ const JoinGroup = ({ open, onClose, onSuccess }) => {
       setLoading(false);
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={(val) => !val == onClose()}>
       <DialogContent className="sm:max-w-[500px]">

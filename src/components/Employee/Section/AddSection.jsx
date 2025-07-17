@@ -18,7 +18,9 @@ import { handleListTeacher } from "../../../controller/TeacherController";
 import { handleListSemester } from "../../../controller/SemesterController";
 import { handleCreateClassSection } from "../../../controller/SectionController";
 import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 const DialogCreateSection = ({ open, onClose, onSuccess }) => {
+  const { setLoading } = useLoading();
   const [subjectOptions, setDataSubject] = useState([]);
   const [teacherOptions, setDataTeacher] = useState([]);
   const [semesterOptions, setDataSemester] = useState([]);
@@ -55,6 +57,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const payload = {
         ...form,
@@ -75,6 +78,8 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
       }
     } catch (e) {
       toast.error(e.message || "Thêm lớp học phần thất bại!");
+    } finally {
+      setLoading(false);
     }
   };
   const fetchSubject = async () => {
@@ -169,6 +174,7 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
     fetchTeacher();
     fetchSemester();
   }, []);
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] overflow-y-auto max-h-[750px]">
@@ -409,10 +415,16 @@ const DialogCreateSection = ({ open, onClose, onSuccess }) => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="cursor-pointer"
+          >
             Hủy
           </Button>
-          <Button onClick={handleSubmit}>Tạo lớp học phần</Button>
+          <Button onClick={handleSubmit} className="cursor-pointer">
+            Tạo lớp học phần
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

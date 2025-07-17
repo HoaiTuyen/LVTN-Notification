@@ -52,10 +52,11 @@ import {
   handleSearchDepartment,
 } from "../../../controller/DepartmentController";
 import useDebounce from "../../../hooks/useDebounce";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 
 const Department = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -78,6 +79,7 @@ const Department = () => {
   };
   const fetchListDepartment = async (page = 1) => {
     try {
+      setLoading(true);
       let res;
       const keyword = debouncedSearchTerm.trim();
       if (!keyword) {
@@ -104,6 +106,8 @@ const Department = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -193,7 +197,13 @@ const Department = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {departments.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={4}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : departments.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={4}

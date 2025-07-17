@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-
 import { motion } from "framer-motion";
-
 import {
   Card,
   CardContent,
@@ -46,7 +44,8 @@ import CheckCourseSchedule from "./CheckCourseSchedule";
 import dayjs from "dayjs";
 import { handleCheckCourseSchedule } from "../../../controller/AccountController";
 import { toast } from "react-toastify";
-import { useLoading } from "../../../context/LoadingProvider";
+
+import { Spin } from "antd";
 // Mock data for student courses
 const studentCourses = [
   {
@@ -236,7 +235,7 @@ export default function StudentCoursesPage() {
   const [showDialog, setShowDialog] = useState(false);
   const [studentId, setStudentId] = useState(null);
   const [isCheckSend, setIsCheckSend] = useState(false);
-  const { setLoading } = useLoading();
+  const [loading, setLoading] = useState(true);
   const filteredCourses = classSectionList.map((section, index) => {
     return {
       id: `${section.subjectId}-${section.id.groupId}`,
@@ -266,13 +265,15 @@ export default function StudentCoursesPage() {
     try {
       setLoading(true);
       const res = await handleCheckCourseSchedule(studentId, checked); // true = tắt, false = bật
-      setLoading(false);
+
       setNotifyDisabled(checked);
       setIsCheckSend(checked);
       toast.success(res.message || "Cập nhật trạng thái thông báo thành công");
     } catch (err) {
       console.error("Lỗi khi cập nhật thông báo:", err);
       toast.error(err.response.data.message || "Lỗi khi cập nhật thông báo");
+    } finally {
+      setLoading(false);
     }
   };
   const confirmDisableNotification = () => {
@@ -327,7 +328,13 @@ export default function StudentCoursesPage() {
       setLoading(false);
     }
   };
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

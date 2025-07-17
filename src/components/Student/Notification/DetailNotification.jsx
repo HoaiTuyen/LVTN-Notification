@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Spin } from "antd";
+import { Skeleton, Spin } from "antd";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,10 +15,9 @@ import { ArrowLeft, FileText, Calendar, User, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { handleDetailNotification } from "../../../controller/NotificationController";
-import { useLoading } from "../../../context/LoadingProvider";
 const StudentNotificationDetail = () => {
   const { notificationId } = useParams();
-  const { setLoading } = useLoading();
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -45,7 +44,13 @@ const StudentNotificationDetail = () => {
     };
     fetch();
   }, [notificationId]);
-
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-white">
+  //       <Skeleton active paragraph={{ rows: 5 }} />
+  //     </div>
+  //   );
+  // }
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.97 }}
@@ -74,43 +79,86 @@ const StudentNotificationDetail = () => {
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   {/* Tiêu đề */}
                   <CardTitle className="text-xl whitespace-pre-line">
-                    {notification?.title || "Trống"}
+                    {loading ? (
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        className="w-[200px]"
+                      />
+                    ) : (
+                      notification?.title || "Trống"
+                    )}
                   </CardTitle>
 
                   {/* Badge container */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    {notification?.notificationType && (
-                      <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                        {notification.notificationType}
-                      </span>
+                    {loading ? (
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        className="w-[100px]"
+                      />
+                    ) : (
+                      notification?.notificationType && (
+                        <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                          {notification.notificationType}
+                        </span>
+                      )
                     )}
-                    {notification?.departmentName && (
-                      <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
-                        {notification.departmentName}
-                      </span>
+                    {loading ? (
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        className="w-[100px]"
+                      />
+                    ) : (
+                      notification?.departmentName && (
+                        <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-purple-100 text-purple-700">
+                          {notification.departmentName}
+                        </span>
+                      )
                     )}
-                    {!notification?.notificationType &&
-                      !notification.departmentName && (
+                    {loading ? (
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        className="w-[100px]"
+                      />
+                    ) : (
+                      !notification?.notificationType &&
+                      !notification?.departmentName && (
                         <span className="inline-block text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">
                           Phòng Đào tạo
                         </span>
-                      )}
+                      )
+                    )}
                   </div>
                 </div>
 
                 <CardDescription className="flex items-center space-x-4 mt-2 text-sm">
                   <span className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
-                    {dayjs(notification.createdAt).format("DD/MM/YYYY")}
+                    {loading ? (
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        className="w-[100px]"
+                      />
+                    ) : (
+                      dayjs(notification.createdAt).format("DD/MM/YYYY")
+                    )}
                   </span>
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
-
           <CardContent className="space-y-6">
             <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {notification?.content || "Không có nội dung chi tiết."}
+              {loading ? (
+                <Skeleton active paragraph={{ rows: 5 }} />
+              ) : (
+                notification?.content || "Không có nội dung chi tiết."
+              )}
             </div>
 
             {notification?.fileNotifications?.length > 0 && (

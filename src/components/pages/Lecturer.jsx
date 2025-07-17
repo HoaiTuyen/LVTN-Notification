@@ -77,11 +77,11 @@ const LecturerDashboard = () => {
     //   label: "Tạo thông báo",
     //   title: "",
     // },
-    // {
-    //   key: "sentNotification",
-    //   icon: <Bell size={16} />,
-    //   label: "Thông báo đã gửi",
-    // },
+    {
+      key: "change-password",
+      icon: <Key size={16} />,
+      label: "Thay đổi mật khẩu",
+    },
 
     {
       key: "logout",

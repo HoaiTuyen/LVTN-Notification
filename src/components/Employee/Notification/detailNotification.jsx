@@ -9,7 +9,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import dayjs from "dayjs";
-import { Skeleton, Button as AntButton } from "antd";
+import { Skeleton } from "antd";
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import { handleDetailNotification } from "../../../controller/NotificationController";
@@ -81,7 +81,7 @@ export default function EmployeeNotificationDetail() {
 
   if (!loading && !notification) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-12 cursor-pointer">
         <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
         <h3 className="text-lg font-medium mb-2">Không tìm thấy thông báo</h3>
         <p className="text-muted-foreground text-center mb-4">
@@ -89,6 +89,7 @@ export default function EmployeeNotificationDetail() {
         </p>
         <Button
           variant="ghost"
+          className="cursor-pointer"
           onClick={() =>
             navigate(
               `/nhan-vien/sent-notification?search=${search}&type=${type}&page=${page}`
@@ -108,6 +109,7 @@ export default function EmployeeNotificationDetail() {
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
+          className="cursor-pointer"
           onClick={() =>
             navigate(
               `/nhan-vien/sent-notification?search=${search}&type=${type}&page=${page}`

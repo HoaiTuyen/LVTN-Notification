@@ -52,7 +52,9 @@ import {
 } from "../../../controller/SemesterController";
 import AddSemester from "./AddSemester";
 import DeleteSemester from "./DeleteSemester";
+import { Spin } from "antd";
 const EmployeeSemester = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -77,26 +79,37 @@ const EmployeeSemester = () => {
   };
 
   const fetchListSemester = async (page = 1) => {
-    let res;
-    const keyword = debouncedSearchTerm.trim();
-    if (keyword) {
-      res = await handleSearchSemester(keyword, page - 1, pagination.pageSize);
-    } else {
-      res = await handleListSemester("desc", page - 1, pagination.pageSize);
-    }
-
-    if (res?.data) {
-      setSemesters(res.data.semesters);
-      if (page == 1 && res.data.semesters) {
-        setTotal(pagination.totalElements);
+    try {
+      setLoading(true);
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      if (keyword) {
+        res = await handleSearchSemester(
+          keyword,
+          page - 1,
+          pagination.pageSize
+        );
+      } else {
+        res = await handleListSemester("desc", page - 1, pagination.pageSize);
       }
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-        totalElements: res.data.totalElements,
-      });
+
+      if (res?.data) {
+        setSemesters(res.data.semesters);
+        if (page == 1 && res.data.semesters) {
+          setTotal(pagination.totalElements);
+        }
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching semesters:", error);
+    } finally {
+      setLoading(false);
     }
   };
   const handleFormatDate = (date) => {
@@ -188,7 +201,13 @@ const EmployeeSemester = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {semesters.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={6}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : semesters.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}

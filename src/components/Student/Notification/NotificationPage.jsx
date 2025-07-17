@@ -32,9 +32,10 @@ import {
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import useDebounce from "../../../hooks/useDebounce";
 import { motion } from "framer-motion";
-import { useLoading } from "../../../context/LoadingProvider";
+import { Spin } from "antd";
+import { toast } from "react-toastify";
 const NotificationsPage = () => {
-  const { setLoading } = useLoading();
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -63,41 +64,55 @@ const NotificationsPage = () => {
   };
 
   const fetchNotifications = async (page = 1) => {
-    const type = selectedType === "all" ? null : selectedType;
-    const keyword = debouncedSearchTerm.trim();
-    let res;
-    setLoading(true);
-    if (keyword) {
-      res = await handleSearchNotification(
-        keyword,
-        page - 1,
-        pagination.pageSize,
-        type
-      );
-    } else {
-      res = await handleListNotification(
-        "desc",
-        page - 1,
-        pagination.pageSize,
-        type
-      );
-    }
-    setLoading(false);
-    if (res?.data) {
-      setNotifications(res.data.notifications || []);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-      });
+    try {
+      const type = selectedType === "all" ? null : selectedType;
+      const keyword = debouncedSearchTerm.trim();
+      let res;
+      setLoading(true);
+      if (keyword) {
+        res = await handleSearchNotification(
+          keyword,
+          type,
+          page - 1,
+          pagination.pageSize
+        );
+        console.log(res);
+      } else {
+        res = await handleListNotification(
+          "desc",
+          page - 1,
+          pagination.pageSize,
+          type
+        );
+        console.log(res);
+      }
+
+      if (res?.data) {
+        setNotifications(res.data.notifications || []);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+        });
+      }
+    } catch (e) {
+      toast.error(e.response.data.message || "Lỗi khi tải thông báo");
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchNotificationTypes = async () => {
-    setLoading(true);
-    const res = await handleListNotificationType();
-    setLoading(false);
-    setNotificationTypes(res?.data?.notificationTypes || []);
+    try {
+      setLoading(true);
+      const res = await handleListNotificationType();
+      setLoading(false);
+      setNotificationTypes(res?.data?.notificationTypes || []);
+    } catch (e) {
+      toast.error(e.response.data.message || "Lỗi khi tải loại thông báo");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -146,6 +161,7 @@ const NotificationsPage = () => {
       <CardContent />
     </Card>
   );
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -214,7 +230,11 @@ const NotificationsPage = () => {
               value="all"
               className="space-y-4 border-1 p-5 rounded-2xl overflow-x-auto max-h-[500px]"
             >
-              {notifications.length === 0 ? (
+              {loading ? (
+                <div className="flex items-center justify-center min-h-screen bg-white">
+                  <Spin size="large" />
+                </div>
+              ) : notifications.length === 0 ? (
                 <Card>
                   <CardContent className="flex flex-col items-center justify-center py-12">
                     <Bell className="h-12 w-12 text-muted-foreground mb-4" />

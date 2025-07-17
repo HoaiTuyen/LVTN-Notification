@@ -45,13 +45,14 @@ import { handleListSemester } from "../../../controller/SemesterController";
 import { handleListClassSectionTeacher } from "../../../controller/TeacherController";
 import { jwtDecode } from "jwt-decode";
 import { handleGetDetailUser } from "../../../controller/AccountController";
-import { useLoading } from "../../../context/LoadingProvider";
+
 import dayjs from "dayjs";
+import { Spin } from "antd";
 const SubjectCharge = () => {
   const [selectedSemester, setSelectedSemester] = useState("");
   const [semesterList, setSemesterList] = useState([]);
   const [classSectionList, setClassSectionList] = useState([]);
-  const { setLoading } = useLoading();
+  const [loading, setLoading] = useState(true);
 
   const groupedCoursesMap = new Map();
   classSectionList.forEach((section) => {
@@ -132,7 +133,13 @@ const SubjectCharge = () => {
       setLoading(false);
     }
   };
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="h-full max-h-[750px] overflow-y-auto p-10 bg-white">
       <div className="space-y-6">
