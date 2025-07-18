@@ -35,9 +35,10 @@ import { Link } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { handleListClassByDepartment } from "../../../../controller/DepartmentController";
 import { useEffect } from "react";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import ImportClassOfDepartmentModal from "./ImportClassByDepartment";
 const ListClassOfDepartment = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
 
   const page = searchParams.get("page") || "1";
@@ -59,30 +60,38 @@ const ListClassOfDepartment = () => {
     location.state?.from || `/admin/department?search=${search}&page=${page}`;
 
   const fetchListClassByDepartment = async (page = 1) => {
-    const res = await handleListClassByDepartment(
-      departmentId,
-      page - 1,
-      pagination.pageSize
-    );
-    console.log(res);
+    try {
+      setLoading(true);
+      const res = await handleListClassByDepartment(
+        departmentId,
+        page - 1,
+        pagination.pageSize
+      );
+      console.log(res);
 
-    if (res?.data && res?.status === 200) {
-      if (page === 1 && res?.data?.classes) {
-        setTotalClass(res.data.totalElements);
+      if (res?.data && res?.status === 200) {
+        if (page === 1 && res?.data?.classes) {
+          setTotalClass(res.data.totalElements);
+        }
+        setClassByDepartment(res.data.classes);
+        setDataDepartment(res.data);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+        });
       }
-      setClassByDepartment(res.data.classes);
-      setDataDepartment(res.data);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     fetchListClassByDepartment(pagination.current);
   }, [pagination.current]);
+
   return (
     <div className="min-h-screen w-full bg-white p-10 ">
       <div className="space-y-6">
@@ -168,7 +177,16 @@ const ListClassOfDepartment = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {classByDepartment.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center h-24 text-muted-foreground"
+                      >
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : classByDepartment.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}

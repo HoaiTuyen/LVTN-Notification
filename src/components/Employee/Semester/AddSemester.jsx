@@ -19,8 +19,10 @@ import {
   handleAddSemester,
   handleUpdateSemester,
 } from "../../../controller/SemesterController";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddSemester = ({ open, onClose, onSuccess, semester }) => {
-  console.log(semester);
+  const { setLoading } = useLoading();
+
   const checkEdit = !!semester?.id;
 
   const [form, setForm] = useState({
@@ -108,6 +110,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       return;
     }
     if (checkEdit) {
+      setLoading(true);
       const reqEdit = await handleUpdateSemester(form);
       if (reqEdit?.data || reqEdit?.status === 204) {
         onSuccess();
@@ -116,7 +119,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       } else {
         toast.error(reqEdit.message);
       }
+      setLoading(false);
     } else {
+      setLoading(true);
       const res = await handleAddSemester(form);
       if (res?.data) {
         onSuccess();
@@ -125,6 +130,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       } else {
         toast.error(res.message);
       }
+      setLoading(false);
     }
   };
   useEffect(() => {

@@ -6,6 +6,8 @@ import {
   searchNotification,
   updateNotification,
   createUserNotification,
+  listNotificationReport,
+  downloadReportExcel,
 } from "../servicers/Notification";
 
 export const handleCreateNotification = async (formData) => {
@@ -150,6 +152,44 @@ export const handleUpdateNotification = async (formData) => {
       status: error.response?.status || 500,
       message:
         error.response?.data?.message || "Đã xảy ra lỗi khi cập nhật thông báo",
+      data: [],
+    };
+  }
+};
+
+export const handleListNotificationReport = async (from, to) => {
+  try {
+    const response = await listNotificationReport(from, to);
+
+    if (response?.data) {
+      return {
+        status: response.status,
+        data: response.data,
+        message: response.message,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
+      data: [],
+    };
+  }
+};
+
+export const handleDownloadReportExcel = async (from, to) => {
+  try {
+    const response = await downloadReportExcel(from, to);
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    return {
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message || "Đã xảy ra lỗi khi lấy danh sách khoa",
       data: [],
     };
   }

@@ -19,8 +19,10 @@ import {
   handleAddSemester,
   handleUpdateSemester,
 } from "../../../controller/SemesterController";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddSemester = ({ open, onClose, onSuccess, semester }) => {
-  console.log(semester);
+  const { setLoading } = useLoading();
+
   const checkEdit = !!semester?.id;
 
   const [form, setForm] = useState({
@@ -30,65 +32,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
     startDate: semester?.startDate?.slice(0, 10) || "",
     endDate: semester?.endDate?.slice(0, 10) || "",
   });
-  //   const checkEdit = !!group?.id;
 
-  //   const [listTeacher, setListTeacher] = useState([]);
-  //   const [form, setForm] = useState({
-  //     id: group?.id || "",
-  //     name: group?.name || "",
-  //     teacherId: "",
-  //     code: "",
-  //   });
-  //   const fetchTeacher = async () => {
-  //     const teacher = await handleListTeacher();
-
-  //     if (teacher?.data) {
-  //       setListTeacher(teacher.data.teachers);
-  //     }
-  //   };
-  //   const handleSubmit = async () => {
-  //     if (checkEdit) {
-  //       const reqEdit = await handleUpdateGroup(form);
-  //       console.log(reqEdit);
-
-  //       if (reqEdit?.data || reqEdit?.status === 204) {
-  //         onSuccess();
-  //         toast.success(reqEdit.message || "Tạo nhóm thành công");
-  //         onClose();
-  //       } else {
-  //         toast.error(reqEdit.message);
-  //       }
-  //     } else {
-  //       const res = await handleAddGroup(form);
-  //       if (res?.data && res?.status === 201) {
-  //         onSuccess();
-  //         toast.success(res.message || "Tạo nhóm thành công");
-  //         onClose();
-  //       } else {
-  //         toast.error(res.message);
-  //       }
-  //     }
-  //   };
-  //   useEffect(() => {
-  //     if (open && group?.id) {
-  //       setForm({
-  //         id: group?.id || "",
-  //         name: group?.name || "",
-  //         teacherId: "",
-  //         code: "",
-  //       });
-  //     } else {
-  //       setForm({
-  //         id: "",
-  //         name: "",
-  //         teacherId: "",
-  //         code: "",
-  //       });
-  //     }
-  //   }, [group, open]);
-  //   useEffect(() => {
-  //     fetchTeacher();
-  //   }, []);
   const handleSubmit = async () => {
     if (
       !form.academicYear ||
@@ -107,6 +51,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       return;
     }
     if (checkEdit) {
+      setLoading(true);
       const reqEdit = await handleUpdateSemester(form);
       if (reqEdit?.data || reqEdit?.status === 204) {
         onSuccess();
@@ -115,7 +60,9 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       } else {
         toast.error(reqEdit.message);
       }
+      setLoading(false);
     } else {
+      setLoading(true);
       const res = await handleAddSemester(form);
       if (res?.data) {
         onSuccess();
@@ -124,6 +71,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       } else {
         toast.error(res.message);
       }
+      setLoading(false);
     }
   };
   useEffect(() => {

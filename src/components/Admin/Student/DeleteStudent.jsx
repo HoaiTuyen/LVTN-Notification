@@ -10,19 +10,21 @@ import {
 
 import { handleDeleteStudent } from "../../../controller/StudentController";
 import { toast } from "react-toastify";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteStudent = ({ open, onClose, student, onSuccess }) => {
-  console.log(student);
+  const { setLoading } = useLoading();
 
   const handleDelete = async () => {
+    setLoading(true);
     const response = await handleDeleteStudent(student.id);
     if (response?.status === 204) {
-      toast.success("Xóa khoa thành công");
+      toast.success("Xóa sinh viên thành công");
       onSuccess();
       onClose();
     } else {
-      toast.error(response?.message || "Xóa khoa thất bại");
+      toast.error(response?.message || "Xóa sinh viên thất bại");
     }
+    setLoading(false);
   };
 
   return (

@@ -9,11 +9,14 @@ import {
 } from "@/components/ui/dialog";
 import { handleDeleteGroup } from "../../../controller/GroupController";
 import { toast } from "react-toastify";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteGroup = ({ onOpen, onClose, group, onSuccess }) => {
   console.log(group);
 
+  const { setLoading } = useLoading();
+
   const handleDelete = async () => {
+    setLoading(true);
     const response = await handleDeleteGroup(group.id);
     if (response?.status === 204) {
       toast.success(response.message || "Xóa khoa thành công");
@@ -22,6 +25,7 @@ const DeleteGroup = ({ onOpen, onClose, group, onSuccess }) => {
     } else {
       toast.error(response?.message || "Xóa khoa thất bại");
     }
+    setLoading(false);
   };
 
   return (

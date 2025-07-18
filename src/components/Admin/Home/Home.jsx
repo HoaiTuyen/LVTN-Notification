@@ -37,6 +37,7 @@ import {
   handleStatisticalNotificationDay,
 } from "../../../controller/StatisticalController";
 import dayjs from "dayjs";
+import { Spin } from "antd";
 
 const COLORS = [
   "#0088FE",
@@ -48,6 +49,7 @@ const COLORS = [
 ];
 
 const HomeAdmin = () => {
+  const [loading, setLoading] = useState(true);
   const [countStudent, setCountStudent] = useState(0);
   const [countLecturer, setCountLecturer] = useState(0);
   const [countCourse, setCountCourse] = useState(0);
@@ -56,6 +58,7 @@ const HomeAdmin = () => {
   const [departmentData, setDepartmentData] = useState([]);
   const fetchStaticShare = async () => {
     try {
+      setLoading(true);
       const response = await handleStatisticalShare();
       if (response?.data && response?.status === 200) {
         setCountStudent(response?.data?.totalStudent);
@@ -66,10 +69,13 @@ const HomeAdmin = () => {
     } catch (e) {
       console.log(e);
       toast.error("Đã xảy ra lỗi khi thống kê");
+    } finally {
+      setLoading(false);
     }
   };
   const fetchDepartmentStudent = async () => {
     try {
+      setLoading(true);
       const response = await handleStatisticalDepartmentStudent();
       if (response?.data && response?.status === 200) {
         setDepartmentData(response?.data);
@@ -77,10 +83,13 @@ const HomeAdmin = () => {
     } catch (e) {
       console.log(e);
       toast.error("Đã xảy ra lỗi khi thống kê");
+    } finally {
+      setLoading(false);
     }
   };
   const fetchNotificationDay = async () => {
     try {
+      setLoading(true);
       const response = await handleStatisticalNotificationDay();
       if (response?.data && response?.status === 200) {
         setNotificationData(response?.data);
@@ -88,6 +97,8 @@ const HomeAdmin = () => {
     } catch (e) {
       console.log(e);
       toast.error("Đã xảy ra lỗi khi thống kê");
+    } finally {
+      setLoading(false);
     }
   };
   const dailyNotifications = notificationData.map((item) => ({
@@ -106,6 +117,13 @@ const HomeAdmin = () => {
     fetchDepartmentStudent();
     fetchNotificationDay();
   }, []);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 p-10">

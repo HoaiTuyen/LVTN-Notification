@@ -29,10 +29,8 @@ import {
   Filter,
   Eye,
   Edit,
-  Trash2,
-  Users,
   Calendar,
-  MessageSquare,
+  FileText,
 } from "lucide-react";
 import {
   handleListNotification,
@@ -44,6 +42,7 @@ import dayjs from "dayjs";
 import DeleteNotification from "./deleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
 import UpdateNotification from "./updateNotification";
+import Reports from "./Reports/Reports";
 const EmployeeSentNotifications = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -61,7 +60,7 @@ const EmployeeSentNotifications = () => {
   const [selectNotify, setSelectNotify] = useState([]);
   const [totalSent, setTotalSent] = useState(0);
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
-  console.log(pageFromUrl);
+  const [openReport, setOpenReport] = useState(false);
   const [forceReload, setForceReload] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -170,11 +169,24 @@ const EmployeeSentNotifications = () => {
     >
       <div className="min-h-screen w-full bg-white p-0 ">
         <div className="space-y-6 p-8 overflow-x-auto max-h-[700px]">
-          <div>
-            <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
-            <p className="text-muted-foreground">
-              Quản lý và theo dõi các thông báo bạn đã gửi
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Thông báo đã gửi</h1>
+              <p className="text-muted-foreground">
+                Quản lý và theo dõi các thông báo bạn đã gửi
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="ml-2 cursor-pointer hover:bg-gray-100"
+              onClick={() => setOpenReport(true)}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Báo cáo
+            </Button>
+            {openReport && (
+              <Reports open={openReport} onClose={() => setOpenReport(false)} />
+            )}
           </div>
 
           {/* Statistics */}

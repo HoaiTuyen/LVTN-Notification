@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import {
   Card,
   CardHeader,
@@ -58,6 +58,7 @@ import DetailAccount from "../DetailAccount";
 import { toast } from "react-toastify";
 import ImportAccountModal from "./ImportAccountModal";
 const Account = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -74,7 +75,7 @@ const Account = () => {
   const [openUpload, setOpenUpload] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 50,
+    pageSize: 10,
     total: 0,
     totalPages: 0,
     totalElements: 0,
@@ -92,6 +93,7 @@ const Account = () => {
 
   const fetchListUser = async (page = 1) => {
     try {
+      setLoading(true);
       let response;
       // const keyword = [
       //   debouncedSearchTerm,
@@ -141,6 +143,8 @@ const Account = () => {
     } catch (error) {
       console.error("Error fetching user list:", error);
       toast.error("Không thể tải danh sách người dùng");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -260,7 +264,13 @@ const Account = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.length === 0 ? (
+                  {loading ? (
+                    <TableCell colSpan={5}>
+                      <div className="flex justify-center items-center h-[200px] text-gray-500">
+                        <Spin size="large" />
+                      </div>
+                    </TableCell>
+                  ) : users.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}

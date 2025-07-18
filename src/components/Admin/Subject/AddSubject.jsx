@@ -17,8 +17,10 @@ import {
   handleUpdateSubject,
 } from "../../../controller/SubjectController";
 import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddSubject = ({ open, onClose, onSuccess, subject }) => {
   const checkEdit = !!subject?.id;
+  const { setLoading } = useLoading();
   const [form, setForm] = useState({
     id: subject?.id || "",
     name: subject?.name || "",
@@ -46,6 +48,7 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
     }
 
     if (checkEdit) {
+      setLoading(true);
       const resEdit = await handleUpdateSubject(form);
       console.log(resEdit);
 
@@ -56,7 +59,9 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
       } else {
         toast.error(resEdit.message || "Lỗi");
       }
+      setLoading(false);
     } else {
+      setLoading(true);
       const res = await handleAddSubject(form);
       if (res?.data && res?.status === 201) {
         onClose();
@@ -65,6 +70,7 @@ const AddSubject = ({ open, onClose, onSuccess, subject }) => {
       } else {
         toast.error(res.message || "Lỗi");
       }
+      setLoading(false);
     }
   };
 

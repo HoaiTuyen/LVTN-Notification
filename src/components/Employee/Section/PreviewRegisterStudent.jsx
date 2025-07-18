@@ -7,12 +7,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const PreviewModalRegisterStudent = ({ open, onClose, data = [] }) => {
   const sectionsList = Array.isArray(data) ? data : [];
-  console.log(sectionsList);
+
   const hasErrors = sectionsList.some((section) => !!section.error);
-  console.log(hasErrors);
 
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>

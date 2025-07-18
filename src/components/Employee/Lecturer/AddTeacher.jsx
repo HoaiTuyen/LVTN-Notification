@@ -24,7 +24,9 @@ import {
 import { toast } from "react-toastify";
 import { handleListDepartment } from "../../../controller/DepartmentController";
 import { useValidateLecturerForm } from "../../../hooks/useValidateForm";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
+  const { setLoading } = useLoading();
   const { validateForm, formatDate, minBirthDate, maxBirthDate } =
     useValidateLecturerForm();
   const [listDepartment, setListDepartment] = useState([]);
@@ -73,6 +75,7 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
       if (!validateForm(form)) {
         return;
       }
+      setLoading(true);
       if (checkEdit) {
         const reqEdit = await handleUpdateTeacher(form);
 
@@ -95,6 +98,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
       }
     } catch (error) {
       toast.error(error || "Đã xảy ra lỗi khi thêm giảng viên");
+    } finally {
+      setLoading(false);
     }
   };
   const fetchListDepartment = async () => {

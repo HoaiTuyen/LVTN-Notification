@@ -25,8 +25,9 @@ import {
   handleAddNotificationType,
   handleUpdateNotificationType,
 } from "../../../controller/NotificationTypeController";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
-  console.log(notification);
+  const { setLoading } = useLoading();
 
   const checkEdit = !!notification?.id;
 
@@ -58,6 +59,7 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
       return;
     }
     if (checkEdit) {
+      setLoading(true);
       const reqEdit = await handleUpdateNotificationType(form);
       if (reqEdit?.data || reqEdit?.status === 204) {
         onSuccess();
@@ -66,7 +68,9 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
       } else {
         toast.error(reqEdit.message || "Lỗi");
       }
+      setLoading(false);
     } else {
+      setLoading(true);
       const reqAdd = await handleAddNotificationType(form);
       if (reqAdd?.data) {
         onSuccess();
@@ -75,6 +79,7 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
       } else {
         toast.error(reqAdd.message || "Lỗi");
       }
+      setLoading(false);
     }
   };
   return (
@@ -135,11 +140,15 @@ const AddNotificationType = ({ open, onClose, onSuccess, notification }) => {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => onClose()}>
+            <Button
+              variant="outline"
+              onClick={() => onClose()}
+              className="cursor-pointer"
+            >
               Hủy
             </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               onClick={() => handleSubmit()}
             >
               {checkEdit ? "Cập nhật" : "Thêm loại thông báo"}

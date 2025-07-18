@@ -26,8 +26,11 @@ import {
 } from "../../../controller/GroupController";
 import { toast } from "react-toastify";
 import { AwardIcon } from "lucide-react";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddGroup = ({ open, onClose, onSuccess, group }) => {
   const checkEdit = !!group?.id;
+
+  const { setLoading } = useLoading();
 
   const [listTeacher, setListTeacher] = useState([]);
   const [form, setForm] = useState({
@@ -45,6 +48,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
   };
   const handleSubmit = async () => {
     if (checkEdit) {
+      setLoading(true);
       const reqEdit = await handleUpdateGroup(form);
       console.log(reqEdit);
 
@@ -55,7 +59,9 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
       } else {
         toast.error(reqEdit.message);
       }
+      setLoading(false);
     } else {
+      setLoading(true);
       const res = await handleAddGroup(form);
       if (res?.data && res?.status === 201) {
         onSuccess();
@@ -64,6 +70,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
       } else {
         toast.error(res.message);
       }
+      setLoading(false);
     }
   };
   useEffect(() => {

@@ -26,12 +26,13 @@ import {
 import { toast } from "react-toastify";
 import { handleListClass } from "../../../controller/ClassController";
 import { useValidateStudentForm } from "../../../hooks/useValidateForm";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const AddStudent = ({ open, onClose, onSuccess, student }) => {
   const checkEdit = !!student?.id;
   const [dataClass, setDataClass] = useState([]);
   const { validateForm, formatDate, minBirthDate, maxBirthDate } =
     useValidateStudentForm();
+  const { setLoading } = useLoading();
 
   const [form, setForm] = useState({
     id: student?.id || "",
@@ -50,7 +51,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     let allClasses = [];
     let page = 0;
     let totalPages = 1;
-
+    setLoading(true);
     try {
       do {
         const res = await handleListClass(page, pageSize);
@@ -67,6 +68,8 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     } catch (error) {
       console.error("Lỗi khi fetch all classes:", error);
       return [];
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,6 +119,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       };
 
       if (checkEdit) {
+        setLoading(true);
         const reqEdit = await handleUpdateStudent(payload);
         if (reqEdit?.status === 204) {
           toast.success(reqEdit.message || "Cập nhật sinh viên thành công");
@@ -127,6 +131,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
           return;
         }
       } else {
+        setLoading(true);
         const response = await handleAddStudent(payload);
         if (response?.status === 201) {
           toast.success(response.message || "Thêm sinh viên thành công");
@@ -138,6 +143,8 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       }
     } catch (error) {
       toast.error(error?.message || "Thêm sinh viên thất bại");
+    } finally {
+      setLoading(false);
     }
   };
   const classOptions = dataClass.map((cls) => ({

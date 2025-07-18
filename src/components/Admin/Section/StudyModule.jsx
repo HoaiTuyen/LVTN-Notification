@@ -74,6 +74,7 @@ import useDebounce from "@/hooks/useDebounce";
 import DeleteSection from "./DeleteSection";
 import AddSection from "./AddSection";
 const StudyModuleAdmin = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const searchFromUrl = searchParams.get("search") || "";
   const [searchTerm, setSearchTerm] = useState(searchFromUrl);
@@ -99,6 +100,7 @@ const StudyModuleAdmin = () => {
 
   const fetchListRegisterStudent = async (semesterId, page = 1) => {
     try {
+      setLoading(true);
       let res;
       const keyword = debouncedSearchTerm;
       if (keyword) {
@@ -126,70 +128,6 @@ const StudyModuleAdmin = () => {
         const list = res?.data?.classSections || [];
 
         const courseMap = {};
-
-        // list.forEach((section) => {
-        //   const id = section.id;
-        //   const subjectId = section.subjectId;
-        //   const groupId = section.id.groupId;
-        //   const teacher = section.teacherName || null;
-        //   const groupedClassesMap = {};
-
-        //   section.courseSchedules?.forEach((s) => {
-        //     // const key = `${groupId}_${teacher}`;
-        //     const key = `${subjectId}`;
-        //     const scheduleStr = `Thứ ${s.id.day}, tiết ${s.id.startPeriod}–${s.id.endPeriod}`;
-        //     const roomStr = s.id.room || "Chưa có phòng";
-
-        //     if (!groupedClassesMap[key]) {
-        //       groupedClassesMap[key] = {
-        //         id: `${subjectId}-${groupId}`,
-        //         sectionId: id,
-        //         name: `Nhóm môn học ${groupId.toString().padStart(2, "0")}`,
-        //         instructor: teacher,
-        //         schedules: [],
-        //         rooms: new Set(),
-        //         startDate: section.startDate,
-        //         endDate: section.endDate,
-        //       };
-        //     }
-
-        //     groupedClassesMap[key].scheduleRooms =
-        //       groupedClassesMap[key].scheduleRooms || [];
-        //     groupedClassesMap[key].scheduleRooms.push({
-        //       schedule: scheduleStr,
-        //       room: roomStr,
-        //     });
-        //   });
-
-        //   if (!courseMap[subjectId]) {
-        //     courseMap[subjectId] = {
-        //       id: subjectId,
-        //       sectionId: id,
-        //       name: section.subjectName,
-        //       code: subjectId,
-        //       startDate: section.startDate,
-        //       endDate: section.endDate,
-        //       totalClasses: 0,
-        //       assignedClasses: 0,
-        //       classes: [],
-        //     };
-        //   }
-
-        //   const groupedClassList = Object.values(groupedClassesMap).map(
-        //     (item) => ({
-        //       ...item,
-        //       rooms: Array.from(item.rooms), // convert Set to Array
-        //     })
-        //   );
-        //   courseMap[subjectId].classes.push(...groupedClassList);
-        //   courseMap[subjectId].totalClasses += groupedClassList.length;
-        //   courseMap[subjectId].assignedClasses += teacher
-        //     ? groupedClassList.length
-        //     : 0;
-        // });
-        // console.log(courseMap);
-        // const transformedData = Object.values(courseMap);
-        // setClassSectionList(transformedData);
 
         list.forEach((section) => {
           const {
@@ -249,6 +187,8 @@ const StudyModuleAdmin = () => {
       }
     } catch (err) {
       console.error("Lỗi khi fetch danh sách đăng ký:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -386,7 +326,9 @@ const StudyModuleAdmin = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {classSectionList.length === 0 ? (
+                  {loading ? (
+                    <p className="text-center">Đang tải dữ liệu...</p>
+                  ) : classSectionList.length === 0 ? (
                     <p className="text-center">Không có dữ liệu phù hợp</p>
                   ) : (
                     classSectionList.map((course) => (

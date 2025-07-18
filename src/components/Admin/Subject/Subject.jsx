@@ -51,10 +51,11 @@ import {
   handleSearchSubject,
 } from "../../../controller/SubjectController";
 import { toast } from "react-toastify";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportSubjectModal from "./ImportSubjectModal";
 const Subject = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -76,27 +77,34 @@ const Subject = () => {
     setOpenModal(true);
   };
   const fetchListSubject = async (page = 1) => {
-    let res;
-    const keyword = debouncedSearchTerm.trim();
-    console.log(keyword);
+    try {
+      setLoading(true);
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      console.log(keyword);
 
-    if (keyword.trim() === "") {
-      res = await handleListSubject(page - 1, pagination.pageSize);
-    } else {
-      res = await handleSearchSubject(keyword, page - 1, pagination.pageSize);
-      console.log(res);
-    }
+      if (keyword.trim() === "") {
+        res = await handleListSubject(page - 1, pagination.pageSize);
+      } else {
+        res = await handleSearchSubject(keyword, page - 1, pagination.pageSize);
+        console.log(res);
+      }
 
-    if (res?.data) {
-      setSubjects(res.data.subjects);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-      });
-    } else {
-      toast.error(res.data.message || "Lỗi");
+      if (res?.data) {
+        setSubjects(res.data.subjects);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+        });
+      } else {
+        toast.error(res.data.message || "Lỗi");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -191,7 +199,16 @@ const Subject = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {subjects.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={4}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : subjects.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={4}

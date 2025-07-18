@@ -9,8 +9,12 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "react-toastify";
 import { handleDeleteClass } from "../../../controller/ClassController";
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteClass = ({ onOpen, onClose, classRoom, onSuccess }) => {
+  const { setLoading } = useLoading();
+
   const handleDelete = async () => {
+    setLoading(true);
     const response = await handleDeleteClass(classRoom.id);
     if (response?.status === 204) {
       toast.success(response.message || "Xóa lớp thành công");
@@ -19,6 +23,7 @@ const DeleteClass = ({ onOpen, onClose, classRoom, onSuccess }) => {
     } else {
       toast.error(response?.message || "Xóa lớp thất bại");
     }
+    setLoading(false);
   };
 
   return (

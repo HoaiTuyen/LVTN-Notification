@@ -9,11 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { handleDeleteTeacher } from "../../../controller/TeacherController";
 import { toast } from "react-toastify";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteTeacher = ({ onOpen, onClose, teacher, onSuccess }) => {
   console.log(teacher);
 
+  const { setLoading } = useLoading();
   const handleDelete = async () => {
+    setLoading(true);
     const response = await handleDeleteTeacher(teacher.id);
     if (response?.status === 204) {
       toast.success("Xóa khoa thành công");
@@ -22,6 +24,7 @@ const DeleteTeacher = ({ onOpen, onClose, teacher, onSuccess }) => {
     } else {
       toast.error(response?.message || "Xóa khoa thất bại");
     }
+    setLoading(false);
   };
 
   return (

@@ -9,11 +9,12 @@ import {
 } from "@/components/ui/dialog";
 import { handleDeleteSemester } from "../../../controller/SemesterController";
 import { toast } from "react-toastify";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteSemester = ({ onOpen, onClose, semester, onSuccess }) => {
-  console.log(semester);
+  const { setLoading } = useLoading();
 
   const handleDelete = async () => {
+    setLoading(true);
     const response = await handleDeleteSemester(semester.id);
     if (response?.status === 204) {
       toast.success(response.message || "Xóa khoa thành công");
@@ -22,6 +23,7 @@ const DeleteSemester = ({ onOpen, onClose, semester, onSuccess }) => {
     } else {
       toast.error(response?.message || "Xóa khoa thất bại");
     }
+    setLoading(false);
   };
 
   return (

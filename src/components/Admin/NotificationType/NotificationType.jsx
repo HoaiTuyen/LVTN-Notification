@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import useDebounce from "../../../hooks/useDebounce";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import {
   handleListNotificationType,
   handleSearchNotificationType,
@@ -53,6 +53,7 @@ import {
 import AddNotificationType from "./AddNotificationType";
 import DeleteNotification from "./DeleteNotificationType";
 const NotificationType = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -75,26 +76,32 @@ const NotificationType = () => {
   };
 
   const fetchNotificationType = async (page = 1) => {
-    let res;
-    const keyword = debouncedSearchTerm.trim();
-    if (keyword) {
-      res = await handleSearchNotificationType(
-        keyword,
-        page - 1,
-        pagination.pageSize
-      );
-    } else {
-      res = await handleListNotificationType(page - 1, pagination.pageSize);
-    }
-    if (res?.data && res?.status === 200) {
-      setNotificationTypes(res.data.notificationTypes);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-        totalElements: res.data.totalElements,
-      });
+    try {
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      if (keyword) {
+        res = await handleSearchNotificationType(
+          keyword,
+          page - 1,
+          pagination.pageSize
+        );
+      } else {
+        res = await handleListNotificationType(page - 1, pagination.pageSize);
+      }
+      if (res?.data && res?.status === 200) {
+        setNotificationTypes(res.data.notificationTypes);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching notification types:", error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -189,7 +196,13 @@ const NotificationType = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {notificationTypes.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center">
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : notificationTypes.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={4}

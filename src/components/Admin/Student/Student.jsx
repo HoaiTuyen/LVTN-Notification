@@ -42,10 +42,11 @@ import {
   handleListStudent,
   handleSearchStudent,
 } from "../../../controller/StudentController";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportStudentModal from "./ImportStudentModal";
 const Student = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -66,36 +67,42 @@ const Student = () => {
     totalElements: 0,
   });
   const fetchStudents = async (page = 1) => {
-    let response;
-    let keyword = [
-      debouncedSearchTerm,
-      selectStatus !== "all" ? selectStatus : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-    if (keyword.trim() === "") {
-      response = await handleListStudent(page - 1, pagination.pageSize);
-    } else {
-      const searchTerm = debouncedSearchTerm.trim();
-      const status = selectStatus !== "all" ? selectStatus : "";
-      response = await handleSearchStudent(
-        status,
-        searchTerm,
-        page - 1,
-        pagination.pageSize
-      );
-    }
+    try {
+      let response;
+      let keyword = [
+        debouncedSearchTerm,
+        selectStatus !== "all" ? selectStatus : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      if (keyword.trim() === "") {
+        response = await handleListStudent(page - 1, pagination.pageSize);
+      } else {
+        const searchTerm = debouncedSearchTerm.trim();
+        const status = selectStatus !== "all" ? selectStatus : "";
+        response = await handleSearchStudent(
+          status,
+          searchTerm,
+          page - 1,
+          pagination.pageSize
+        );
+      }
 
-    if (response?.data) {
-      setStudents(response.data.students);
-      setPagination({
-        current: page,
-        pageSize: response.data.pageSize,
-        total: response.data.totalElements,
-        totalPages: response.data.totalPages,
-      });
-    } else {
-      setStudents([]);
+      if (response?.data) {
+        setStudents(response.data.students);
+        setPagination({
+          current: page,
+          pageSize: response.data.pageSize,
+          total: response.data.totalElements,
+          totalPages: response.data.totalPages,
+        });
+      } else {
+        setStudents([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -245,10 +252,19 @@ const Student = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.length === 0 ? (
+                  {loading ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center">
-                        Không có dữ liệu sinh viên phù hợp
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : students.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        Không tìm thấy sinh viên phù hợp
                       </TableCell>
                     </TableRow>
                   ) : (

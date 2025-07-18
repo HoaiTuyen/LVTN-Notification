@@ -48,3 +48,13 @@ export const updateNotification = (formData) => {
     },
   });
 };
+export const listNotificationReport = (form, to) => {
+  return api.post(`/notification/filter_notification?from=${form}&to=${to}`);
+};
+
+export const downloadReportExcel = (from, to) => {
+  return api.post("/notification/export_notification", null, {
+    params: { from, to },
+    responseType: "blob", // quan trọng: để axios trả về blob
+  });
+};

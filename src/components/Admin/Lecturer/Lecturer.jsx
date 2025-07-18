@@ -43,10 +43,12 @@ import {
   handleListTeacher,
   handleSearchTeacher,
 } from "../../../controller/TeacherController";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import useDebounce from "../../../hooks/useDebounce";
 import ImportTeacherModal from "./ImportTeacherModal";
+
 const Lecturer = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -83,6 +85,7 @@ const Lecturer = () => {
     setShowModal(true);
   };
   const fetchListTeacher = async (page = 1) => {
+    setLoading(true);
     try {
       let result;
       let keyword = [
@@ -120,6 +123,7 @@ const Lecturer = () => {
     } catch (error) {
       console.error("Error fetching teachers:", error);
     }
+    setLoading(false);
   };
   useEffect(() => {
     if (debouncedSearchTerm !== searchFromUrl) {
@@ -248,7 +252,16 @@ const Lecturer = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {teachers.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center justify-center py-6 text-gray-500"
+                      >
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : teachers.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={7}

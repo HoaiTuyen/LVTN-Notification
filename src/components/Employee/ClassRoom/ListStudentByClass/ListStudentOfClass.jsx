@@ -36,7 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { handleListStudentByClass } from "../../../../controller/ClassController";
 import { handleSearchStudent } from "../../../../controller/StudentController";
 import { useEffect } from "react";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import useDebounce from "../../../../hooks/useDebounce";
 import ImportStudentOfClassModal from "./ImportStudentOfClassModal";
 const ListStudentOfClass = () => {
@@ -48,6 +48,7 @@ const ListStudentOfClass = () => {
   const [openUpload, setOpenUpload] = useState(false);
   const [dataClass, setDataClass] = useState([]);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -92,34 +93,41 @@ const ListStudentOfClass = () => {
     }
   }
   const fetchListStudentByClass = async (page = 1) => {
-    let res;
-    const keyword = debouncedSearchTerm.trim();
-    if (keyword) {
-      res = await handleSearchStudent(
-        "",
-        keyword,
-        page - 1,
-        pagination.pageSize
-      );
-      console.log(res);
-    } else {
-      res = await handleListStudentByClass(
-        classId,
-        page - 1,
-        pagination.pageSize
-      );
-    }
+    try {
+      setLoading(true);
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      if (keyword) {
+        res = await handleSearchStudent(
+          "",
+          keyword,
+          page - 1,
+          pagination.pageSize
+        );
+        console.log(res);
+      } else {
+        res = await handleListStudentByClass(
+          classId,
+          page - 1,
+          pagination.pageSize
+        );
+      }
 
-    if (res?.data && res?.status === 200) {
-      setStudentByClass(res.data.students);
-      setDataClass(res.data);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-        totalElements: res.data.totalElements,
-      });
+      if (res?.data && res?.status === 200) {
+        setStudentByClass(res.data.students);
+        setDataClass(res.data);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -213,7 +221,16 @@ const ListStudentOfClass = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {studentByClass.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center h-24 text-muted-foreground"
+                      >
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : studentByClass.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}

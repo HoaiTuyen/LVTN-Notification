@@ -17,6 +17,7 @@ import {
   handleCreateRegisterStudentExcel,
   handleGetListRegisterStudentExcel,
 } from "../../../controller/SectionController";
+import { useLoading } from "../../../context/LoadingProvider";
 const generateSampleExcel = () => {
   const sampleData = [
     ["STT", "Tên lớp", "Mô tả"],
@@ -33,9 +34,8 @@ const ImportRegisterStudentSection = ({ open, onClose, onSuccess }) => {
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
   const [errors, setErrors] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-
+  const { setLoading } = useLoading();
   const inputRef = useRef(null);
 
   const handleFileSelect = (e) => {

@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import dayjs from "dayjs";
 import useDebounce from "../../../hooks/useDebounce";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import {
   handleListSemester,
   handleSearchSemester,
@@ -53,6 +53,7 @@ import {
 import AddSemester from "./AddSemester";
 import DeleteSemester from "./DeleteSemester";
 const Semester = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -76,23 +77,34 @@ const Semester = () => {
   };
 
   const fetchListSemester = async (page = 1) => {
-    let res;
-    const keyword = debouncedSearchTerm.trim();
-    if (keyword) {
-      res = await handleSearchSemester(keyword, page - 1, pagination.pageSize);
-    } else {
-      res = await handleListSemester("desc", page - 1, pagination.pageSize);
-    }
+    try {
+      setLoading(true);
+      let res;
+      const keyword = debouncedSearchTerm.trim();
+      if (keyword) {
+        res = await handleSearchSemester(
+          keyword,
+          page - 1,
+          pagination.pageSize
+        );
+      } else {
+        res = await handleListSemester("desc", page - 1, pagination.pageSize);
+      }
 
-    if (res?.data) {
-      setSemesters(res.data.semesters);
-      setPagination({
-        current: page,
-        pageSize: res.data.pageSize,
-        total: res.data.totalElements,
-        totalPages: res.data.totalPages,
-        totalElements: res.data.totalElements,
-      });
+      if (res?.data) {
+        setSemesters(res.data.semesters);
+        setPagination({
+          current: page,
+          pageSize: res.data.pageSize,
+          total: res.data.totalElements,
+          totalPages: res.data.totalPages,
+          totalElements: res.data.totalElements,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   const handleFormatDate = (date) => {
@@ -184,7 +196,16 @@ const Semester = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {semesters.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : semesters.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}

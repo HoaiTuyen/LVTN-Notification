@@ -25,9 +25,9 @@ import {
   handleUploadImage,
 } from "../../../../controller/AccountController";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-
+import { useLoading } from "../../../../context/LoadingProvider";
 const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useLoading();
   const [imagePreview, setImagePreview] = useState(null);
 
   const checkEdit = !!users?.id;
@@ -271,9 +271,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
             <Button
               className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               onClick={handleSubmit}
-              disabled={loading}
             >
-              {loading ? <Spin size="small" className="mr-2" /> : null}
               {checkEdit ? "Cập nhật" : "Thêm"}
             </Button>
           </DialogFooter>

@@ -9,16 +9,24 @@ import {
 } from "@/components/ui/dialog";
 import { handleDeleteDepartment } from "../../../controller/DepartmentController";
 import { toast } from "react-toastify";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteDepartment = ({ onOpen, onClose, department, onSuccess }) => {
+  const { setLoading } = useLoading();
   const handleDelete = async () => {
-    const response = await handleDeleteDepartment(department.id);
-    if (response?.status === 204) {
-      toast.success("Xóa khoa thành công");
-      onSuccess();
-      onClose();
-    } else {
-      toast.error(response?.message || "Xóa khoa thất bại");
+    try {
+      setLoading(true);
+      const response = await handleDeleteDepartment(department.id);
+      if (response?.status === 204) {
+        toast.success("Xóa khoa thành công");
+        onSuccess();
+        onClose();
+      } else {
+        toast.error(response?.message || "Xóa khoa thất bại");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 

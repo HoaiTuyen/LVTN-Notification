@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import {
   Card,
   CardHeader,
@@ -58,6 +58,7 @@ import { toast } from "react-toastify";
 import ImportStudentModal from "./ImportStudent";
 
 const StudentAccount = () => {
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -87,6 +88,7 @@ const StudentAccount = () => {
 
   const fetchListUser = async (page = 1) => {
     try {
+      setLoading(true);
       let response;
       const searchTerm = debouncedSearchTerm.trim();
 
@@ -127,6 +129,8 @@ const StudentAccount = () => {
     } catch (error) {
       console.error("Error fetching user list:", error);
       toast.error("Không thể tải danh sách người dùng");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -238,7 +242,16 @@ const StudentAccount = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : users.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}

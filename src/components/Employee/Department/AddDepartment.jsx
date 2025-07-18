@@ -17,8 +17,10 @@ import {
   handleUpdateDepartment,
 } from "../../../controller/DepartmentController";
 import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddDepartment = ({ open, onClose, onSuccess, department }) => {
   const checkEdit = !!department?.id;
+  const { setLoading } = useLoading();
 
   const [form, setForm] = useState({
     id: department?.id || "",
@@ -44,6 +46,7 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
   const handleSubmitAdd = async () => {
     try {
       if (checkEdit) {
+        setLoading(true);
         const reqEdit = await handleUpdateDepartment(form);
         console.log(reqEdit);
 
@@ -54,7 +57,9 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
         } else {
           toast.error(reqEdit.message || "Cập nhật khoa thất bại");
         }
+        setLoading(false);
       } else {
+        setLoading(true);
         const response = await handleAddDepartment(form);
         console.log(response);
 
@@ -65,6 +70,7 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
         } else {
           toast.error(response.message || "Thêm khoa thất bại 1111");
         }
+        setLoading(false);
       }
     } catch (error) {
       if (error) {

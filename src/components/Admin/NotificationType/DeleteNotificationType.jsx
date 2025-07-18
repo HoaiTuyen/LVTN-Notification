@@ -9,18 +9,25 @@ import {
 } from "@/components/ui/dialog";
 import { handleDeleteNotification } from "../../../controller/NotificationTypeController";
 import { toast } from "react-toastify";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteNotification = ({ onOpen, onClose, notification, onSuccess }) => {
-  console.log(notification);
+  const { setLoading } = useLoading();
 
   const handleDelete = async () => {
-    const response = await handleDeleteNotification(notification.id);
-    if (response?.status === 204) {
-      toast.success(response.message || "Xóa khoa thành công");
-      onSuccess();
-      onClose();
-    } else {
-      toast.error(response?.message || "Xóa khoa thất bại");
+    setLoading(true);
+    try {
+      const response = await handleDeleteNotification(notification.id);
+      if (response?.status === 204) {
+        toast.success(response.message || "Xóa loại thông báo thành công");
+        onSuccess();
+        onClose();
+      } else {
+        toast.error(response?.message || "Xóa loại thông báo thất bại");
+      }
+    } catch (error) {
+      console.error("Error deleting notification type:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,10 +51,18 @@ const DeleteNotification = ({ onOpen, onClose, notification, onSuccess }) => {
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="cursor-pointer"
+          >
             Hủy
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            className="cursor-pointer"
+          >
             Xóa
           </Button>
         </DialogFooter>

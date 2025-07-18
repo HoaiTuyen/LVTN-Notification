@@ -40,8 +40,12 @@ import {
   handleUploadImage,
 } from "../../../controller/AccountController";
 import { handleUpdateStudent } from "../../../controller/StudentController";
+import { Spin } from "antd";
+import ChangePasswordDialog from "../ChangePass";
 const ProfilePage = () => {
+  const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [openChangePass, setOpenChangePass] = useState(false);
   const [profileData, setProfileData] = useState([]);
   const [userImage, setUserImage] = useState("");
   const [tempImage, setTempImage] = useState(null);
@@ -49,33 +53,31 @@ const ProfilePage = () => {
   const inputRef = useRef(null);
 
   const fetchUserDetail = async () => {
-    const token = localStorage.getItem("access_token");
-    const data = jwtDecode(token);
-    const userId = data.userId;
-    const req = await handleGetDetailUser(userId);
-    console.log(req);
-
-    if (req?.data) {
-      const userData = req.data;
-      setUserImage(req.data.image);
-      if (userData.student) {
-        setProfileData(userData.student);
-      } else if (userData.teacher) {
-        setProfileData(userData.teacher);
-      } else {
-        console.log("Lỗi");
+    try {
+      const token = localStorage.getItem("access_token");
+      const data = jwtDecode(token);
+      const userId = data.userId;
+      const req = await handleGetDetailUser(userId);
+      console.log(req);
+      if (req?.data) {
+        const userData = req.data;
+        setUserImage(req.data.image);
+        if (userData.student) {
+          setProfileData(userData.student);
+        } else if (userData.teacher) {
+          setProfileData(userData.teacher);
+        } else {
+          console.log("Lỗi");
+          setLoading(false);
+        }
       }
+    } catch (error) {
+      console.error("Error fetching user detail:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  //   const academicHistory = [
-  //     { semester: "HK1 2022-2023", gpa: 3.5, credits: 18, status: "Đạt" },
-  //     { semester: "HK2 2022-2023", gpa: 3.7, credits: 20, status: "Đạt" },
-  //     { semester: "HK3 2022-2023", gpa: 3.6, credits: 16, status: "Đạt" },
-  //     { semester: "HK1 2023-2024", gpa: 3.8, credits: 18, status: "Đang học" },
-  //   ];
-
-  //   const progressPercentage = Math.round((profileData.credits / 150) * 100);
   useEffect(() => {
     fetchUserDetail();
   }, []);
@@ -113,20 +115,35 @@ const ProfilePage = () => {
     setFile(null); // Clear file state
   };
   const handleSave = async () => {
-    if (file) {
-      await handleImageUpload(); // Only upload image if there's a new one selected
-    }
+    try {
+      setLoading(true);
+      if (file) {
+        await handleImageUpload(); // Only upload image if there's a new one selected
+      }
 
-    // Save other updated information (like name, email, etc.)
-    const res = await handleUpdateStudent(profileData);
-    if (res?.data || res?.status === 204) {
-      toast.success("Thông tin cá nhân đã được cập nhật.");
-    } else {
-      toast.error(res.message || "Lỗi khi cập nhật thông tin.");
-    }
+      // Save other updated information (like name, email, etc.)
+      const res = await handleUpdateStudent(profileData);
+      console.log(res);
+      if (res?.data || res?.status === 204) {
+        toast.success("Thông tin cá nhân đã được cập nhật.");
+      } else {
+        toast.error(res.message || "Lỗi khi cập nhật thông tin.");
+      }
 
-    setIsEditing(false); // Disable editing after saving
+      setIsEditing(false); // Disable editing after saving
+    } catch (error) {
+      console.error("Error saving user detail:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen w-full bg-white p-0 ">
       <div className="space-y-6 p-10">
@@ -139,28 +156,41 @@ const ProfilePage = () => {
               Quản lý thông tin cá nhân và học tập của bạn
             </p>
           </div>
-          <Button
-            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-            className={
-              isEditing
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-blue-600 hover:bg-blue-700"
-            }
-          >
-            {isEditing ? (
-              <>
-                <Save className="mr-2 h-4 w-4" /> Lưu thay đổi
-              </>
-            ) : (
-              "Chỉnh sửa"
+          <div>
+            <Button
+              className="mr-2 bg-blue-600 hover:bg-blue-700 cursor-pointer"
+              onClick={() => setOpenChangePass(true)}
+            >
+              Đổi mật khẩu
+            </Button>
+            {openChangePass && (
+              <ChangePasswordDialog
+                open={openChangePass}
+                onClose={() => setOpenChangePass(false)}
+              />
             )}
-          </Button>
+            <Button
+              onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+              className={
+                isEditing
+                  ? "bg-green-600 hover:bg-green-700 cursor-pointer"
+                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+              }
+            >
+              {isEditing ? (
+                <>
+                  <Save className="mr-2 h-4 w-4" /> Lưu thay đổi
+                </>
+              ) : (
+                "Chỉnh sửa"
+              )}
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="personal" className="space-y-4">
           <TabsList>
             <TabsTrigger value="personal">Thông tin cá nhân</TabsTrigger>
-            <TabsTrigger value="academic">Thông tin học tập</TabsTrigger>
           </TabsList>
 
           <TabsContent
@@ -244,7 +274,11 @@ const ProfilePage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="studentId">Mã</Label>
-                      <Input id="studentId" value={profileData.id} disabled />
+                      <Input
+                        id="studentId"
+                        value={profileData.id || "Trống"}
+                        disabled
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -253,7 +287,7 @@ const ProfilePage = () => {
                         <Input
                           id="email"
                           type="email"
-                          value={profileData.email}
+                          value={profileData.email || "Trống"}
                           onChange={(e) =>
                             setProfileData({
                               ...profileData,
@@ -271,7 +305,7 @@ const ProfilePage = () => {
                       <Label htmlFor="name">Họ</Label>
                       <Input
                         id="firstName"
-                        value={profileData.firstName}
+                        value={profileData.firstName || "Trống"}
                         onChange={(e) =>
                           setProfileData({
                             ...profileData,
@@ -285,7 +319,7 @@ const ProfilePage = () => {
                       <Label htmlFor="name">Tên</Label>
                       <Input
                         id="firstName"
-                        value={profileData.lastName}
+                        value={profileData.lastName || "Trống"}
                         onChange={(e) =>
                           setProfileData({
                             ...profileData,
@@ -305,7 +339,7 @@ const ProfilePage = () => {
                         <Input
                           id="dateOfBirth"
                           type="date"
-                          value={profileData.dateOfBirth}
+                          value={profileData.dateOfBirth || "Trống"}
                           onChange={(e) =>
                             setProfileData({
                               ...profileData,
@@ -364,7 +398,7 @@ const ProfilePage = () => {
                         <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="address"
-                          value={profileData?.userName}
+                          value={profileData?.userName || "Trống"}
                           onChange={(e) =>
                             setProfileData({
                               ...profileData,
@@ -381,118 +415,6 @@ const ProfilePage = () => {
               </Card>
             </div>
           </TabsContent>
-
-          {/* <TabsContent value="academic" className="space-y-4 ]">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <GraduationCap className="mr-2 h-5 w-5" />
-                    Thông tin học tập
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">Khoa</Label>
-                      <p className="text-sm">{profileData.department}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Ngành</Label>
-                      <p className="text-sm">{profileData.major}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        Năm nhập học
-                      </Label>
-                      <p className="text-sm">{profileData.enrollmentYear}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Trạng thái</Label>
-                      <Badge variant="success">{profileData.status}</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Award className="mr-2 h-5 w-5" />
-                    Kết quả học tập
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        GPA hiện tại
-                      </Label>
-                      <p className="text-2xl font-bold">{profileData.gpa}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Xếp loại</Label>
-                      <p className="text-sm">
-                        {profileData.gpa >= 3.6
-                          ? "Xuất sắc"
-                          : profileData.gpa >= 3.2
-                          ? "Giỏi"
-                          : "Khá"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Tiến độ học tập</span>
-                      <span>{profileData.credits}/150 tín chỉ</span>
-                    </div>
-                    <Progress value={progressPercentage} className="h-2" />
-                    <p className="text-xs text-muted-foreground">
-                      Hoàn thành {progressPercentage}% chương trình
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="overflow-x-auto max-h-[300px]">
-              <CardHeader>
-                <CardTitle>Lịch sử học tập</CardTitle>
-                <CardDescription>
-                  Kết quả học tập qua các học kỳ
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {academicHistory.map((semester, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{semester.semester}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {semester.credits} tín chỉ
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">GPA: {semester.gpa}</p>
-                        <Badge
-                          variant={
-                            semester.status === "Đạt" ? "success" : "outline"
-                          }
-                        >
-                          {semester.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent> */}
         </Tabs>
       </div>
     </div>

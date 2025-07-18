@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import useDebounce from "../../../hooks/useDebounce";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 import {
   handleListGroup,
   handleSearchGroup,
@@ -53,6 +53,7 @@ import {
 import AddGroup from "./AddGroup";
 import DeleteGroup from "./DeleteGroup";
 const Group = () => {
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -76,6 +77,7 @@ const Group = () => {
 
   const fetchListGroup = async (page = 1) => {
     try {
+      setLoading(true);
       let res;
       const keyword = debouncedSearchTerm.trim();
       if (keyword) {
@@ -95,6 +97,8 @@ const Group = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -177,7 +181,16 @@ const Group = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {groups.length === 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={4}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        <Spin size="large" />
+                      </TableCell>
+                    </TableRow>
+                  ) : groups.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={4}

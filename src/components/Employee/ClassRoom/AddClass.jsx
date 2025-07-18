@@ -26,8 +26,9 @@ import {
 } from "../../../controller/ClassController";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
+import { useLoading } from "../../../context/LoadingProvider";
 const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
-  console.log(classRoom);
+  const { setLoading } = useLoading();
 
   const checkEdit = !!classRoom?.id;
   const [teachers, setTeachers] = useState([]);
@@ -75,6 +76,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
   }, [open, classRoom]);
   const handleSubmit = async () => {
     if (checkEdit) {
+      setLoading(true);
       const resEdit = await handleUpdateClass(form);
       console.log(resEdit);
 
@@ -85,7 +87,9 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
       } else {
         toast.error(resEdit?.message);
       }
+      setLoading(false);
     } else {
+      setLoading(true);
       const resAdd = await handleAddClass(form);
       console.log(resAdd);
 
@@ -96,6 +100,7 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
       } else {
         toast.error(resAdd?.message);
       }
+      setLoading(false);
     }
   };
   useEffect(() => {

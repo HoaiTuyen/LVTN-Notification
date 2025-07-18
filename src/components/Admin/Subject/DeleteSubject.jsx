@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/dialog";
 import { handleDeleteSubject } from "../../../controller/SubjectController";
 import { toast } from "react-toastify";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const DeleteSubject = ({ onOpen, onClose, subject, onSuccess }) => {
+  const { setLoading } = useLoading();
   const handleDelete = async () => {
+    setLoading(true);
     const response = await handleDeleteSubject(subject.id);
     if (response?.status === 204) {
       toast.success(response?.message || "Xóa môn học thành công");
@@ -20,6 +22,7 @@ const DeleteSubject = ({ onOpen, onClose, subject, onSuccess }) => {
     } else {
       toast.error(response?.message || "Xóa môn học thất bại");
     }
+    setLoading(false);
   };
 
   return (

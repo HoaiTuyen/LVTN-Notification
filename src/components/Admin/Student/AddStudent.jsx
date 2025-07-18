@@ -26,13 +26,13 @@ import {
 import { toast } from "react-toastify";
 import { handleListClass } from "../../../controller/ClassController";
 import { useValidateStudentForm } from "../../../hooks/useValidateForm";
-
+import { useLoading } from "../../../context/LoadingProvider";
 const AddStudent = ({ open, onClose, onSuccess, student }) => {
   const checkEdit = !!student?.id;
   const [dataClass, setDataClass] = useState([]);
   const { validateForm, formatDate, minBirthDate, maxBirthDate } =
     useValidateStudentForm();
-
+  const { setLoading } = useLoading();
   const [form, setForm] = useState({
     id: student?.id || "",
     firstName: student?.firstName || "",
@@ -104,6 +104,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
   const handleSubmitAdd = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       // Validate required fields
       if (!validateForm(form)) {
@@ -139,6 +140,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     } catch (error) {
       toast.error(error?.message || "Thêm sinh viên thất bại");
     }
+    setLoading(false);
   };
   const classOptions = dataClass.map((cls) => ({
     value: cls.id,
