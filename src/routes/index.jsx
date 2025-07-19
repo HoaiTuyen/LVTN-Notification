@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Login from "../components/Auth/Login";
 import Admin from "../components/Pages/Admin";
-// import NotFound from "../pages/NotFound";
+import NotFound from "../components/Pages/NotFound";
 import Lecturer from "../components/Pages/Lecturer";
 import Student from "../components/Pages/Student";
 import EmployeeDashboard from "../components/Pages/Employee";
@@ -227,6 +227,7 @@ function AppRoutes() {
             />
             <Route path="change-password" element={<ChangePasswordPage />} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
     </BrowserRouter>

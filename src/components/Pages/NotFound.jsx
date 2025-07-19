@@ -15,7 +15,7 @@ export default function NotFound() {
             <h1 className="text-[80px] font-bold">404</h1>
           </div>
 
-          <div className="mt-[-50px]">
+          <div className="mt-[50px]">
             <h2 className="text-2xl font-bold mb-2">Có vẻ bạn đang bị lạc</h2>
             <p className="text-gray-600 mb-6">
               Trang bạn tìm kiếm không tồn tại hoặc đã bị xóa!
