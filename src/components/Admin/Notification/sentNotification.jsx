@@ -39,9 +39,9 @@ import {
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { Pagination, Spin } from "antd";
 import dayjs from "dayjs";
-import DeleteNotification from "./deleteNotification";
+import DeleteNotification from "./DeleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
-import UpdateNotification from "./updateNotification";
+import UpdateNotification from "./UpdateNotification";
 import Reports from "./Reports/Reports";
 const SentNotifications = () => {
   const navigate = useNavigate();

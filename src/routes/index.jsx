@@ -25,9 +25,9 @@ import EmployeeAccount from "../components/Admin/Account/Employee/AccountEmploye
 import LecturerAccount from "../components/Admin/Account/Lecturer/LecturerAccount";
 import StudentAccount from "../components/Admin/Account/Student/StudentAccount";
 import StudyModuleAdmin from "../components/Admin/Section/StudyModule";
-import AdminCreateNotification from "../components/Admin/Notification/createNotification";
-import AdminCreateNotificationStudent from "../components/Admin/Notification/createNotificationStudent";
-import SentNotifications from "../components/Admin/Notification/sentNotification";
+import AdminCreateNotification from "../components/Admin/Notification/CreateNotification";
+import AdminCreateNotificationStudent from "../components/Admin/Notification/CreateNotificationStudent";
+import SentNotifications from "../components/Admin/Notification/SentNotification";
 //student
 import NotificationsPage from "../components/Student/Notification/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
@@ -39,7 +39,7 @@ import StudentSubject from "../components/Student/Subject/StudentSubject";
 import ChangePasswordPage from "../components/Student/ChangePassword";
 //Lecturer
 import TeacherProfile from "../components/Lecturer/settingLecturer";
-import LecturerCreateNotification from "../components/Lecturer/Notification/CreatNotification";
+import LecturerCreateNotification from "../components/Lecturer/Notification/CreateNotification";
 import SubjectCharge from "../components/Lecturer/SubjectCharge/SubjectCharge";
 import GroupClassTeacher from "../components/Lecturer/GroupClass/GroupClass";
 import DetailGroupLecturer from "../components/Lecturer/GroupClass/DetailGroup";
@@ -49,9 +49,9 @@ import HomeLecturerPage from "../components/Lecturer/Home/HomeLecturerPage";
 import ClassCharge from "../components/Lecturer/ClassCharge/ClassCharge";
 import ClassDetail from "../components/Lecturer/ClassCharge/ClassDetail";
 //Employee
-import EmployeeCreateNotification from "../components/Employee/Notification/createNotification";
-import EmployeeSentNotifications from "../components/Employee/Notification/sentNotification";
-import EmployeeNotificationDetail from "../components/Employee/Notification/detailNotification";
+import EmployeeCreateNotification from "../components/Employee/Notification/CreateNotification";
+import EmployeeSentNotifications from "../components/Employee/Notification/SentNotification";
+import EmployeeNotificationDetail from "../components/Employee/Notification/DetailNotification";
 import EmployeeProfilePage from "../components/Employee/ProfileEmployee";
 import EmployeeStudentAccount from "../components/Employee/Account/Student/EmployeeStudentAccount";
 import EmployeeLecturerAccount from "../components/Employee/Account/Lecturer/EmployeeLecturerAccount";
@@ -59,7 +59,7 @@ import EmployeeClassName from "../components/Employee/ClassRoom/EmployeeClassRoo
 import EmployeeListStudentOfClass from "../components/Employee/ClassRoom/ListStudentByClass/ListStudentOfClass";
 import EmployeeSemester from "../components/Employee/Semester/EmployeeSemester";
 import EmployeeSubject from "../components/Employee/Subject/EmployeeSubject";
-import EmployeeCreateNotificationStudent from "../components/Employee/Notification/createNotificationStudent";
+import EmployeeCreateNotificationStudent from "../components/Employee/Notification/CreateNotificationStudent";
 import StudyModule from "../components/Employee/Section/StudyModule";
 import HomePageEmployee from "../components/Employee/Home/HomePageEmployee";
 import DepartmentEmployee from "../components/Employee/Department/Department";
