@@ -25,6 +25,9 @@ import EmployeeAccount from "../components/Admin/Account/Employee/AccountEmploye
 import LecturerAccount from "../components/Admin/Account/Lecturer/LecturerAccount";
 import StudentAccount from "../components/Admin/Account/Student/StudentAccount";
 import StudyModuleAdmin from "../components/Admin/Section/StudyModule";
+import AdminCreateNotification from "../components/Admin/Notification/createNotification";
+import AdminCreateNotificationStudent from "../components/Admin/Notification/createNotificationStudent";
+import SentNotifications from "../components/Admin/Notification/sentNotification";
 //student
 import NotificationsPage from "../components/Student/Notification/NotificationPage";
 import StudentProfilePage from "../components/Student/ProfileStudent";
@@ -114,6 +117,15 @@ function AppRoutes() {
             <Route path="register-class" element={<StudyModuleAdmin />} />
 
             <Route path="setting" element={<AdminProfilePage />} />
+            <Route
+              path="notification-all"
+              element={<AdminCreateNotification />}
+            />
+            <Route
+              path="notification-student"
+              element={<AdminCreateNotificationStudent />}
+            />
+            <Route path="sent-notification" element={<SentNotifications />} />
           </Route>
           <Route
             path="/giang-vien"

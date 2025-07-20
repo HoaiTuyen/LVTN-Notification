@@ -12,7 +12,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 const { Header, Sider, Content } = Layout;
-import { Sheet, Send } from "lucide-react";
+import { Sheet, Send, MessageSquare, Bell } from "lucide-react";
 const { useBreakpoint } = Grid;
 import { toast } from "react-toastify";
 import { Outlet } from "react-router-dom";
@@ -69,6 +69,27 @@ const AdminDashboard = () => {
           label: "Tài khoản giảng viên",
         },
       ],
+    },
+    {
+      key: "notification",
+      icon: <MessageSquare size={16} />,
+      label: "Tạo thông báo",
+      title: "",
+      children: [
+        {
+          key: "notification-all",
+          label: "Gửi thông báo chung",
+        },
+        {
+          key: "notification-student",
+          label: "Gửi thông báo cho sinh viên",
+        },
+      ],
+    },
+    {
+      key: "sent-notification",
+      icon: <Bell size={16} />,
+      label: "Thông báo đã gửi",
     },
     {
       key: "department",
@@ -173,7 +194,11 @@ const AdminDashboard = () => {
         navigate(`/admin/${e.key}`);
       }}
       items={items}
-      style={{ height: "100%", borderRight: "1px solid #e5e7eb" }}
+      style={{
+        height: "90vh",
+        borderRight: "1px solid #e5e7eb",
+        overflowY: "auto",
+      }}
     />
   );
 

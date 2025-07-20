@@ -16,7 +16,7 @@ import {
   handleGetListStudentByClassExcel,
 } from "../../../../controller/ClassController";
 import { toast } from "react-toastify";
-import PreviewStudentByClass from "../ListStudentByClass/PreviewStudentByClass";
+import PreviewStudentByClass from "./PreviewStudentByClass";
 const ImportStudentOfClassModal = ({ open, onClose, onSuccess }) => {
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);

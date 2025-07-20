@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import StudentSelect from "react-select";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,12 +31,13 @@ import {
   X,
 } from "lucide-react";
 import useWebSocket from "@/config/Websorket";
-import { handleCreateNotification } from "../../../controller/NotificationController";
+import { handleCreateUserNotification } from "../../../controller/NotificationController";
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { handleListDepartment } from "../../../controller/DepartmentController";
+import { handleListStudent } from "../../../controller/StudentController";
 import { toast } from "react-toastify";
 import { useLoading } from "../../../context/LoadingProvider";
-const AdminCreateNotification = () => {
+const AdminCreateNotificationStudent = () => {
   const { connected } = useWebSocket();
 
   useEffect(() => {
@@ -48,17 +50,16 @@ const AdminCreateNotification = () => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    notificationType: "",
-    departmentId: "",
-    studentId: "",
+    studentIds: [],
+    isMail: false,
   });
 
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [fileDisplayNames, setFileDisplayNames] = useState([""]);
-  const [notificationTypes, setNotificationTypes] = useState([]);
-  const [departments, setDepartments] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
   const [files, setFiles] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const hanndleSubmit = async (e) => {
@@ -67,47 +68,33 @@ const AdminCreateNotification = () => {
       toast.error("Vui lòng nhập tiêu đề và nội dung");
       return;
     }
-    // if (!formData.title) {
-    //   toast.error("Vui lòng nhập tiêu đề và nội dung");
-    //   return;
-    // }
     if (!validateForm) return;
-
-    // Kiểm tra file + tên hiển thị
-    // const hasEmptyName = fileDisplayNames.some((n) => !n.trim());
-    // const hasEmptyFile = files.some((f) => !f);
-    // if (hasEmptyName || hasEmptyFile) {
-    //   toast.error("Vui lòng nhập tên hiển thị và chọn đầy đủ file PDF");
-    //   return;
-    // }
-
     const form = new FormData();
     form.append("title", formData.title);
     form.append("content", formData.content);
-    form.append("notificationType", formData.notificationType);
-    form.append("departmentId", formData.departmentId);
-    form.append("studentId", formData.studentId);
+    form.append("studentIds", formData.studentIds.join(","));
+    form.append("isMail", formData.isMail ? "true" : "false");
+    console.log("Form data before appending files:", formData.studentIds);
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);
       form.append(`files[${index}]`, files[index]);
     });
-    console.log(form);
 
     try {
       setIsLoading(true);
       setLoading(true);
-      const res = await handleCreateNotification(form);
-
+      const res = await handleCreateUserNotification(form);
+      console.log(res);
       if (res.status === 201) {
         setFormData({
           title: "",
           content: "",
-          notificationType: "",
-          departmentId: "",
-          studentId: "",
+          studentIds: [],
+          isMail: false,
         });
         setFileDisplayNames([""]);
         setFiles([]);
+        setSelectedStudents([]);
         setFileInputKey(Date.now());
 
         toast.success("Gửi thông báo thành công!");
@@ -129,26 +116,7 @@ const AdminCreateNotification = () => {
       setLoading(false);
     }
   };
-  const fetchNotifyType = async () => {
-    const req = await handleListNotificationType();
-    if (req?.data) {
-      setNotificationTypes(req.data.notificationTypes);
-    }
-  };
 
-  // const handleInputChange = (field, value) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [field]: value,
-  //   }));
-
-  //   if (errors[field]) {
-  //     setErrors((prev) => ({
-  //       ...prev,
-  //       [field]: "",
-  //     }));
-  //   }
-  // };
   const handleInputChange = (field, value) => {
     setFormData((prev) => {
       const updated = {
@@ -157,8 +125,8 @@ const AdminCreateNotification = () => {
       };
 
       // Nếu người dùng đang thay đổi mã sinh viên và nó không hợp lệ → reset gửi email
-      if (field === "studentCode" && !isValidStudentCode(value)) {
-        updated.sendEmail = false;
+      if (field === "studentIds" && !isValidStudentCode(value)) {
+        updated.isMail = false;
       }
 
       return updated;
@@ -179,30 +147,59 @@ const AdminCreateNotification = () => {
       newErrors.title = "Vui lòng nhập tiêu đề thông báo";
     }
 
-    if (!formData.notificationType) {
-      newErrors.notificationType = "Vui lòng chọn loại thông báo";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const fetchListDepartment = async () => {
-    const listDepartment = await handleListDepartment();
-    console.log(listDepartment);
 
-    if (listDepartment?.data) {
-      setDepartments(listDepartment.data.departments);
-    }
-  };
   const isValidStudentCode = (code) => {
+    if (typeof code !== "string") return false;
     const regex = /^DH\d{8,}$/i;
     return regex.test(code.trim());
   };
 
+  const fetchStudents = async () => {
+    const pageSize = 10;
+    let allStudents = [];
+    let page = 0;
+    let totalPages = 1;
+
+    try {
+      do {
+        const res = await handleListStudent(page, pageSize);
+
+        if (res?.data?.students) {
+          allStudents = [...allStudents, ...res.data.students];
+          totalPages = res.data.totalPages;
+          page++;
+        } else {
+          break; // stop if bad data
+        }
+      } while (page < totalPages);
+
+      const formatted = allStudents.map((s) => ({
+        value: s.id,
+        label: `${s.id} - ${s.firstName} ${s.lastName}`,
+        ...s,
+      }));
+
+      setStudents(formatted);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách sinh viên:", error);
+      toast.error("Không thể tải danh sách sinh viên");
+    }
+  };
   useEffect(() => {
-    fetchNotifyType();
-    fetchListDepartment();
+    const ids = selectedStudents.map((s) => s.value);
+    handleInputChange("studentIds", ids);
+  }, [selectedStudents]);
+
+  useEffect(() => {
+    fetchStudents();
   }, []);
+  const isSingleValidStudent =
+    formData.studentIds.length === 1 &&
+    isValidStudentCode(formData.studentIds[0]);
+
   return (
     <div className="min-h-screen w-full bg-white p-0">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
@@ -216,7 +213,7 @@ const AdminCreateNotification = () => {
                     Nội dung thông báo
                   </CardTitle>
                   <CardDescription className="text-red-400">
-                    (*) Lưu ý: Gửi thông báo chung, gửi thông báo cho từng khoa
+                    (*) Lưu ý: Gửi thông báo cho một sinh viên
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -238,92 +235,45 @@ const AdminCreateNotification = () => {
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="type">Loại thông báo *</Label>
-                        <Select
-                          value={formData.notificationType}
-                          onValueChange={(value) =>
-                            handleInputChange("notificationType", value)
-                          }
-                        >
-                          <SelectTrigger
-                            className={errors.type ? "border-red-500" : ""}
-                          >
-                            <SelectValue placeholder="Chọn loại thông báo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {notificationTypes.map((type) => (
-                              <SelectItem key={type.id} value={String(type.id)}>
-                                <div className="flex items-center gap-2">
-                                  <span>{type.name}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.notificationType && (
-                          <p className="text-sm text-red-600">
-                            {errors.notificationType}
-                          </p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="type">Khoa *</Label>
-                        <Select
-                          value={formData.departmentId}
-                          onValueChange={(value) =>
-                            handleInputChange("departmentId", value)
-                          }
-                        >
-                          <SelectTrigger
-                            className={errors.type ? "border-red-500" : ""}
-                          >
-                            <SelectValue placeholder="Chọn khoa" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {departments.map((department) => (
-                              <SelectItem
-                                key={department.id}
-                                value={String(department.id)}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span>{department.name}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {errors.departmentId && (
-                          <p className="text-sm text-red-600">
-                            {errors.departmentId}
-                          </p>
-                        )}
-                      </div>
-                      {/* <div className="space-y-2">
-                        <Label htmlFor="studentId">
+                        <Label htmlFor="studentIds">
                           Mã sinh viên (nếu gửi cho 1 sinh viên)
                         </Label>
-                        <Input
+                        {/* <Input
                           id="studentId"
                           placeholder="Nhập mã sinh viên (VD: DH52110090)"
                           value={formData.studentId}
                           onChange={(e) =>
                             handleInputChange("studentId", e.target.value)
                           }
-                        />
+                        /> */}
+                        <div className="space-y-2">
+                          <StudentSelect
+                            isMulti
+                            name="students"
+                            options={students}
+                            value={selectedStudents}
+                            onChange={(selected) =>
+                              setSelectedStudents(selected)
+                            }
+                            className="react-select-container"
+                            classNamePrefix="select"
+                            placeholder="Chọn sinh viên theo mã, tên hoặc lớp"
+                          />
+                        </div>
 
                         <div className="flex items-center space-x-2 pl-1">
                           <Checkbox
-                            id="sendEmail"
-                            checked={formData.sendEmail}
-                            disabled={!isValidStudentCode(formData.studentId)}
+                            id="isMail"
+                            checked={formData.isMail}
+                            disabled={!isSingleValidStudent}
                             onCheckedChange={(checked) =>
-                              handleInputChange("sendEmail", checked === true)
+                              handleInputChange("isMail", checked === true)
                             }
                           />
                           <label
-                            htmlFor="sendEmail"
+                            htmlFor="isMail"
                             className={`text-sm ${
-                              !isValidStudentCode(formData.studentId)
+                              !isSingleValidStudent
                                 ? "text-gray-400"
                                 : "text-muted-foreground"
                             }`}
@@ -331,13 +281,12 @@ const AdminCreateNotification = () => {
                             Gửi email đến sinh viên có mã trên
                           </label>
                         </div>
-                        {formData.studentId &&
-                          !isValidStudentCode(formData.studentId) && (
-                            <p className="text-sm text-red-600">
-                              Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
-                            </p>
-                          )}
-                      </div> */}
+                        {formData.studentId && !isSingleValidStudent && (
+                          <p className="text-sm text-red-600">
+                            Mã sinh viên không hợp lệ. Vui lòng kiểm tra lại.
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -357,46 +306,6 @@ const AdminCreateNotification = () => {
                       )}
                     </div>
 
-                    {/* {fileDisplayNames.map((name, index) => (
-                      <div key={index} className="flex items-center gap-2 mb-2">
-                        <Input
-                          type="text"
-                          placeholder="Tên hiển thị file (VD: Đề cương gì đó...)"
-                          value={name}
-                          onChange={(e) => {
-                            const newNames = [...fileDisplayNames];
-                            newNames[index] = e.target.value;
-                            setFileDisplayNames(newNames);
-                          }}
-                        />
-                        <Input
-                          type="file"
-                          accept="application/pdf"
-                          onChange={(e) => {
-                            const newFiles = [...files];
-                            newFiles[index] = e.target.files[0];
-                            setFiles(newFiles);
-                          }}
-                        />
-                        {fileDisplayNames.length > 1 && (
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
-                              const newNames = [...fileDisplayNames];
-                              const newFiles = [...files];
-                              newNames.splice(index, 1);
-                              newFiles.splice(index, 1);
-                              setFileDisplayNames(newNames);
-                              setFiles(newFiles);
-                            }}
-                          >
-                            <X className="w-4 h-4 text-red-500" />
-                          </Button>
-                        )}
-                      </div>
-                    ))} */}
                     {fileDisplayNames.map((name, index) => (
                       <div
                         key={`${fileInputKey}-${index}`}
@@ -489,7 +398,7 @@ const AdminCreateNotification = () => {
     </div>
   );
 };
-export default AdminCreateNotification;
+export default AdminCreateNotificationStudent;
 
 // import React, { useEffect } from "react";
 
