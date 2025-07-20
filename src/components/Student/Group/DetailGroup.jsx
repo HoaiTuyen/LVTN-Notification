@@ -30,7 +30,6 @@ import {
 import dayjs from "dayjs";
 import useWebSocket from "@/config/Websorket";
 
-import { decryptId } from "../../../util/SercurityUrl";
 const DetailGroupStudent = () => {
   const { connected } = useWebSocket();
 
@@ -42,7 +41,7 @@ const DetailGroupStudent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { groupStudyId } = useParams();
-  const realId = decryptId(groupStudyId || "");
+
   const [groupDetail, setGroupDetail] = useState({});
   const [members, setMembers] = useState([]);
   const [notificationGroups, setNotificationGroups] = useState([]);
@@ -65,7 +64,9 @@ const DetailGroupStudent = () => {
   };
   const fetchListNotificationGroup = async () => {
     setLoadingPage(true);
-    const listNotificationGroup = await handleListNotificationGroup(realId);
+    const listNotificationGroup = await handleListNotificationGroup(
+      groupStudyId
+    );
     setLoadingPage(false);
     if (listNotificationGroup?.data || listNotificationGroup?.status === 200) {
       const sorted = [...listNotificationGroup.data].sort((a, b) => {

@@ -242,6 +242,7 @@ const AddAccountLecturer = ({ open, onClose, onSuccess, users }) => {
                     <SelectValue placeholder="Chọn role" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="STUDENT">Student</SelectItem>
                     <SelectItem value="TEACHER">Teacher</SelectItem>
                   </SelectContent>
                 </Select>

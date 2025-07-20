@@ -236,13 +236,14 @@ const AddAccountStudent = ({ open, onClose, onSuccess, users }) => {
                 <Select
                   value={form.role}
                   onValueChange={(value) => setForm({ ...form, role: value })}
-                  disabled={true}
+                  // disabled={true}
                 >
                   <SelectTrigger id="role">
                     <SelectValue placeholder="Chọn role" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="STUDENT">Student</SelectItem>
+                    <SelectItem value="TEACHER">Teacher</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

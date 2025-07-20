@@ -165,7 +165,7 @@ const NotificationDropdown = ({
                 className={
                   isTitleOnly
                     ? "block whitespace-pre-line font-medium" // hiện đầy đủ, xuống dòng nếu có \n
-                    : "block max-w-[200px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
+                    : "block max-w-[150px] truncate overflow-hidden whitespace-nowrap font-medium" // hiện ngắn gọn, có ...
                 }
               >
                 {removeDuplicateLines(item.title)}

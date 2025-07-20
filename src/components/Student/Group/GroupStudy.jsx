@@ -47,7 +47,6 @@ import {
 } from "../../../config/color";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-import { encryptId } from "../../../util/SercurityUrl";
 const GroupStudyStudent = () => {
   const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
@@ -169,11 +168,7 @@ const GroupStudyStudent = () => {
                           className="text-lg font-semibold truncate cursor-pointer"
                           title={group.groupName}
                           onClick={() => {
-                            navigate(
-                              `/sinh-vien/group-study/${encodeURIComponent(
-                                encryptId(group.groupId)
-                              )}`
-                            );
+                            navigate(`/sinh-vien/group-study/${group.groupId}`);
                           }}
                         >
                           {group.groupName}
