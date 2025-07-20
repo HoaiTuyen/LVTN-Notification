@@ -133,7 +133,8 @@ api.interceptors.request.use(
           try {
             const refreshToken = localStorage.getItem("refresh_token");
             const res = await axios.post(
-              "http://localhost:8080/api/v1/auth/refresh-token?refreshToken=" +
+              import.meta.env.VITE_APP_BACKEND_URL +
+                "/api/v1/auth/refresh-token?refreshToken=" +
                 refreshToken
             );
 

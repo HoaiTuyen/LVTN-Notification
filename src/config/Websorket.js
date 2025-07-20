@@ -68,7 +68,9 @@ const useWebSocket = () => {
       return;
     }
 
-    const socket = new SockJS(`http://localhost:8080/ws?token=${token}`);
+    const socket = new SockJS(
+      `${import.meta.env.VITE_APP_WEBSOCKET_URL}?token=${token}`
+    );
     const stompClient = Stomp.over(socket);
 
     // Optional: turn off verbose logging
