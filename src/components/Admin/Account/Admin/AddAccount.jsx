@@ -81,6 +81,10 @@ const AddAccount = ({ open, onClose, onSuccess, users }) => {
 
   const handleSubmit = async () => {
     try {
+      if (!form.username || !form.password) {
+        toast.error("Vui lòng nhập đầy đủ thông tin");
+        return;
+      }
       setLoading(true);
       let accountId = form.id;
 

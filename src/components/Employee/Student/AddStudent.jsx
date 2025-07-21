@@ -67,7 +67,7 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       setDataClass(allClasses);
     } catch (error) {
       console.error("Lỗi khi fetch all classes:", error);
-      return [];
+      setDataClass([]);
     } finally {
       setLoading(false);
     }
@@ -107,9 +107,11 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
   const handleSubmitAdd = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       // Validate required fields
       if (!validateForm(form)) {
+        setLoading(false);
         return;
       }
 
@@ -119,19 +121,15 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       };
 
       if (checkEdit) {
-        setLoading(true);
         const reqEdit = await handleUpdateStudent(payload);
         if (reqEdit?.status === 204) {
           toast.success(reqEdit.message || "Cập nhật sinh viên thành công");
           onSuccess();
           onClose();
-          return;
         } else {
           toast.error(reqEdit?.message || "Cập nhật sinh viên thất bại");
-          return;
         }
       } else {
-        setLoading(true);
         const response = await handleAddStudent(payload);
         if (response?.status === 201) {
           toast.success(response.message || "Thêm sinh viên thành công");

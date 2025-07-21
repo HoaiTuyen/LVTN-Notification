@@ -1,41 +1,48 @@
 import { toast } from "react-toastify";
 
-export const useValidateStudentForm = () => {
+const getFormattedDate = (date) => date.toISOString().split("T")[0];
+
+const validateBirthDate = (dateStr, minAge, minDate) => {
+  if (!dateStr) return false;
+  const date = new Date(dateStr);
+  const now = new Date();
+
+  const age = now.getFullYear() - date.getFullYear();
+  const m = now.getMonth() - date.getMonth();
+  const d = now.getDate() - date.getDate();
+
+  const isFuture = date > now;
+  const isTooYoung =
+    age < minAge || (age === minAge && (m < 0 || (m === 0 && d < 0)));
+  const isTooOld = date < minDate;
+
+  return !isFuture && !isTooYoung && !isTooOld;
+};
+
+const useValidateFormBase = (type = "student") => {
   const today = new Date();
+  const minAge = type === "lecturer" ? 22 : 18;
   const maxBirthDate = new Date(
-    today.getFullYear() - 18,
+    today.getFullYear() - minAge,
     today.getMonth(),
     today.getDate()
   );
   const minBirthDate = new Date(today.getFullYear() - 100, 0, 1);
 
-  const formatDate = (date) => date.toISOString().split("T")[0];
-
-  const isValidBirthDate = (dateStr) => {
-    if (!dateStr) return false;
-    const date = new Date(dateStr);
-    const now = new Date();
-
-    const age = now.getFullYear() - date.getFullYear();
-    const m = now.getMonth() - date.getMonth();
-    const d = now.getDate() - date.getDate();
-
-    const isFuture = date > now;
-    const isTooYoung =
-      age < 18 || (age === 18 && (m < 0 || (m === 0 && d < 0)));
-    const isTooOld = date < minBirthDate;
-
-    return !isFuture && !isTooYoung && !isTooOld;
-  };
-
   const validateForm = (form) => {
+    const requiredMsg =
+      type === "lecturer"
+        ? "Vui lòng điền đầy đủ thông tin giảng viên"
+        : "Vui lòng điền đầy đủ thông tin bắt buộc";
+    const birthMsg = "Ngày sinh không hợp lệ. Vui lòng nhập lại.";
+
     if (!form.id || !form.firstName || !form.lastName || !form.email) {
-      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc");
+      toast.error(requiredMsg);
       return false;
     }
 
-    if (!isValidBirthDate(form.dateOfBirth)) {
-      toast.error("Ngày sinh không hợp lệ. Vui lòng nhập lại.");
+    if (!validateBirthDate(form.dateOfBirth, minAge, minBirthDate)) {
+      toast.error(birthMsg);
       return false;
     }
 
@@ -44,58 +51,11 @@ export const useValidateStudentForm = () => {
 
   return {
     validateForm,
-    formatDate,
+    formatDate: getFormattedDate,
     minBirthDate,
     maxBirthDate,
   };
 };
 
-export const useValidateLecturerForm = () => {
-  const today = new Date();
-  const maxBirthDate = new Date(
-    today.getFullYear() - 22,
-    today.getMonth(),
-    today.getDate()
-  ); // ≥ 22 tuổi
-  const minBirthDate = new Date(today.getFullYear() - 100, 0, 1);
-
-  const formatDate = (date) => date.toISOString().split("T")[0];
-
-  const isValidBirthDate = (dateStr) => {
-    if (!dateStr) return false;
-    const date = new Date(dateStr);
-    const now = new Date();
-
-    const age = now.getFullYear() - date.getFullYear();
-    const m = now.getMonth() - date.getMonth();
-    const d = now.getDate() - date.getDate();
-
-    const isFuture = date > now;
-    const isTooYoung =
-      age < 22 || (age === 22 && (m < 0 || (m === 0 && d < 0)));
-    const isTooOld = date < minBirthDate;
-
-    return !isFuture && !isTooYoung && !isTooOld;
-  };
-
-  const validateForm = (form) => {
-    if (!form.id || !form.firstName || !form.lastName || !form.email) {
-      toast.error("Vui lòng điền đầy đủ thông tin giảng viên");
-      return false;
-    }
-
-    if (!isValidBirthDate(form.dateOfBirth)) {
-      toast.error("Ngày sinh không hợp lệ. Vui lòng nhập lại.");
-      return false;
-    }
-
-    return true;
-  };
-
-  return {
-    validateForm,
-    formatDate,
-    minBirthDate,
-    maxBirthDate,
-  };
-};
+export const useValidateStudentForm = () => useValidateFormBase("student");
+export const useValidateLecturerForm = () => useValidateFormBase("lecturer");

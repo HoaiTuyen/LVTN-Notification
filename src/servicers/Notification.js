@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const createNotification = (formData) => {
   return api.post("/notification/create", formData, {

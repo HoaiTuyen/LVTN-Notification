@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const addStudent = (data) => {
   return api.post("/student/add", data);

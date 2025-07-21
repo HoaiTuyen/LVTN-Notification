@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const listGroup = (page, pageSize = 10) => {
   return api.get("/studygroup/list_study_group", {

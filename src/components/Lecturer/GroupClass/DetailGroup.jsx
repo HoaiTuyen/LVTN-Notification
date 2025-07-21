@@ -20,8 +20,8 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
 import { handleDetailGroup } from "../../../controller/GroupController";
-import { gradientBackgroundFromString } from "../../../config/color";
-import LecturerCreateGroupNotification from "./NotificationGroup/CreateNotification";
+import { gradientBackgroundFromString } from "../../../config/Color";
+import LecturerCreateGroupNotification from "./notificationgroup/CreateNotification";
 import {
   handleListNotificationGroup,
   handleDetailNotificationGroup,
@@ -34,8 +34,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import DeleteNotificationGroup from "./NotificationGroup/DeleteNotificationGroup";
-import UpdateNotificationGroup from "./NotificationGroup/UpdateNotificationGroup";
+import DeleteNotificationGroup from "./notificationgroup/DeleteNotificationGroup";
+import UpdateNotificationGroup from "./notificationgroup/UpdateNotificationGroup";
 import { Spin } from "antd";
 const DetailGroupLecturer = () => {
   const location = useLocation();
@@ -92,9 +92,16 @@ const DetailGroupLecturer = () => {
 
   const getInitials = (name) => {
     if (!name) return "";
-    const parts = name.trim().split(" ");
-    if (parts.length === 1) return parts[0][0].toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    const parts = name.trim().split(/\s+/);
+    console.log(parts);
+    return parts
+      .map((part) =>
+        part[0]
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+      )
+      .join("");
   };
   const handleToggleExpand = async (notificationGroup, e) => {
     e.stopPropagation();
@@ -156,7 +163,7 @@ const DetailGroupLecturer = () => {
             </div>
           </div>
         </div>
-        <div className="min-h-screen ">
+        <div className="min-h-screen pb-10">
           <Tabs
             value={selectTabs}
             onValueChange={setSelectTabs}
@@ -224,7 +231,9 @@ const DetailGroupLecturer = () => {
                     />
                   </div>
                   {notificationGroups.length === 0 ? (
-                    <></>
+                    <div className="text-center text-gray-500">
+                      Hiện tại chưa có thông báo nào
+                    </div>
                   ) : (
                     notificationGroups.map((notify, index) => (
                       <div
@@ -232,21 +241,28 @@ const DetailGroupLecturer = () => {
                         className="bg-white border rounded-xl shadow-sm overflow-hidden cursor-pointer"
                       >
                         {/* Header */}
-                        <div className="p-4 flex space-x-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-blue-500 text-white">
-                              {getInitials(groupDetail.userName) ||
-                                groupDetail.image}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <p className="font-semibold">
-                              {groupDetail.userName}
+                        <div>
+                          <div className="p-4 flex space-x-3">
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-blue-500 text-white">
+                                {getInitials(groupDetail.userName) ||
+                                  groupDetail.image}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <p className="font-semibold">
+                                {groupDetail.userName}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {dayjs(notify.createdAt).format("DD [thg] M")}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="pl-4 pb-4">
+                            <p className="mt-2 text-base font-semibold">
+                              {notify.title}
                             </p>
-                            <p className="text-sm text-gray-500">
-                              {dayjs(notify.createdAt).format("DD [thg] M")}
-                            </p>
-                            <p className="mt-2">{notify.title}</p>
+                            <p className="mt-2">{notify.content}</p>
                           </div>
                         </div>
 
@@ -457,7 +473,7 @@ const DetailGroupLecturer = () => {
                     className="flex items-center space-x-3 py-2"
                     key={groupDetail.userName}
                   >
-                    <Avatar>
+                    <Avatar className="h-10 w-10">
                       <AvatarImage src="" alt={groupDetail.userName} />
                       <AvatarFallback className="bg-blue-500 text-white">
                         {getInitials(groupDetail.userName)}
@@ -483,7 +499,7 @@ const DetailGroupLecturer = () => {
                         key={member.fullName}
                         className="flex items-center space-x-3 py-2"
                       >
-                        <Avatar>
+                        <Avatar className="h-10 w-10">
                           <AvatarFallback className="bg-gray-400 text-white">
                             {getInitials(member.fullName) || member.image}
                           </AvatarFallback>

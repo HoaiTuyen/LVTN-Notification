@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const listNotificationType = (page, pageSize = 10) => {
   return api.get("/notification_type/list_notification_type", {

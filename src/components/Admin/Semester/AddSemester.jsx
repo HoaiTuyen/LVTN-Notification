@@ -40,7 +40,7 @@ const AddSemester = ({ open, onClose, onSuccess, semester }) => {
       !form.startDate ||
       !form.endDate
     ) {
-      toast.error("Vui lòng điền đầy đủ các trường");
+      toast.error("Vui lòng điền đầy đủ các thông tin");
       return;
     }
     const start = new Date(form.startDate);

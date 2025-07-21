@@ -1,4 +1,4 @@
-import api from "@/axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const statisticalShare = async () => {
   return await api.get("/report/overview");

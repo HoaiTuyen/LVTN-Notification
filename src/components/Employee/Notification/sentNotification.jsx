@@ -39,9 +39,9 @@ import {
 import { handleListNotificationType } from "../../../controller/NotificationTypeController";
 import { Pagination, Spin } from "antd";
 import dayjs from "dayjs";
-import DeleteNotification from "./deleteNotification";
+import DeleteNotification from "./DeleteNotification";
 import useDebounce from "../../../hooks/useDebounce";
-import UpdateNotification from "./updateNotification";
+import UpdateNotification from "./UpdateNotification";
 import Reports from "./Reports/Reports";
 const EmployeeSentNotifications = () => {
   const navigate = useNavigate();
@@ -190,19 +190,6 @@ const EmployeeSentNotifications = () => {
           </div>
 
           {/* Statistics */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Tổng thông báo
-                </CardTitle>
-                <Bell className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalSent}</div>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Filters */}
           <Card>

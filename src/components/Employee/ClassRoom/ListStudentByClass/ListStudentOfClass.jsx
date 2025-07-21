@@ -236,7 +236,7 @@ const ListStudentOfClass = () => {
                         colSpan={6}
                         className="text-center h-24 text-muted-foreground"
                       >
-                        Không có sinh viên nào đăng ký môn học này
+                        Không có sinh viên nào trong lớp học này
                       </TableCell>
                     </TableRow>
                   ) : (

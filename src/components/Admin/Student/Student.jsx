@@ -77,6 +77,7 @@ const Student = () => {
         .join(" ");
       if (keyword.trim() === "") {
         response = await handleListStudent(page - 1, pagination.pageSize);
+        console.log(response);
       } else {
         const searchTerm = debouncedSearchTerm.trim();
         const status = selectStatus !== "all" ? selectStatus : "";
@@ -243,9 +244,11 @@ const Student = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>MSGV</TableHead>
+                    <TableHead>MSSV</TableHead>
                     <TableHead>Họ và tên</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Lớp</TableHead>
+                    <TableHead>Khoa</TableHead>
                     <TableHead className="justify-start">Giới tính</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Thao tác</TableHead>
@@ -281,33 +284,16 @@ const Student = () => {
                           title={student.name}
                         >
                           <div className="flex items-center gap-2">
-                            {/* <Avatar className="h-8 w-8">
-                                    <AvatarImage src="/placeholder.svg" />
-                                    <AvatarFallback>
-                                    {student.name
-                                        .split(" ")
-                                        .map((w) => w[0])
-                                        .join("")
-                                        .toUpperCase()
-                                        .slice(0, 2)}
-                                    </AvatarFallback>
-                                </Avatar> */}
                             {student.firstName} {student.lastName}
                           </div>
                         </TableCell>
                         <TableCell>{student.email}</TableCell>
-                        {/* <TableCell>{student.clas}</TableCell> */}
+                        <TableCell>{student.className || "Trống"}</TableCell>
+                        <TableCell>
+                          {student.departmentName || "Trống"}
+                        </TableCell>
                         <TableCell>{renderGender(student.gender)}</TableCell>
                         <TableCell>
-                          {/* {student.status === "THOI_HOC" ? (
-                            <Badge className="bg-red-100 text-white-800">
-                              {student.status}
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-green-100 text-green-800">
-                              {student.status}
-                            </Badge>
-                          )} */}
                           <Badge
                             className={filterStudents(student.status).className}
                           >

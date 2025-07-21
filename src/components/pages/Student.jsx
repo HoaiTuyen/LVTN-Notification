@@ -96,6 +96,8 @@ const Student = () => {
         "/user/queue/notification",
         (message) => {
           const parsedMessage = JSON.parse(message.body);
+          parsedMessage.type = "ChungToanTruong";
+
           console.log("Received general notification:", parsedMessage);
 
           setNotificationList((prev) => {
@@ -109,8 +111,9 @@ const Student = () => {
       const groupSub = stompClient.current.subscribe(
         "/user/queue/group",
         (message) => {
-          console.log(message.body);
           const parsedMessage = JSON.parse(message.body);
+          parsedMessage.type = "ChungToanTruong";
+
           console.log(parsedMessage);
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
@@ -147,6 +150,8 @@ const Student = () => {
         (message) => {
           const parsedMessage = JSON.parse(message.body);
           console.log("Received personal notification:", parsedMessage);
+          parsedMessage.type = "ChungToanTruong";
+
           setNotificationList((prev) => {
             if (prev.some((item) => item.id === parsedMessage.id)) return prev;
             return [{ ...parsedMessage, isRead: false }, ...prev];

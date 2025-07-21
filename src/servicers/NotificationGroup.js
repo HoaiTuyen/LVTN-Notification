@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const createNotificationGroup = (formData) => {
   return api.post("/study_group_notification/create", formData, {

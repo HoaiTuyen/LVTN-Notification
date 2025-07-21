@@ -353,8 +353,8 @@ const EmployeeProfilePage = () => {
                               dateOfBirth: e.target.value,
                             })
                           }
-                          disabled
-                          className="pl-8"
+                          readOnly
+                          className="pl-8 text-gray-400"
                         />
                       </div>
                     </div>

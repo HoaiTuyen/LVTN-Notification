@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const addDepartment = async (data) => {
   const response = await api.post("/department/add", data);

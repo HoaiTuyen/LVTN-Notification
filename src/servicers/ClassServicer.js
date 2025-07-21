@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const listClass = (page, pageSize) => {
   return api.get("/class/list_classes", {

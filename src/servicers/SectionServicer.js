@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const getListClassSectionExcel = (formData) => {
   return api.post("/classsection/preview_class_section", formData, {

@@ -299,7 +299,9 @@ const Lecturer = () => {
                           </div>
                         </TableCell>
                         <TableCell>{teacher.email}</TableCell>
-                        <TableCell>{teacher.departmentName}</TableCell>
+                        <TableCell>
+                          {teacher.departmentName || "Trống"}
+                        </TableCell>
 
                         <TableCell>{renderGender(teacher.gender)}</TableCell>
                         {teacher.status == "ĐANG_CÔNG_TÁC" ? (

@@ -125,24 +125,6 @@ const HomeLecturerPage = () => {
     fetchInitialData();
   }, []);
 
-  const recentActivities = [
-    {
-      title: "Tạo thông báo mới",
-      description: "Thông báo về bài kiểm tra giữa kỳ môn Lập trình Web",
-      time: "2 giờ trước",
-    },
-    {
-      title: "Cập nhật nhóm học tập",
-      description: 'Chỉnh sửa thông tin nhóm "React Advanced"',
-      time: "5 giờ trước",
-    },
-    {
-      title: "Phản hồi sinh viên",
-      description: 'Trả lời câu hỏi trong nhóm "JavaScript Fundamentals"',
-      time: "1 ngày trước",
-    },
-  ];
-
   const filteredCourses = classSectionList.map((section, index) => {
     return {
       id: `${section.subjectId}-${section.id.groupId}`,
@@ -190,7 +172,6 @@ const HomeLecturerPage = () => {
                 <Calendar className="h-5 w-5" />
                 Lịch giảng dạy
               </CardTitle>
-              <CardDescription>Các lớp học được phân công</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col h-full">
               <div className="space-y-4 flex-1 pb-3">

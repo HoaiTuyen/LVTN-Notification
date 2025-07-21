@@ -40,10 +40,28 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
     code: "",
   });
   const fetchTeacher = async () => {
-    const teacher = await handleListTeacher();
-
-    if (teacher?.data) {
-      setListTeacher(teacher.data.teachers);
+    const pageSize = 10;
+    let allTeachers = [];
+    let page = 0;
+    let totalPages = 1;
+    try {
+      do {
+        const res = await handleListTeacher(page, pageSize);
+        console.log(res);
+        if (res?.data?.teachers) {
+          allTeachers = [...allTeachers, ...res.data.teachers];
+          totalPages = res.data.totalPages;
+          page++;
+        } else {
+          break; // stop if bad data
+        }
+      } while (page < totalPages);
+      if (allTeachers) {
+        console.log(allTeachers);
+        setListTeacher(allTeachers);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
   const handleSubmit = async () => {
@@ -138,7 +156,7 @@ const AddGroup = ({ open, onClose, onSuccess, group }) => {
                 <div className="grid gap-2"></div>
               ) : (
                 <div className="grid gap-2">
-                  <Label htmlFor="teacher"></Label>
+                  <Label htmlFor="teacher">Giáo viên</Label>
                   <Select
                     value={form.teacherId}
                     onValueChange={(value) =>

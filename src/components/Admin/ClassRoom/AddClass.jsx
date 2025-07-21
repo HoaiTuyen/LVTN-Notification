@@ -75,32 +75,40 @@ const AddClass = ({ open, onClose, onSuccess, classRoom }) => {
     }
   }, [open, classRoom]);
   const handleSubmit = async () => {
-    if (checkEdit) {
-      setLoading(true);
-      const resEdit = await handleUpdateClass(form);
-      console.log(resEdit);
-
-      if (resEdit?.data || resEdit?.status === 204) {
-        onSuccess();
-        toast.success(resEdit?.message || "Cập nhật lớp thành công");
-        onClose();
-      } else {
-        toast.error(resEdit?.message);
+    try {
+      if (!form.name || !form.description || !form.id) {
+        toast.error("Vui lòng nhập đầy đủ thông tin");
+        return;
       }
-      setLoading(false);
-    } else {
       setLoading(true);
-      const resAdd = await handleAddClass(form);
-      console.log(resAdd);
+      if (checkEdit) {
+        const resEdit = await handleUpdateClass(form);
+        console.log(resEdit);
 
-      if (resAdd?.data && resAdd?.status === 201) {
-        onSuccess();
-        toast.success(resAdd?.message || "Thêm lớp thành công");
-        onClose();
+        if (resEdit?.data || resEdit?.status === 204) {
+          onSuccess();
+          toast.success(resEdit?.message || "Cập nhật lớp thành công");
+          onClose();
+        } else {
+          toast.error(resEdit?.message);
+        }
+        setLoading(false);
       } else {
-        toast.error(resAdd?.message);
+        setLoading(true);
+        const resAdd = await handleAddClass(form);
+        console.log(resAdd);
+
+        if (resAdd?.data && resAdd?.status === 201) {
+          onSuccess();
+          toast.success(resAdd?.message || "Thêm lớp thành công");
+          onClose();
+        } else {
+          toast.error(resAdd?.message);
+        }
+        setLoading(false);
       }
-      setLoading(false);
+    } catch (e) {
+      console.log(e);
     }
   };
   useEffect(() => {

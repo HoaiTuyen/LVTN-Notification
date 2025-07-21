@@ -49,7 +49,7 @@ import { jwtDecode } from "jwt-decode";
 import {
   gradientBackgroundFromString,
   hashColorFromString,
-} from "../../../config/color";
+} from "../../../config/Color";
 const GroupClassTeacher = () => {
   const navigate = useNavigate();
   const [groups, setGroups] = useState([]);

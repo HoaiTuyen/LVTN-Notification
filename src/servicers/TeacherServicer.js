@@ -1,4 +1,4 @@
-import api from "../axios/customAxios";
+import api from "../axios/CustomAxios";
 
 export const addTeacher = async (data) => {
   return await api.post("/teacher/add", data);

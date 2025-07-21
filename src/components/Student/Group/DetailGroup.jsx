@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
 import { handleDetailGroup } from "../../../controller/GroupController";
-import { gradientBackgroundFromString } from "../../../config/color";
+import { gradientBackgroundFromString } from "../../../config/Color";
 // import LecturerCreateGroupNotification from "./NotificationGroup/CreateNotification";
 import {
   handleListNotificationGroup,
@@ -50,7 +50,7 @@ const DetailGroupStudent = () => {
   const backUrl = location.state?.from || "/sinh-vien/group-study";
   const fetchDetailGroup = async () => {
     setLoadingPage(true);
-    const detailGroup = await handleDetailGroup(realId);
+    const detailGroup = await handleDetailGroup(groupStudyId);
 
     if (detailGroup?.data && detailGroup.status === 200) {
       setGroupDetail(detailGroup.data);
@@ -80,6 +80,7 @@ const DetailGroupStudent = () => {
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(" ");
+    console.log(parts);
     if (parts.length === 1) return parts[0][0].toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };

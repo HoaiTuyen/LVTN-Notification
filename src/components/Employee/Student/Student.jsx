@@ -246,9 +246,11 @@ const StudentEmployee = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border border-gray-200">
-                    <TableHead>MSGV</TableHead>
+                    <TableHead>MSSV</TableHead>
                     <TableHead>Họ và tên</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Lớp</TableHead>
+                    <TableHead>Khoa</TableHead>
                     <TableHead className="justify-start">Giới tính</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Thao tác</TableHead>
@@ -296,7 +298,10 @@ const StudentEmployee = () => {
                           </div>
                         </TableCell>
                         <TableCell>{student.email}</TableCell>
-                        {/* <TableCell>{student.clas}</TableCell> */}
+                        <TableCell>{student.className || "Trống"}</TableCell>
+                        <TableCell>
+                          {student.departmentName || "Trống"}
+                        </TableCell>
                         <TableCell>{renderGender(student.gender)}</TableCell>
                         <TableCell>
                           {/* {student.status === "THOI_HOC" ? (

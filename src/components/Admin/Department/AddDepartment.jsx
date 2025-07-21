@@ -44,6 +44,10 @@ const AddDepartment = ({ open, onClose, onSuccess, department }) => {
   }, [department]);
   const handleSubmitAdd = async () => {
     try {
+      if (!form.name || !form.description || !form.id) {
+        toast.error("Vui lòng nhập đầy đủ thông tin");
+        return;
+      }
       setLoading(true);
       if (checkEdit) {
         const reqEdit = await handleUpdateDepartment(form);

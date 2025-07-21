@@ -44,7 +44,7 @@ import JoinGroup from "./JoinGroup";
 import {
   gradientBackgroundFromString,
   hashColorFromString,
-} from "../../../config/color";
+} from "../../../config/Color";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const GroupStudyStudent = () => {

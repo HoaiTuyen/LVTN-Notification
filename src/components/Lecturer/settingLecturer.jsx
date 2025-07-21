@@ -250,9 +250,9 @@ const TeacherProfile = () => {
                     <h3 className="text-lg font-semibold">
                       {profileData.firstName} {profileData.lastName}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    {/* <p className="text-sm text-muted-foreground">
                       Khoa: {profileData.departmentName || "Trống"}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
 
@@ -307,8 +307,8 @@ const TeacherProfile = () => {
                         onChange={(e) =>
                           handleInputChange("dateOfBirth", e.target.value)
                         }
-                        disabled
-                        className="pl-10"
+                        readOnly
+                        className="pl-10 text-gray-400"
                       />
                     </div>
                   </div>

@@ -1,4 +1,4 @@
-import api from "@/axios/customAxios";
+import api from "../axios/CustomAxios";
 export const listUser = (page = 0, pageSize = 1000) => {
   return api.get("/user/list_users", {
     params: {
