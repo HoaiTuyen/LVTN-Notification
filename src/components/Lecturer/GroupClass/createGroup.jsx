@@ -122,13 +122,13 @@ const LecturerAddGroup = ({ open, onClose, onSuccess, group }) => {
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-4">
-              <div className="grid gap-2 hidden">
+              {/* <div className="grid gap-2">
                 <Input
                   id="userId"
                   placeholder="VD: CNTT01"
                   value={form.userId}
                 />
-              </div>
+              </div> */}
 
               <div className="grid gap-2">
                 <Label htmlFor="nameGroup">Tên nhóm</Label>
