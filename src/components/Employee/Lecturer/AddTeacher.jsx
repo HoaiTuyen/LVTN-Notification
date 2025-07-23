@@ -41,6 +41,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
     departmentName: teacher?.departmentName || "",
     gender: teacher?.gender || "NAM",
     status: teacher?.status || "ĐANG_CÔNG_TÁC",
+    username: teacher?.username || "",
+    password: teacher?.password || "",
   });
   useEffect(() => {
     if (open && teacher?.id) {
@@ -54,6 +56,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
         departmentName: teacher?.departmentName || "",
         gender: teacher?.gender || "NAM",
         status: teacher?.status || "ĐANG_CÔNG_TÁC",
+        username: teacher?.username || "",
+        password: teacher?.password || "",
       });
     } else {
       setForm({
@@ -66,6 +70,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
         departmentName: "",
         gender: "NAM",
         status: "ĐANG_CÔNG_TÁC",
+        username: "",
+        password: "",
       });
     }
   }, [teacher, open]);
@@ -247,6 +253,28 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                     </SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className={checkEdit ? "hidden" : "grid gap-2"}>
+                <Label htmlFor="lastName">Username</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Nhập username"
+                  value={form.username}
+                  onChange={(e) =>
+                    setForm({ ...form, username: e.target.value })
+                  }
+                />
+              </div>
+              <div className={checkEdit ? "hidden" : "grid gap-2"}>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  placeholder="Nhập mật khẩu"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
+                />
               </div>
             </div>
           </div>

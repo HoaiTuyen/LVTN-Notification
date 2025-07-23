@@ -264,7 +264,7 @@ const Student = () => {
                   ) : students.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={8}
                         className="text-center py-6 text-gray-500"
                       >
                         Không tìm thấy sinh viên phù hợp

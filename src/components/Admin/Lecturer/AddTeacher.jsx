@@ -40,6 +40,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
     departmentId: teacher?.departmentId || "",
     departmentName: teacher?.departmentName || "",
     gender: teacher?.gender || "NAM",
+    username: teacher?.username || "",
+    password: teacher?.password || "",
     status: teacher?.status || "ĐANG_CÔNG_TÁC",
   });
   useEffect(() => {
@@ -53,6 +55,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
         departmentId: teacher?.departmentId || "",
         departmentName: teacher?.departmentName || "",
         gender: teacher?.gender || "NAM",
+        username: teacher?.username || "",
+        password: teacher?.password || "",
         status: teacher?.status || "ĐANG_CÔNG_TÁC",
       });
     } else {
@@ -65,6 +69,8 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
         departmentId: "",
         departmentName: "",
         gender: "NAM",
+        username: "",
+        password: "",
         status: "ĐANG_CÔNG_TÁC",
       });
     }
@@ -247,6 +253,29 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
                     </SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className={checkEdit ? "hidden" : "grid gap-2"}>
+                <Label htmlFor="lastName">Username</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Nhập username"
+                  value={form.username}
+                  onChange={(e) =>
+                    setForm({ ...form, username: e.target.value })
+                  }
+                />
+              </div>
+              <div className={checkEdit ? "hidden" : "grid gap-2"}>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  placeholder="Nhập mật khẩu"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
+                />
               </div>
             </div>
           </div>

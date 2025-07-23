@@ -42,6 +42,8 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
     className: student?.className || "",
     classId: student?.classId || "",
     gender: student?.gender || "NAM",
+    username: student?.username || "",
+    password: student?.password || "",
     dateOfBirth: student?.dateOfBirth?.slice(0, 10) || "",
   });
 
@@ -85,6 +87,8 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
         className: student?.className || "",
         classId: student?.classId || "",
         gender: student?.gender || "NAM",
+        username: student?.username || "",
+        password: student?.password || "",
         dateOfBirth: student?.dateOfBirth?.slice(0, 10) || "",
       });
     } else {
@@ -97,6 +101,8 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
         className: "",
         classId: "",
         gender: "NAM",
+        username: "",
+        password: "",
         dateOfBirth: "",
       });
     }
@@ -114,6 +120,8 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       const payload = {
         ...form,
         classId: form.classId,
+        username: form.username,
+        password: form.password,
       };
 
       if (checkEdit) {
@@ -255,6 +263,30 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
                     <SelectItem value="THÔI_HỌC">Thôi học</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className={checkEdit ? "hidden" : "grid grid-cols-2 gap-4"}>
+              <div className="grid gap-2">
+                <Label htmlFor="lastName">Username</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Nhập username"
+                  value={form.username}
+                  onChange={(e) =>
+                    setForm({ ...form, username: e.target.value })
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  placeholder="Nhập mật khẩu"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
