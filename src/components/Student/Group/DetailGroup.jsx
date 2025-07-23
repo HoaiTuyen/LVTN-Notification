@@ -329,9 +329,9 @@ const DetailGroupStudent = () => {
               >
                 Bảng tin
               </TabsTrigger>
-              <TabsTrigger value="chat" className="cursor-pointer">
+              {/* <TabsTrigger value="chat" className="cursor-pointer">
                 Nhắn tin
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger value="member" className="cursor-pointer">
                 Mọi người
               </TabsTrigger>

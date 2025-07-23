@@ -71,10 +71,10 @@ const AddTeacher = ({ open, onClose, teacher, onSuccess }) => {
   }, [teacher, open]);
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm(form)) {
+      return;
+    }
     try {
-      if (!validateForm(form)) {
-        return;
-      }
       setLoading(true);
       if (checkEdit) {
         const reqEdit = await handleUpdateTeacher(form);
