@@ -35,6 +35,7 @@ import { handleListNotificationType } from "../../../controller/NotificationType
 import { handleListDepartment } from "../../../controller/DepartmentController";
 import { toast } from "react-toastify";
 import { useLoading } from "../../../context/LoadingProvider";
+import { handleListClass } from "../../../controller/ClassController";
 const AdminCreateNotification = () => {
   const { connected } = useWebSocket();
 
@@ -50,12 +51,13 @@ const AdminCreateNotification = () => {
     content: "",
     notificationType: "",
     departmentId: "",
+    academicYear: "",
     studentId: "",
   });
 
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [academicYears, setAcademicYears] = useState([]);
   const [fileDisplayNames, setFileDisplayNames] = useState([""]);
   const [notificationTypes, setNotificationTypes] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -86,6 +88,7 @@ const AdminCreateNotification = () => {
     form.append("content", formData.content);
     form.append("notificationType", formData.notificationType);
     form.append("departmentId", formData.departmentId);
+    form.append("academicYear", formData.academicYear);
     form.append("studentId", formData.studentId);
     fileDisplayNames.forEach((name, index) => {
       form.append(`fileNotifications[${index}].displayName`, name);
@@ -104,6 +107,7 @@ const AdminCreateNotification = () => {
           content: "",
           notificationType: "",
           departmentId: "",
+          academicYear: "",
           studentId: "",
         });
         setFileDisplayNames([""]);
@@ -135,20 +139,14 @@ const AdminCreateNotification = () => {
       setNotificationTypes(req.data.notificationTypes);
     }
   };
+  const fetchAcademicYear = async () => {
+    const req = await handleListClass(0, 10);
+    console.log(req);
+    if (req?.data) {
+      setAcademicYears(req.data.classes);
+    }
+  };
 
-  // const handleInputChange = (field, value) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [field]: value,
-  //   }));
-
-  //   if (errors[field]) {
-  //     setErrors((prev) => ({
-  //       ...prev,
-  //       [field]: "",
-  //     }));
-  //   }
-  // };
   const handleInputChange = (field, value) => {
     setFormData((prev) => {
       const updated = {
@@ -202,6 +200,7 @@ const AdminCreateNotification = () => {
   useEffect(() => {
     fetchNotifyType();
     fetchListDepartment();
+    fetchAcademicYear();
   }, []);
   return (
     <div className="min-h-screen w-full bg-white p-0">
@@ -216,7 +215,8 @@ const AdminCreateNotification = () => {
                     Nội dung thông báo
                   </CardTitle>
                   <CardDescription className="text-red-400">
-                    (*) Lưu ý: Gửi thông báo chung, gửi thông báo cho từng khoa
+                    (*) Lưu ý: Gửi thông báo chung, gửi thông báo cho từng khoa,
+                    từng niên khoá
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -236,7 +236,7 @@ const AdminCreateNotification = () => {
                         <p className="text-sm text-red-600">{errors.title}</p>
                       )}
                     </div>
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-3">
                       <div className="space-y-2">
                         <Label htmlFor="type">Loại thông báo *</Label>
                         <Select
@@ -295,6 +295,40 @@ const AdminCreateNotification = () => {
                         {errors.departmentId && (
                           <p className="text-sm text-red-600">
                             {errors.departmentId}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="type">Niên khoá *</Label>
+                        <Select
+                          value={formData.academicYear}
+                          onValueChange={(value) =>
+                            handleInputChange("academicYear", value)
+                          }
+                        >
+                          <SelectTrigger
+                            className={
+                              errors.academicYear ? "border-red-500" : ""
+                            }
+                          >
+                            <SelectValue placeholder="Chọn niên khoá" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {academicYears?.map((academicYear) => (
+                              <SelectItem
+                                key={academicYear.id}
+                                value={String(academicYear.id)}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span>{academicYear.description}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.academicYear && (
+                          <p className="text-sm text-red-600">
+                            {errors.academicYear}
                           </p>
                         )}
                       </div>

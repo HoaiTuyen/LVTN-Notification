@@ -127,6 +127,11 @@ const EmployeeDashboard = () => {
       label: "Quản lý khoa",
     },
     {
+      key: "change-password",
+      icon: <Key size={16} />,
+      label: "Thay đổi mật khẩu",
+    },
+    {
       key: "logout",
       label: "Đăng xuất",
       icon: <LogOut size={16} />,
@@ -151,7 +156,11 @@ const EmployeeDashboard = () => {
         navigate(`/nhan-vien/${e.key}`);
       }}
       items={items}
-      style={{ height: "100%", borderRight: "1px solid #e5e7eb" }}
+      style={{
+        height: "90vh",
+        borderRight: "1px solid #e5e7eb",
+        overflowY: "auto",
+      }}
     />
   );
   const fetchUserDetail = async () => {

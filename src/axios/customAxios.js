@@ -42,9 +42,10 @@ api.interceptors.request.use(
             const refreshToken = localStorage.getItem("refresh_token");
             const res = await axios.post(
               import.meta.env.VITE_APP_BACKEND_URL +
-                "/api/v1/auth/refresh-token?refreshToken=" +
+                "/auth/refresh-token?refreshToken=" +
                 refreshToken
             );
+            console.log(res);
 
             const newAccessToken = res.data.access_token;
             localStorage.setItem("access_token", newAccessToken);

@@ -104,12 +104,12 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
   const handleSubmitAdd = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!validateForm(form)) {
+      return;
+    }
     try {
+      setLoading(true);
       // Validate required fields
-      if (!validateForm(form)) {
-        return;
-      }
 
       const payload = {
         ...form,
@@ -139,8 +139,9 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
       }
     } catch (error) {
       toast.error(error?.message || "Thêm sinh viên thất bại");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
   const classOptions = dataClass.map((cls) => ({
     value: cls.id,

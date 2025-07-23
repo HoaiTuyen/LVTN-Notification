@@ -29,14 +29,14 @@ import AdminCreateNotification from "../components/admin/notification/CreateNoti
 import AdminCreateNotificationStudent from "../components/admin/notification/CreateNotificationStudent";
 import SentNotifications from "../components/admin/notification/SentNotification";
 //student
-import NotificationsPage from "../components/Student/notification/NotificationPage";
-import StudentProfilePage from "../components/Student/ProfileStudent";
-import GroupStudyStudent from "../components/Student/group/GroupStudy";
-import StudentNotificationDetail from "../components/Student/notification/DetailNotification";
-import DetailGroupStudent from "../components/Student/group/DetailGroup";
-import HomePageStudent from "../components/Student/home/HomePageStudent";
-import StudentSubject from "../components/Student/subject/StudentSubject";
-import ChangePasswordPage from "../components/Student/ChangePassword";
+import NotificationsPage from "../components/student/notification/NotificationPage";
+import StudentProfilePage from "../components/student/ProfileStudent";
+import GroupStudyStudent from "../components/student/group/GroupStudy";
+import StudentNotificationDetail from "../components/student/notification/DetailNotification";
+import DetailGroupStudent from "../components/student/group/DetailGroup";
+import HomePageStudent from "../components/student/home/HomePageStudent";
+import StudentSubject from "../components/student/subject/StudentSubject";
+import ChangePasswordPage from "../components/student/ChangePassword";
 //Lecturer
 import TeacherProfile from "../components/lecturer/SettingLecturer";
 import LecturerCreateNotification from "../components/lecturer/notification/CreateNotification";
@@ -66,6 +66,7 @@ import DepartmentEmployee from "../components/employee/department/Department";
 import StudentEmployee from "../components/employee/student/Student";
 import LecturerEmployee from "../components/employee/lecturer/Lecturer";
 import ChangePasswordLecturer from "../components/lecturer/ChangePassword";
+import ChangePasswordEmployee from "../components/employee/ChangePassword";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -213,6 +214,10 @@ function AppRoutes() {
             <Route path="department" element={<DepartmentEmployee />} />
             <Route path="student-employee" element={<StudentEmployee />} />
             <Route path="lecturer-employee" element={<LecturerEmployee />} />
+            <Route
+              path="change-password"
+              element={<ChangePasswordEmployee />}
+            />
           </Route>
 
           <Route

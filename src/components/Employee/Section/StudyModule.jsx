@@ -69,10 +69,12 @@ import {
 } from "../../../controller/SectionController";
 import dayjs from "dayjs";
 import { useSearchParams } from "react-router-dom";
-import { Pagination, Spin } from "antd";
+import { Pagination, Spin, TimePicker } from "antd";
 import useDebounce from "@/hooks/useDebounce";
 import DeleteSection from "./DeleteSection";
 import AddSection from "./AddSection";
+import { handleUpdateCronTime } from "../../../controller/SchedulerController";
+import { toast } from "react-toastify";
 
 const StudyModule = () => {
   const [loading, setLoading] = useState(true);
@@ -89,6 +91,7 @@ const StudyModule = () => {
   const [openModalRegisterStudent, setOpenModalRegisterStudent] =
     useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
 
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [pagination, setPagination] = useState({
@@ -209,6 +212,23 @@ const StudyModule = () => {
       console.error("Lỗi khi fetch học kỳ:", err);
     }
   };
+  const updateCronTime = async () => {
+    if (!selectedTime) {
+      toast.warning("Vui lòng chọn thời gian gửi thông báo!");
+      return;
+    }
+    const cron = dayjs(selectedTime).format("HH:mm");
+
+    try {
+      await handleUpdateCronTime(cron);
+      toast.success("Đã cập nhật thời gian gửi thông báo!");
+      setSelectedTime(null);
+    } catch (error) {
+      console.error("Lỗi cập nhật cron:", error);
+      toast.error("Lỗi khi cập nhật thời gian.");
+    }
+  };
+
   useEffect(() => {
     setSearchParams({
       search: debouncedSearchTerm,
@@ -284,9 +304,6 @@ const StudyModule = () => {
         </Card>
 
         <Tabs defaultValue="courses" className="space-y-4">
-          {/* <TabsList>
-            <TabsTrigger value="courses">Quản lý môn học</TabsTrigger>
-          </TabsList> */}
           <div className="flex gap-2 justify-end">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -322,6 +339,26 @@ const StudyModule = () => {
                     <CardDescription>
                       Quản lý môn học theo học kỳ
                     </CardDescription>
+                  </div>
+                  <div className=" space-y-2">
+                    <Label>
+                      Chọn thời gian gửi thông báo theo lich học phần
+                    </Label>
+                    <div className="flex items-center gap-3">
+                      <TimePicker
+                        format="HH:mm"
+                        value={selectedTime}
+                        onChange={(time) => setSelectedTime(time)}
+                        allowClear={false}
+                        placeholder="Chọn giờ"
+                      />
+                      <Button
+                        className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                        onClick={updateCronTime}
+                      >
+                        Lưu thời gian
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardHeader>

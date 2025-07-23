@@ -107,13 +107,11 @@ const AddStudent = ({ open, onClose, onSuccess, student }) => {
 
   const handleSubmitAdd = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!validateForm(form)) {
+      return;
+    }
     try {
-      // Validate required fields
-      if (!validateForm(form)) {
-        setLoading(false);
-        return;
-      }
+      setLoading(true);
 
       const payload = {
         ...form,

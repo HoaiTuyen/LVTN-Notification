@@ -3,18 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Pagination, Spin } from "antd";
 import { jwtDecode } from "jwt-decode";
-import {
-  Plus,
-  MessageSquare,
-  MoreVertical,
-  Ellipsis,
-  Trash2,
-  Users,
-  Pencil,
-  FileText,
-  User,
-  Folder,
-} from "lucide-react";
+import { Plus, MoreVertical, Trash2, Users, LogOut } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -46,9 +35,11 @@ import {
   hashColorFromString,
 } from "../../../config/Color";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
+import LeaveGroup from "./LeaveGroup";
 const GroupStudyStudent = () => {
   const navigate = useNavigate();
+  const [openLeaveModal, setOpenLeaveModal] = useState(false);
+  const [selectGroup, setSelectGroup] = useState(null);
   const [groups, setGroups] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -62,7 +53,6 @@ const GroupStudyStudent = () => {
   const token = localStorage.getItem("access_token");
   const data = jwtDecode(token);
   const userId = data.userId;
-
   const fetchListGroup = async (page = 1) => {
     try {
       setLoading(true);
@@ -71,6 +61,7 @@ const GroupStudyStudent = () => {
         page - 1,
         pagination.pageSize
       );
+      console.log(listGroup);
 
       if (listGroup?.data || listGroup?.status === 200) {
         setGroups(listGroup.data);
@@ -163,20 +154,47 @@ const GroupStudyStudent = () => {
                         color: "white",
                       }}
                     >
-                      <div className="relative z-10">
-                        <h2
-                          className="text-lg font-semibold truncate cursor-pointer"
-                          title={group.groupName}
-                          onClick={() => {
-                            navigate(`/sinh-vien/group-study/${group.groupId}`);
-                          }}
-                        >
-                          {group.groupName}
-                        </h2>
-                        <p className="text-sm mt-1">
-                          {group.teacherName || "GV.Tam"}
-                        </p>
+                      <div className="relative z-10 flex items-center justify-between">
+                        <div>
+                          <h2
+                            className="text-lg font-semibold truncate cursor-pointer"
+                            title={group.groupName}
+                            onClick={() => {
+                              navigate(
+                                `/sinh-vien/group-study/${group.groupId}`
+                              );
+                            }}
+                          >
+                            {group.groupName}
+                          </h2>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              variant="ghost"
+                              className="h-8 w-8 p-0 cursor-pointer"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem
+                              className="text-red-600 cursor-pointer"
+                              onClick={() => {
+                                setSelectGroup(group);
+                                setOpenLeaveModal(true);
+                              }}
+                            >
+                              <LogOut className=" h-4 w-4" /> Rời nhóm
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
+                      <p className="text-sm mt-1">
+                        {group.teacherName || "GV.Tam"}
+                      </p>
 
                       {/* Avatar chữ viết tắt */}
                       <div className="absolute -bottom-9 right-4 z-20">
@@ -209,6 +227,15 @@ const GroupStudyStudent = () => {
             )}
           </div>
         </div>
+        {openLeaveModal && (
+          <LeaveGroup
+            onOpen={openLeaveModal}
+            onClose={() => setOpenLeaveModal(false)}
+            onSuccess={() => fetchListGroup()}
+            userId={userId}
+            group={selectGroup}
+          />
+        )}
       </div>
     </motion.div>
   );

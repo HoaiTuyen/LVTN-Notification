@@ -222,9 +222,8 @@ const TeacherProfile = () => {
                   <div className="flex flex-col items-center space-y-2">
                     <Avatar className="h-20 w-20">
                       <AvatarImage src={userImage} />
-                      <AvatarFallback>NVA</AvatarFallback>
+                      <AvatarFallback>No Image</AvatarFallback>
                     </Avatar>
-
                     {isEditing && (
                       <Button
                         variant="outline"

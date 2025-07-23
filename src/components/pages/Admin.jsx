@@ -143,6 +143,15 @@ const AdminDashboard = () => {
       icon: <SettingOutlined />,
       label: "Cài đặt",
     },
+    {
+      key: "logout",
+      label: "Đăng xuất",
+      icon: <LogOut size={16} />,
+      style: {
+        color: "red",
+        fontWeight: "bold",
+      },
+    },
   ];
   const handleLogoutUser = () => {
     handleLogout(navigate);
@@ -191,6 +200,10 @@ const AdminDashboard = () => {
       onClick={(e) => {
         setSelectedTab(e.key);
         setDrawerVisible(false);
+        if (e.key === "logout") {
+          handleLogoutUser();
+          return;
+        }
         navigate(`/admin/${e.key}`);
       }}
       items={items}

@@ -16,6 +16,8 @@ import {
   Ellipsis,
   Pencil,
   Trash2,
+  LogOut,
+  SendHorizontal,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
@@ -37,11 +39,25 @@ import {
 import DeleteNotificationGroup from "./notificationgroup/DeleteNotificationGroup";
 import UpdateNotificationGroup from "./notificationgroup/UpdateNotificationGroup";
 import { Spin } from "antd";
+import DeleteStudentOut from "./DeleteStudentOut";
+import { jwtDecode } from "jwt-decode";
+import { handleGetDetailUser } from "../../../controller/AccountController";
+import { handleStudentDetail } from "../../../controller/StudentController";
+import { handleTeacherDetail } from "../../../controller/TeacherController";
+import {
+  handleCreateReplyNotificationGroup,
+  handleListReplyNotificationGroup,
+} from "../../../controller/GroupController";
 const DetailGroupLecturer = () => {
+  const token = localStorage.getItem("access_token");
+  const { userId } = jwtDecode(token);
+
   const location = useLocation();
   const navigate = useNavigate();
   const { groupId } = useParams();
+  const [imageUser, setImageUser] = useState("");
   const [groupDetail, setGroupDetail] = useState({});
+
   const [selectTabs, setSelectTabs] = useState("home");
   const [members, setMembers] = useState([]);
   const [openModalCreate, setOpenModalCreate] = useState(false);
@@ -53,12 +69,18 @@ const DetailGroupLecturer = () => {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [detailNotify, setDetailNotify] = useState([]);
-
+  const [openModalDeleteStudentOut, setOpenModalDeleteStudentOut] =
+    useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [commentInputs, setCommentInputs] = useState({}); // { [notificationId]: "Nội dung comment" }
+  const [comments, setComments] = useState({}); // { [notificationId]: [{id, content, sender, timestamp}] }
+  const [userDetail, setUserDetail] = useState({});
+  const [isSending, setIsSending] = useState(false);
   const backUrl = location.state?.from || "/giang-vien/group-class";
   const fetchDetailGroup = async () => {
     try {
       const detailGroup = await handleDetailGroup(groupId);
-
+      console.log(detailGroup);
       if (detailGroup?.data && detailGroup.status === 200) {
         setGroupDetail(detailGroup.data);
         setMembers(detailGroup.data.members);
@@ -80,6 +102,9 @@ const DetailGroupLecturer = () => {
           return new Date(b.createdAt) - new Date(a.createdAt);
         });
         setNotificationGroups(sorted);
+        sorted.forEach((notify) => {
+          fetchListReplyNotificationGroup(notify.id);
+        });
       } else {
         setNotificationGroups([]);
       }
@@ -89,11 +114,80 @@ const DetailGroupLecturer = () => {
       setLoading(false);
     }
   };
+  const fetchDetailUser = async () => {
+    try {
+      const detailUser = await handleGetDetailUser(userId);
+      setImageUser(detailUser.data.image);
+      if (detailUser?.data?.studentId) {
+        const detailStudent = await handleStudentDetail(
+          detailUser.data.studentId
+        );
 
+        setUserDetail(detailStudent.data);
+      } else {
+        const detailTeacher = await handleTeacherDetail(
+          detailUser.data.teacherId
+        );
+        setUserDetail(detailTeacher.data);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const fetchListReplyNotificationGroup = async (notificationId) => {
+    try {
+      const listReplyNotificationGroup = await handleListReplyNotificationGroup(
+        notificationId
+      );
+      console.log(listReplyNotificationGroup);
+      if (
+        listReplyNotificationGroup?.data ||
+        listReplyNotificationGroup?.status === 200
+      ) {
+        setComments((prev) => ({
+          ...prev,
+          [notificationId]: listReplyNotificationGroup.data.map((c) => ({
+            id: c.id,
+            sender: c.fullName,
+            content: c.content,
+            timestamp: c.createdAt,
+            image: c.avatarUrl,
+          })),
+        }));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const handleCommentChange = (id, value) => {
+    setCommentInputs((prev) => ({ ...prev, [id]: value }));
+  };
+  const handleSendComment = async (id) => {
+    try {
+      const content = commentInputs[id]?.trim();
+
+      if (!content) return;
+
+      const response = await handleCreateReplyNotificationGroup(
+        userId,
+        id,
+        content
+      );
+      console.log(response);
+      await fetchListReplyNotificationGroup(id);
+
+      setCommentInputs((prev) => ({ ...prev, [id]: "" }));
+      setIsSending(false);
+    } catch (e) {
+      console.log(e);
+      setIsSending(false);
+    }
+  };
   const getInitials = (name) => {
     if (!name) return "";
     const parts = name.trim().split(/\s+/);
-    console.log(parts);
+
     return parts
       .map((part) =>
         part[0]
@@ -128,6 +222,7 @@ const DetailGroupLecturer = () => {
   useEffect(() => {
     fetchDetailGroup();
     fetchListNotificationGroup();
+    fetchDetailUser();
   }, []);
 
   if (loading) {
@@ -219,9 +314,14 @@ const DetailGroupLecturer = () => {
                 <div className="flex-1 space-y-4">
                   <div className="flex items-center space-x-3 p-4 bg-white border rounded shadow-sm">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-blue-500 text-white">
-                        {getInitials(groupDetail.userName) || groupDetail.image}
-                      </AvatarFallback>
+                      {imageUser ? (
+                        <AvatarImage src={imageUser} />
+                      ) : (
+                        <AvatarFallback className="bg-blue-500 text-white">
+                          {getInitials(groupDetail.userName) ||
+                            groupDetail.image}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <Input
                       placeholder="Thông báo gì đó đến lớp của bạn..."
@@ -244,10 +344,14 @@ const DetailGroupLecturer = () => {
                         <div>
                           <div className="p-4 flex space-x-3">
                             <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-blue-500 text-white">
-                                {getInitials(groupDetail.userName) ||
-                                  groupDetail.image}
-                              </AvatarFallback>
+                              {imageUser ? (
+                                <AvatarImage src={imageUser} />
+                              ) : (
+                                <AvatarFallback className="bg-blue-500 text-white">
+                                  {getInitials(groupDetail.userName) ||
+                                    groupDetail.image}
+                                </AvatarFallback>
+                              )}
                             </Avatar>
                             <div className="flex-1">
                               <p className="font-semibold">
@@ -295,6 +399,95 @@ const DetailGroupLecturer = () => {
                             ))}
                           </div>
                         )}
+                        <div className="border-t pt-5">
+                          {comments[notify.id]?.length > 0 && (
+                            <div className="px-4 pb-2 space-y-2">
+                              {comments[notify.id].map(
+                                (comment) => (
+                                  console.log(comment),
+                                  (
+                                    <div
+                                      key={comment.id}
+                                      className="flex items-start space-x-3"
+                                    >
+                                      <div className="pt-3">
+                                        <Avatar className="h-8 w-8">
+                                          {comment.image ? (
+                                            <AvatarImage
+                                              src={comment.image}
+                                              alt="avatar"
+                                            />
+                                          ) : null}
+                                          <AvatarFallback className="bg-blue-500 text-white">
+                                            {getInitials(comment.sender)}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                      </div>
+                                      <div>
+                                        <div className="rounded-xl py-2 flex-1">
+                                          <div className="flex items-center space-x-2">
+                                            <div className="text-sm font-medium">
+                                              {comment.sender}
+                                            </div>
+                                            <div className="text-xs text-gray-500 ">
+                                              {dayjs(comment.timestamp).format(
+                                                "HH:mm - DD/MM/YYYY"
+                                              )}
+                                            </div>
+                                          </div>
+
+                                          <div className="text-sm text-gray-700">
+                                            {comment.content}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                )
+                              )}
+                            </div>
+                          )}
+
+                          {/* Ô nhập phản hồi */}
+                          <div className="px-4 pb-4 flex items-center gap-2 mt-2 ">
+                            <Avatar>
+                              {imageUser ? (
+                                <AvatarImage src={imageUser} alt="avatar" />
+                              ) : null}
+                              <AvatarFallback className="bg-blue-600 text-white">
+                                {getInitials(
+                                  userDetail.firstName +
+                                    " " +
+                                    userDetail.lastName
+                                )}
+                              </AvatarFallback>
+                            </Avatar>
+                            <Input
+                              placeholder="Thêm nhận xét trong lớp học"
+                              value={commentInputs[notify.id] || ""}
+                              onChange={(e) =>
+                                handleCommentChange(notify.id, e.target.value)
+                              }
+                              // onKeyDown={(e) => {
+                              //   if (e.key === "Enter" && !e.shiftKey) {
+                              //     e.preventDefault();
+                              //     handleSendComment(notify.id);
+                              //   }
+                              // }}
+                              className="flex-1"
+                            />
+                            <Button
+                              size="sm"
+                              className="bg-white text-black cursor-pointer hover:bg-gray-100"
+                              disabled={
+                                isSending || !commentInputs[notify.id]?.trim()
+                              }
+                              onClick={() => handleSendComment(notify.id)}
+                            >
+                              <SendHorizontal />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     ))
                   )}
@@ -474,10 +667,16 @@ const DetailGroupLecturer = () => {
                     key={groupDetail.userName}
                   >
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src="" alt={groupDetail.userName} />
-                      <AvatarFallback className="bg-blue-500 text-white">
-                        {getInitials(groupDetail.userName)}
-                      </AvatarFallback>
+                      {imageUser ? (
+                        <AvatarImage
+                          src={imageUser}
+                          alt={groupDetail.userName}
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-blue-500 text-white">
+                          {getInitials(groupDetail.userName)}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <span className="text-md font-medium">
                       {groupDetail.userName}
@@ -494,19 +693,57 @@ const DetailGroupLecturer = () => {
                     </span>
                   </div>
                   <div className="divide-y">
-                    {members.map((member) => (
-                      <div
-                        key={member.fullName}
-                        className="flex items-center space-x-3 py-2"
-                      >
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-gray-400 text-white">
-                            {getInitials(member.fullName) || member.image}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{member.fullName}</span>
-                      </div>
-                    ))}
+                    {members.map(
+                      (member) => (
+                        console.log(member),
+                        (
+                          <div
+                            key={member.fullName}
+                            className="flex justify-between items-center space-x-3 py-2"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Avatar className="h-10 w-10">
+                                {member.image ? (
+                                  <AvatarImage src={member.image} />
+                                ) : (
+                                  <AvatarFallback className="bg-gray-400 text-white">
+                                    {getInitials(member.fullName) ||
+                                      member.image}
+                                  </AvatarFallback>
+                                )}
+                              </Avatar>
+                              <span className="text-sm">{member.fullName}</span>
+                            </div>
+                            <div className="">
+                              <DropdownMenu asChild>
+                                <DropdownMenuTrigger
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 cursor-pointer"
+                                  >
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem
+                                    className="text-red-600 cursor-pointer"
+                                    onClick={() => {
+                                      setSelectedMember(member);
+                                      setOpenModalDeleteStudentOut(true);
+                                    }}
+                                  >
+                                    <LogOut className=" h-4 w-4" /> Xoá khỏi
+                                    nhóm
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
+                        )
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -527,6 +764,16 @@ const DetailGroupLecturer = () => {
             onClose={() => setOpenModalUpdate(false)}
             onSuccess={() => fetchListNotificationGroup()}
             notify={selectNotificationGroup}
+          />
+        )}
+        {openModalDeleteStudentOut && (
+          <DeleteStudentOut
+            onOpen={openModalDeleteStudentOut}
+            onClose={() => setOpenModalDeleteStudentOut(false)}
+            member={selectedMember}
+            author={userId}
+            group={groupDetail}
+            onSuccess={() => fetchDetailGroup()}
           />
         )}
       </div>

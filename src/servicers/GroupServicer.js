@@ -45,3 +45,36 @@ export const joinStudentInClass = async (data) => {
 export const detailGroup = async (id) => {
   return await api.get(`/studygroup/study_group_detail?id=${id}`);
 };
+
+export const leaveGroup = async (userId, groupId) => {
+  return await api.post(`/studygroup/leave`, null, {
+    params: {
+      userId: userId,
+      groupId: groupId,
+    },
+  });
+};
+export const kickMember = async (groupId, currentUserId, userId) => {
+  return await api.post("/studygroup/kick_member", null, {
+    params: {
+      groupId: groupId,
+      currentUserId: currentUserId,
+      userId: userId,
+    },
+  });
+};
+export const createReplyNotificationGroup = async (
+  userId,
+  notificationId,
+  content
+) => {
+  return await api.post("/study_group_notification/create_reply_notification", {
+    userId: userId,
+    notificationId: notificationId,
+    content: content,
+  });
+};
+
+export const listReplyNotificationGroup = async (id) => {
+  return await api.get(`/study_group_notification/reply_notification/${id}`);
+};
