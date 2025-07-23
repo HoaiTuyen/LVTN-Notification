@@ -53,7 +53,7 @@ import {
 import useDebounce from "../../../hooks/useDebounce";
 import DeleteClass from "./DeleteClass";
 import ImportClassModal from "./ImportClassModal";
-import ListStudentOfClass from "./listStudentByClass/ListStudentOfClass";
+import ListStudentOfClass from "./liststudentbyclass/ListStudentOfClass";
 const ClassName = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
